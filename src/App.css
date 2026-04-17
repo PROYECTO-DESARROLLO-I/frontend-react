@@ -7,7 +7,8 @@
 }
 
 .card {
-  background: white;
+  
+  size: 100%;
   padding: 40px;
   border-radius: 16px;
   text-align: center;
@@ -15,12 +16,38 @@
 
 .botones {
   display: flex;
-  background-color: white;
+  justify-content: center;
+  gap: 20px; 
+  flex-wrap: wrap;
+  margin-top: 30px;
+  text-align: center;
+}
+.botonInicio {
+  display: flex;
+  font-weight: bold;
   flex-direction: column;
-  font-size: var(--text-base);
-  font-weight: var(--font-weight-medium);
-  line-height: 1.5;
-  gap: 10px;
+  align-items: center;
+  padding: 20px;
+  width: 150px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.botonInicio:hover{
+  transform:scale(1.1);
+  border-color: #DE300D;
+}
+.botonInicio img{
+  width: 60px;
+}
+
+.botonInicio p{
+  font-style: oblique;
+  font-size: 90%;
+  color: grey;
 }
 img {
   width: 100px;
