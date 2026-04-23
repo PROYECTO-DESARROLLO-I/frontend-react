@@ -3,6 +3,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   font-family: sans-serif;
 }
 
@@ -28,7 +29,8 @@
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  width: 150px;
+  width: 20%;
+  min-width: 200px;
   border: 1px solid #ccc;
   border-radius: 10px;
   background: white;
@@ -52,4 +54,133 @@
 img {
   width: 100px;
   margin-bottom: 20px;
+}
+
+
+  
+.forms {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  font-size: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: white;
+}
+
+.forms img{
+  width: 60px;
+}
+
+.forms p{
+   font-style: oblique;
+  font-size: 50%;
+  color: grey;
+}
+
+
+.enviar:hover{
+  transform:scale(1.1);
+  background-color: #901f09;
+}
+
+
+.campos input {
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.atras:hover{
+  color:black;
+}
+
+.comp {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  gap: 32px;
+  
+}
+
+.der,
+.izq {
+  flex: 1;
+  min-width: 0;
+}
+
+.izq {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.der {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.atras {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  color: gray;
+  transition: 0.3s ease;
+  width: 100%;
+  max-width: 500px;
+}
+
+.campos {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  font-size: 15px;
+}
+
+.enviar {
+  padding: 10px;
+  background-color: #DE300D;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  margin-top: 16px;
+  border: none;
+}
+
+@media (max-width: 900px) {
+  .comp {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 20px 16px;
+    gap: 20px;
+  }
+
+  .der,
+  .izq {
+    width: 100%;
+  }
+
+  .der {
+    align-items: center;
+  }
+
+  .atras,
+  .forms {
+    max-width: 500px;
+    width: 100%;
+  }
 }

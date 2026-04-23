@@ -4,18 +4,15 @@ import paciente from "./assets/paciente.png";
 import doctor from "./assets/doctor.png";
 import admin from "./assets/admin.png";
 import sup from "./assets/sup.png";
+import Card from "./Card";
 
-function Inicio() {
+
+function Inicio({irPaciente}) {
   return (
     <div className="container">
-      <div className="card">
-        <img src={logo} alt="logo"/>
-        <h1>SaludAgendaX</h1>
-        <p>Sistema Web de Gestión de Citas Médicas</p>
-        <h6>Universidad del Valle - Desarrollo de Software I </h6>
-
+      <Card />
     <div className="botones">
-      <button className="botonInicio">
+      <button className="botonInicio" onClick={irPaciente}>
         <img src={paciente} />
         Paciente
         <p>Solicita y gestiona tus citas médicas</p>
@@ -42,7 +39,7 @@ function Inicio() {
               
 
         </div>
-      </div>
+     
     
   );
 }
