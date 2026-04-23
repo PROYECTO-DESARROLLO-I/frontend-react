@@ -11,7 +11,9 @@ function App() {
         <Inicio irPaciente={() => setVista("paciente")} />
       )}
 
-      {vista === "paciente" && <Paciente />}
+      {vista === "paciente" && (
+        <Paciente volverInicio={() => setVista("inicio")} />
+      )}
     </>
   );
 }

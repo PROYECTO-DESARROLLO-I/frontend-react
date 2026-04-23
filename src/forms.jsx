@@ -2,7 +2,8 @@ import "./App.css";
 import paciente from "./assets/paciente.png";
 import Card from "./Card";
 import { GoArrowLeft } from "react-icons/go";
-function Paciente(){
+
+function Paciente({volverInicio}){
     return(
     <div className="comp">
         <div className="izq">
@@ -10,7 +11,7 @@ function Paciente(){
         </div>
 
         <div className="der">
-        <div className="atras">
+        <div className="atras" onClick={volverInicio}>
             <GoArrowLeft />
             <p>Cambiar tipo de usuario</p>
         </div>
