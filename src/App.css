@@ -8,8 +8,8 @@
 }
 
 .card {
-  
-  size: 100%;
+  width: 100%;
+  max-width: 400px;
   padding: 40px;
   border-radius: 16px;
   text-align: center;
@@ -193,4 +193,14 @@ img {
     max-width: 500px;
     width: 100%;
   }
+}
+
+.input-error {
+  border: 2px solid #DE300D !important;
+  background-color: rgba(222, 48, 13, 0.05) !important;
+  transition: all 0.3s ease;
+}
+
+.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(222, 48, 13, 0.2) !important;
 }
