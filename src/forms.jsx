@@ -4,7 +4,7 @@ import paciente from "./assets/paciente.png";
 import Card from "./Card";
 import { GoArrowLeft } from "react-icons/go";
 
-function Paciente({volverInicio}){
+function Usuario({irCrearCuenta}){
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -62,14 +62,10 @@ function Paciente({volverInicio}){
         </div>
 
         <div className="der">
-        <div className="atras" onClick={volverInicio}>
-            <GoArrowLeft />
-            <p>Cambiar tipo de usuario</p>
-        </div>
-
+        
         <div className="forms">
             <img src={String(paciente)} alt="Inicio de sesión para Pacientes" />
-                Paciente
+                <h4>Ingresa tu Usuario</h4>
                 <p>Solicita y gestiona tus citas médicas</p>
             
             <div className="campos">
@@ -89,10 +85,17 @@ function Paciente({volverInicio}){
             <button className="enviar" onClick={manejarLogin}>
                 Iniciar sesión
             </button>
+
+     <div className="recuperar_contraseña">
+            Recuperar Constraseña
+                    </div>
+        <div className="crear_cuenta" onClick={irCrearCuenta} >
+            Crear Cuenta
+            </div>
         </div>
         </div>
     </div>
     );
 }
 
-export default Paciente;
+export default Usuario;

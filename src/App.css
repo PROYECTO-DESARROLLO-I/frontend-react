@@ -1,206 +1,264 @@
 .container {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
   font-family: sans-serif;
 }
 
+/* ===== LAYOUT PRINCIPAL ===== */
+
+.comp {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ===== LADO IZQUIERDO ===== */
+
+.izq {
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(to right, #e7c6e2, #ffffff);
+}
+
+/* ===== LADO DERECHO ===== */
+
+.der {
+  width: 50%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  padding: 40px;
+  background: linear-gradient(to right, #ffffff, #e7c6e2);;
+}
+
+/* ===== CARD ===== */
+
 .card {
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
+
   padding: 40px;
   border-radius: 16px;
   text-align: center;
 }
 
-.botones {
-  display: flex;
-  justify-content: center;
-  gap: 20px; 
-  flex-wrap: wrap;
-  margin-top: 30px;
-  text-align: center;
-}
-.botonInicio {
-  display: flex;
-  font-weight: bold;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  width: 20%;
-  min-width: 200px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.botonInicio:hover{
-  transform:scale(1.1);
-  border-color: #DE300D;
-}
-.botonInicio img{
-  width: 60px;
-}
-
-.botonInicio p{
-  font-style: oblique;
-  font-size: 90%;
-  color: grey;
-}
-img {
-  width: 100px;
+.card img {
+  width: 120px;
   margin-bottom: 20px;
 }
 
+/* ===== FORM ===== */
 
-  
 .forms {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  align-self: center;
+  ;
   width: 100%;
   max-width: 500px;
-  padding: 20px;
-  font-size: 20px;
+
+  padding: 35px;
+
   border: 1px solid #ccc;
-  border-radius: 10px;
+  border-radius: 14px;
+
   background: white;
+
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-.forms img{
+.forms img {
   width: 60px;
+  display:block;
+  margin:0 auto 15px auto;
+  margin-bottom: 10px;
 }
 
-.forms p{
-   font-style: oblique;
-  font-size: 50%;
+.forms h4 {
+  text-align: center;
+  margin: 0;
+
+}
+
+.forms p {
+  font-style: oblique;
+  font-size: 14px;
+  text-align: center;
   color: grey;
+  margin-bottom: 20px;
 }
 
+/* ===== ATRAS ===== */
 
-.enviar:hover{
-  transform:scale(1.1);
-  background-color: #901f09;
-}
-
-
-.campos input {
-  padding: 15px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  width: 100%;
-  outline: none;
-  box-shadow: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.campos input:focus {
-  border: 2px solid #de300d;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(222, 48, 13, 0.15);
-}
-
-.atras:hover{
-  color:black;
-}
-
-.comp {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  gap: 32px;
-  
-}
-
-.der,
-.izq {
-  flex: 1;
-  min-width: 0;
-}
-
-.izq {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.der {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
 .atras {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 14px;
-  cursor: pointer;
-  color: gray;
-  transition: 0.3s ease;
+
   width: 100%;
   max-width: 500px;
+
+  margin-bottom: 15px;
+
+  color: gray;
+  cursor: pointer;
+
+  transition: 0.3s ease;
 }
 
+.atras:hover {
+  color: black;
+}
+
+/* ===== CAMPOS ===== */
+
 .campos {
-  margin-top: 16px;
   display: flex;
   flex-direction: column;
+
   gap: 12px;
   width: 100%;
+
+  margin-top: 10px;
+
   font-size: 15px;
 }
 
+.campos input {
+  width: 100%;
+
+  padding: 14px;
+
+  border-radius: 8px;
+  border: 1px solid #ccc;
+
+  outline: none;
+
+  transition: all 0.2s ease;
+}
+
+.campos input:focus {
+  border: 2px solid #de300d;
+  box-shadow: 0 0 0 2px rgba(222, 48, 13, 0.15);
+}
+
+/* ===== BOTON ===== */
+
 .enviar {
-  padding: 10px;
+  margin-top: 20px;
+
+  padding: 14px;
+
+  border: none;
+  border-radius: 8px;
+
   background-color: #DE300D;
   color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+
   font-weight: bold;
-  margin-top: 16px;
-  border: none;
+  font-size: 15px;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
 }
 
-@media (max-width: 900px) {
-  .comp {
-    flex-direction: column;
-    justify-content: flex-start;
-    padding: 20px 16px;
-    gap: 20px;
-  }
-
-  .der,
-  .izq {
-    width: 100%;
-  }
-
-  .der {
-    align-items: center;
-  }
-
-  .atras,
-  .forms {
-    max-width: 500px;
-    width: 100%;
-  }
+.enviar:hover {
+  transform: scale(1.03);
+  background-color: #901f09;
 }
+
+/* ===== crear cuenta ===== */
+.crear_cuenta{
+margin-top: 20px;
+
+  padding: 14px;
+
+  border: 2px solid #DE300D;
+  border-radius: 8px;
+  color: #DE300D;
+  text-align: center;
+
+  font-weight: bold;
+  font-size: 15px;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+}
+
+.crear_cuenta:hover {
+  transform: scale(1.03);
+  background-color: #f1c3eb;
+}
+
+/* ===== recuperar contraseña ===== */
+.recuperar_contraseña {
+  display: flex ;
+  justify-content: center;
+  gap: 8px ;
+
+  margin-top: 10%;
+  width: 100% ;
+  max-width: 500px;
+  font-style: oblique ;
+  font-size: 16px ;
+  margin-bottom: 15px ;
+
+  color: gray ;
+  cursor: pointer;
+
+  transition: 0.3s ease ;
+ 
+}
+
+.recuperar_contraseña:hover {
+  color: black ;
+}
+/* ===== INPUT ERROR ===== */
 
 .input-error {
   border: 2px solid #DE300D !important;
   background-color: rgba(222, 48, 13, 0.05) !important;
-  transition: all 0.3s ease;
 }
 
 .input-error:focus {
   box-shadow: 0 0 0 3px rgba(222, 48, 13, 0.2) !important;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 900px) {
+  .comp {
+    flex-direction: column;
+  }
+
+  .izq,
+  .der {
+    width: 100%;
+  }
+
+  .izq {
+    min-height: 40vh;
+    padding: 30px;
+  }
+
+  .der {
+    padding: 25px;
+  }
+
+  .card,
+  .forms,
+  .atras
+  .crear_cuenta
+  .recuperar_contraseña {
+    max-width: 100%;
+  }
 }

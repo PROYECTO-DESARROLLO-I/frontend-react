@@ -1,21 +1,9 @@
 import Inicio from "./inicio";
 import Paciente from "./forms";
 import { useState } from "react";
-
+import CrearCuenta from "./CrearCuenta";
 function App() {
-  const [vista, setVista] = useState("inicio");
-
-  return (
-    <>
-      {vista === "inicio" && (
-        <Inicio irPaciente={() => setVista("paciente")} />
-      )}
-
-      {vista === "paciente" && (
-        <Paciente volverInicio={() => setVista("inicio")} />
-      )}
-    </>
-  );
+  return <Inicio />;
 }
 
 export default App;
