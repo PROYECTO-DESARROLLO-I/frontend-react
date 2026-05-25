@@ -2,9 +2,11 @@ import { useState } from "react";
 import "./App.css";
 import paciente from "./assets/paciente.png";
 import Card from "./Card";
-import { GoArrowLeft } from "react-icons/go";
+import RecuperarPassword from "./RecuperarPassword";
 
 function Usuario({irCrearCuenta}){
+    const [vistaActual, setVistaActual] = useState("login");
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -36,7 +38,7 @@ function Usuario({irCrearCuenta}){
         if (!email && !password) {
             setErrorEmail(true);
             setErrorPassword(true);
-            setMensajeError("Por favor digita tus datos.");
+            setMensajeError("Por favor, digita tus datos.");
             return;
         }
 
@@ -48,12 +50,23 @@ function Usuario({irCrearCuenta}){
 
         if (password.trim().length === 0) {
             setErrorPassword(true);
-            setMensajeError("Por favor digita una contraseña.");
+            setMensajeError("Por favor, digita una contraseña.");
             return;
         }
 
         alert("¡Validación exitosa!");
     };
+
+    if (vistaActual === "recuperar") {
+        return (
+            <div className="comp">
+                <div className="izq">
+                    <Card />
+                </div>
+                <RecuperarPassword volverAlLogin={() => setVistaActual("login")} />
+            </div>
+        );
+    }
 
     return(
     <div className="comp">
@@ -86,10 +99,13 @@ function Usuario({irCrearCuenta}){
                 Iniciar sesión
             </button>
 
-     <div className="recuperar_contraseña">
+     <div className="recuperar_contraseña"
+          onClick={() => setVistaActual("recuperar")}
+          style={{ cursor: "pointer", margin: "16px 0" }}
+     >
             Recuperar Constraseña
-                    </div>
-        <div className="crear_cuenta" onClick={irCrearCuenta} >
+     </div>
+        <div className="crear_cuenta" onClick={irCrearCuenta} style={{ cursor: "pointer", marginTop: "20px" }}>
             Crear Cuenta
             </div>
         </div>
