@@ -5,6 +5,7 @@ import { useState } from "react";
 
 function CrearCuenta({ volverLogin }) {
     const [fecha, setFecha] = useState("");
+    const [documento, setDocumento] = useState("");
   return (
     <div className="comp">
 
@@ -14,12 +15,12 @@ function CrearCuenta({ volverLogin }) {
 
       <div className="der">
 
-        <div className="atras" onClick={volverLogin}>
-          <GoArrowLeft />
-          <p>Volver al login</p>
-        </div>
-
         <div className="forms">
+
+          <div className="atras" onClick={volverLogin}>
+              <GoArrowLeft />
+              <p>Volver al login</p>
+          </div>
 
           <h2>Crear Cuenta</h2>
 
@@ -45,10 +46,10 @@ function CrearCuenta({ volverLogin }) {
                 <option value="PEP">PEP</option>
             </select>
 
-            <label>Numero de documento</label>
-            <input type="text" placeholder="12679436" maxLength={10} onInput={(e) => {
-    e.target.value = e.target.value.replace(/[^0-9]/g, "");
-  }}/>
+            <label>Número de documento</label>
+            <input type="text" placeholder="12679436" maxLength={10} value={documento} onChange={(e) => {
+                setDocumento(e.target.value.replace(/[^0-9]/g, ""));
+            }}/>
 
             <label>Fecha de nacimiento</label>
             <input type="date" value={fecha} onChange={(e)=> setFecha(e.target.value)} max={new Date().toISOString().split("T")[0]} />

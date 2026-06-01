@@ -3,9 +3,12 @@ import "./App.css";
 import paciente from "./assets/paciente.png";
 import Card from "./Card";
 import RecuperarPassword from "./RecuperarPassword";
+import RegistroPersonal from "./RegistroPersonal";
+import PerfilPaciente from "./PerfilPaciente";
 
 function Usuario({irCrearCuenta}){
     const [vistaActual, setVistaActual] = useState("login");
+    const [rolUsuario, setRolUsuario] = useState("");
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -54,7 +57,13 @@ function Usuario({irCrearCuenta}){
             return;
         }
 
-        alert("¡Validación exitosa!");
+        if (email.includes("admin")) {
+            setRolUsuario("admin");
+            setVistaActual("dashboard_admin");
+        } else {
+            setRolUsuario("paciente");
+            setVistaActual("dashboard_paciente");
+        }
     };
 
     if (vistaActual === "recuperar") {
@@ -64,6 +73,58 @@ function Usuario({irCrearCuenta}){
                     <Card />
                 </div>
                 <RecuperarPassword volverAlLogin={() => setVistaActual("login")} />
+            </div>
+        );
+    }
+
+    if (vistaActual === "dashboard_admin") {
+        return (
+            <div className="comp">
+                <div className="izq">
+                    <Card />
+                </div>
+
+                {rolUsuario === "admin" ? (
+                    <RegistroPersonal volverAlDashboard={() => {
+                        setVistaActual("login");
+                        setRolUsuario("");
+                        setEmail("");
+                        setPassword("");
+                    }} />
+                ) : (
+                    <div className="der">
+                        <div className="forms">
+                            <h2 style={{ color: "#DE300D" }}>Acceso Restringido</h2>
+                            <p>No tienes los permisos necesarios para ver este módulo.</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    if (vistaActual === "dashboard_paciente") {
+        return (
+            <div className="comp">
+                <div className="izq">
+                    <Card />
+                </div>
+
+                {rolUsuario === "paciente" ? (
+                    <PerfilPaciente volverAlDashboard={() => {
+                        setVistaActual("login");
+                        setRolUsuario("");
+                        setEmail("");
+                        setPassword("");
+                    }} />
+                ) : (
+                    <div className="der">
+                        <div className="forms">
+                            <h2 style={{ color: "#DE300D" }}>Acceso Restringido</h2>
+                            <p>Ocurrió un error con los permisos de tu perfil.</p>
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }

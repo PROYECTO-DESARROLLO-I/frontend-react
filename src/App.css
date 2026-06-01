@@ -77,8 +77,7 @@
 .forms img {
   width: 60px;
   display:block;
-  margin:0 auto 15px auto;
-  margin-bottom: 10px;
+  margin: 0 auto 10px auto;
 }
 
 .forms h4 {
@@ -256,8 +255,8 @@ margin-top: 20px;
 
   .card,
   .forms,
-  .atras
-  .crear_cuenta
+  .atras,
+  .crear_cuenta,
   .recuperar_contraseña {
     max-width: 100%;
   }
