@@ -10,7 +10,6 @@ function CrearCuenta({ volverLogin }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [nombre, setNombre] = useState("");
-    const [esExitoso, setEsExitoso] = useState(false);
     const [tipoDocumento, setTipoDocumento] = useState("");
     const [numeroDocumento, setNumeroDocumento] = useState("");
     const [telefono, setTelefono] = useState("");
@@ -126,12 +125,12 @@ function CrearCuenta({ volverLogin }) {
 
       <div className="der">
 
-        <div className="atras" onClick={volverLogin}>
-          <GoArrowLeft />
-          <p>Volver al login</p>
-        </div>
-
         <div className="forms">
+
+          <div className="atras" onClick={volverLogin}>
+              <GoArrowLeft />
+              <p>Volver al login</p>
+          </div>
 
           <h2>Crear Cuenta</h2>
 
