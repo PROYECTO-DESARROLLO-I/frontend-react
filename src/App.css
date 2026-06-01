@@ -87,7 +87,7 @@
 
 }
 
-.forms p {
+.forms > p {
   font-style: oblique;
   font-size: 14px;
   text-align: center;
@@ -260,5 +260,101 @@ margin-top: 20px;
   .crear_cuenta
   .recuperar_contraseña {
     max-width: 100%;
+  }
+}
+
+/* ===== Mensajes error en formularios ===== */
+.mensaje-error {
+  color: #DE300D;
+  font-size: 13px;
+  margin-top: 10px;
+  font-weight: bold;
+  margin-top: 10px;
+
+  text-align: center;
+
+  animation: aparecer 0.3s ease;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Notificaciones ===== */
+.notificacion {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(0,0,0,0.35);
+
+  backdrop-filter: blur(6px);
+
+  z-index: 9999;
+}
+
+.notificacion-contenido {
+  background: white;
+
+  padding: 30px;
+
+  border-radius: 12px;
+
+  width: 90%;
+  max-width: 400px;
+
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  animation: aparecerPopup 0.3s ease;
+}
+
+.notificacion-contenido h3 {
+  color: #DE300D;
+}
+
+.notificacion-contenido button {
+  margin-top: 20px;
+
+  padding: 10px 20px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: #DE300D;
+
+  color: white;
+
+  cursor: pointer;
+}
+.notificacion-contenido button:hover {
+  background: #a11f05;
+  transform: scale(1.05);
+}
+@keyframes aparecerPopup {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }

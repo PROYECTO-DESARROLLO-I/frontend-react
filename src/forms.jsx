@@ -90,9 +90,9 @@ function Usuario({irCrearCuenta}){
                 <input type="password" placeholder="...." value={password} onChange={manejarCambioPassword}
                 className={errorPassword ? "input-error" : ""} />
 
-                {mensajeError && (<p style={{ color: "#DE300D", fontSize: "13px", fontWeight: "bold", marginTop: "10px" }}>
+                <p className="mensaje-error">
                     {mensajeError}
-                </p>)}
+                </p>
             </div>
             
             <button className="enviar" onClick={manejarLogin}>
