@@ -20,6 +20,10 @@ function Usuario({ irCrearCuenta }) {
   };
 
   const limpiarLogin = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
+
     setVistaActual("login");
     setEmail("");
     setPassword("");
@@ -40,7 +44,7 @@ function Usuario({ irCrearCuenta }) {
     setMensajeError("");
   };
 
-  const manejarLogin = () => {
+  const manejarLogin = async () => {
     setErrorEmail(false);
     setErrorPassword(false);
 
@@ -63,7 +67,40 @@ function Usuario({ irCrearCuenta }) {
       return;
     }
 
-    setVistaActual(email.toLowerCase().includes("admin") ? "admin" : "paciente");
+   try {
+    const response = await fetch("http://localhost:8000/api/auth/auth/login/", {
+      method: "POST",
+      headers: {        
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),  
+  
+   });
+
+   const data = await response.json();
+
+   if (!response.ok)
+    {
+    setMensajeError(data.detail || "Error en el inicio de sesion.");
+    return; 
+    }  
+
+  localStorage.setItem("accessToken", data.access);
+  localStorage.setItem("refreshToken", data.refresh);
+  localStorage.setItem("user",JSON.stringify(data.user));
+
+  const rol= data.user?.rol;
+
+    if (rol === "administrativo") {
+      setVistaActual("admin");
+    } else if (rol === "paciente") {
+      setVistaActual("paciente");
+    } else {
+      setMensajeError("Tu rol no tiene una vista asignada en el front.");
+    }
+    } catch {
+    setMensajeError("No se pudo conectar con el servidor.");
+      }
   };
 
   if (vistaActual === "recuperar") {
