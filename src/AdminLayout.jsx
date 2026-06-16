@@ -8,6 +8,7 @@ function AdminLayout({ vistaActual, cambiarVista, cerrarSesion, children }) {
             vistaActual={vistaActual}
             cambiarVista={cambiarVista}
             cerrarSesion={cerrarSesion}
+            
             />
             
             <main className="admin-main">

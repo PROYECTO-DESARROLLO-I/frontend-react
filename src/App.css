@@ -1,9 +1,10 @@
 .container {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   font-family: sans-serif;
+  overflow: hidden;
 }
 
 /* ===== LAYOUT PRINCIPAL ===== */
@@ -11,16 +12,20 @@
 .comp {
   display: flex;
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* ===== LADO IZQUIERDO ===== */
 
 .izq {
   width: 50%;
+  height: 100vh;
+  flex: 0 0 50%;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
 
   background: linear-gradient(to right, #e7c6e2, #ffffff);
 }
@@ -29,14 +34,18 @@
 
 .der {
   width: 50%;
+  height: 100vh;
+  flex: 0 0 50%;
 
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 
   padding: 40px;
   background: linear-gradient(to right, #ffffff, #e7c6e2);;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 /* ===== CARD ===== */
@@ -92,6 +101,16 @@
   text-align: center;
   color: grey;
   margin-bottom: 20px;
+}
+.forms input,
+.forms select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
 }
 
 /* ===== ATRAS ===== */
@@ -237,11 +256,16 @@ margin-top: 20px;
 @media (max-width: 900px) {
   .comp {
     flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
   }
 
   .izq,
   .der {
     width: 100%;
+    flex: none;
+    height: auto;
   }
 
   .izq {
@@ -251,6 +275,7 @@ margin-top: 20px;
 
   .der {
     padding: 25px;
+    overflow: visible;
   }
 
   .card,
@@ -362,7 +387,8 @@ margin-top: 20px;
 .admin-container,
 .admin-layout {
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .admin-layout {
@@ -374,13 +400,14 @@ margin-top: 20px;
 .admin-sidebar {
   width: 260px;
   flex: 0 0 260px;
-  min-height: 100vh;
+  height: 100vh;
   background: #de300d;
   color: white;
   display: flex;
   flex-direction: column;
   padding: 24px 18px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .admin-brand {
@@ -433,8 +460,10 @@ margin-top: 20px;
 .admin-main {
   flex: 1;
   min-width: 0;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .admin-topbar {
@@ -459,6 +488,7 @@ margin-top: 20px;
   flex: 1;
   padding: 28px;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .admin-dashboard {
@@ -584,12 +614,28 @@ margin-top: 20px;
 @media (max-width: 900px) {
   .admin-layout {
     flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
   }
 
   .admin-sidebar {
     width: 100%;
     flex-basis: auto;
+    height: auto;
     min-height: auto;
+    overflow: visible;
+  }
+
+  .admin-container,
+  .admin-main {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .admin-content {
+    overflow: visible;
   }
 
   .admin-dashboard {
