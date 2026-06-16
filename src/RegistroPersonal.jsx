@@ -57,7 +57,7 @@ function RegistroPersonal({ volverAlDashboard }) {
 
         setErrores({});
         setFormEnviado(false);
-
+            
         /* TODO: Tarea "Consumir endpoint de creación de usuarios internos"
            Aquí se hará el fetch/axios hacia el backend.
         */
@@ -72,7 +72,7 @@ function RegistroPersonal({ volverAlDashboard }) {
     const tieneErroresActivos = Object.values(errores).some(valor => valor === true);
 
     return (
-        <div className="der" style={{ width: "100%", maxWidth: "600px", margin: "0 auto", position: "relative" }}>
+        <div className="admin-form-page">
             {/* INYECCIÓN DE ESTILOS PARA LA PÍLDORA FLOTANTE */}
             <style>{`
                 @keyframes fadeInToast {
@@ -120,18 +120,18 @@ function RegistroPersonal({ volverAlDashboard }) {
                 {toast.mensaje}
             </div>
 
-            <div className="atras" onClick={volverAlDashboard} style={{ cursor: "pointer" }}>
+            <div className="admin-back" onClick={volverAlDashboard}>
                 <GoArrowLeft />
                 <p>Volver al Panel Administrativo</p>
             </div>
 
-            <div className="forms">
+            <div className="admin-form-card">
                 <h2>Registro de Personal Interno</h2>
                 <p style={{ fontSize: "14px", color: "grey", marginBottom: "20px" }}>
                     Inscribe a los nuevos profesionales de la salud y personal de apoyo en la plataforma.
                 </p>
 
-                <form onSubmit={manejarRegistro} className="campos" style={{ width: "100%" }}>
+                <form onSubmit={manejarRegistro} className="admin-form-grid">
                     Nombres
                     <input
                         type="text"
@@ -225,7 +225,7 @@ function RegistroPersonal({ volverAlDashboard }) {
                         </p>
                     )}
 
-                    <button type="submit" className="enviar" style={{ marginTop: "20px" }}>
+                    <button type="submit" className="admin-primary-button">
                         Registrar Usuario Interno
                     </button>
                 </form>

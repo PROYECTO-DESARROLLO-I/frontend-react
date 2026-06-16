@@ -25,17 +25,17 @@ function RegistroSedes({ volverAlDashboard }) {
   };
 
   return (
-    <div className="der">
-      <div className="atras" onClick={volverAlDashboard}>
+    <div className="admin-form-page">
+      <div className="admin-back" onClick={volverAlDashboard}>
         <GoArrowLeft />
         <p>Volver al Panel Administrativo</p>
       </div>
 
-      <form className="forms" onSubmit={manejarRegistro}>
+      <form className="admin-form-card" onSubmit={manejarRegistro}>
         <h2>Crear Sede</h2>
         <p>Registra una nueva sede para la plataforma.</p>
 
-        <div className="campos">
+        <div className="admin-form-grid">
           <label>Nombre de la sede</label>
           <input
             type="text"
@@ -66,7 +66,7 @@ function RegistroSedes({ volverAlDashboard }) {
           <p className="mensaje-error">{mensajeError}</p>
         </div>
 
-        <button className="enviar" type="submit">
+        <button className="admin-primary-button" type="submit">
           Guardar Sede
         </button>
 

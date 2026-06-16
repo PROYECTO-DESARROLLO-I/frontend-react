@@ -91,7 +91,7 @@ function Usuario({ irCrearCuenta }) {
 
   const rol= data.user?.rol;
 
-    if (rol === "administrativo") {
+    if (rol === "administrativo" || rol === "superadmin" || rol === "admin") {
       setVistaActual("admin");
     } else if (rol === "paciente") {
       setVistaActual("paciente");
@@ -151,7 +151,7 @@ function Usuario({ irCrearCuenta }) {
               className={errorEmail ? "input-error" : ""}
             />
 
-            Contrasena
+            Contraseña
             <input
               type="password"
               placeholder="...."
