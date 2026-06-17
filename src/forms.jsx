@@ -63,7 +63,7 @@ function Usuario({ irCrearCuenta }) {
 
     if (password.trim().length === 0) {
       setErrorPassword(true);
-      setMensajeError("Por favor, digita una contrasena.");
+      setMensajeError("Por favor, digita una contraseña.");
       return;
     }
 
@@ -81,7 +81,7 @@ function Usuario({ irCrearCuenta }) {
 
    if (!response.ok)
     {
-    setMensajeError(data.detail || "Error en el inicio de sesion.");
+    setMensajeError(data.detail || "Error en el inicio de sesión.");
     return; 
     }  
 
@@ -96,7 +96,7 @@ function Usuario({ irCrearCuenta }) {
     } else if (rol === "paciente") {
       setVistaActual("paciente");
     } else {
-      setMensajeError("Tu rol no tiene una vista asignada en el front.");
+      setMensajeError("Tu rol aún no tiene una vista asignada en el front.");
     }
     } catch {
     setMensajeError("No se pudo conectar con el servidor.");
@@ -137,12 +137,12 @@ function Usuario({ irCrearCuenta }) {
 
       <div className="der">
         <div className="forms">
-          <img src={String(paciente)} alt="Inicio de sesion para Pacientes" />
+          <img src={String(paciente)} alt="Inicio de sesión para Pacientes" />
           <h4>Ingresa tu Usuario</h4>
-          <p>Solicita y gestiona tus citas medicas</p>
+          <p>Solicita y gestiona tus citas médicas</p>
 
           <div className="campos">
-            Correo electronico
+            Correo electrónico
             <input
               type="email"
               placeholder="usuario@ejemplo.com"
@@ -151,7 +151,7 @@ function Usuario({ irCrearCuenta }) {
               className={errorEmail ? "input-error" : ""}
             />
 
-            Contrasena
+            Contraseña
             <input
               type="password"
               placeholder="...."
@@ -172,7 +172,7 @@ function Usuario({ irCrearCuenta }) {
             onClick={() => setVistaActual("recuperar")}
             style={{ cursor: "pointer", margin: "16px 0" }}
           >
-            Recuperar Contrasena
+            Recuperar Contraseña
           </div>
 
           <div
