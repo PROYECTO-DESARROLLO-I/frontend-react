@@ -1,9 +1,10 @@
 .container {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   font-family: sans-serif;
+  overflow: hidden;
 }
 
 /* ===== LAYOUT PRINCIPAL ===== */
@@ -11,16 +12,20 @@
 .comp {
   display: flex;
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* ===== LADO IZQUIERDO ===== */
 
 .izq {
   width: 50%;
+  height: 100vh;
+  flex: 0 0 50%;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
 
   background: linear-gradient(to right, #e7c6e2, #ffffff);
 }
@@ -29,14 +34,18 @@
 
 .der {
   width: 50%;
+  height: 100vh;
+  flex: 0 0 50%;
 
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 
   padding: 40px;
   background: linear-gradient(to right, #ffffff, #e7c6e2);;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 /* ===== CARD ===== */
@@ -92,6 +101,16 @@
   text-align: center;
   color: grey;
   margin-bottom: 20px;
+}
+.forms input,
+.forms select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
 }
 
 /* ===== ATRAS ===== */
@@ -237,11 +256,16 @@ margin-top: 20px;
 @media (max-width: 900px) {
   .comp {
     flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
   }
 
   .izq,
   .der {
     width: 100%;
+    flex: none;
+    height: auto;
   }
 
   .izq {
@@ -251,6 +275,7 @@ margin-top: 20px;
 
   .der {
     padding: 25px;
+    overflow: visible;
   }
 
   .card,
@@ -343,7 +368,7 @@ margin-top: 20px;
   cursor: pointer;
 }
 .notificacion-contenido button:hover {
-  background: #a11f05;
+  background: #ba1f01;
   transform: scale(1.05);
 }
 @keyframes aparecerPopup {
@@ -357,51 +382,273 @@ margin-top: 20px;
     transform: scale(1);
   }
 }
+/* ===== ADMIN LAYOUT ===== */
 
-.navbar {
+.admin-container,
+.admin-layout {
   width: 100%;
-  height: 70px;
+  height: 100vh;
+  overflow: hidden;
+}
 
+.admin-layout {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  background: #f5f7fb;
+  font-family: sans-serif;
+}
 
-  padding: 0 30px;
-
-  background: rgb(239, 175, 175);
-  border-bottom: 1px solid #ddd;
-
+.admin-sidebar {
+  width: 260px;
+  flex: 0 0 260px;
+  height: 100vh;
+  background: #de300d;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 18px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
-.navbar img {
-  width: 60px;
-}
-
-.menu {
+.admin-brand {
   display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 32px;
+  padding: 0 8px;
+}
+
+.admin-brand strong {
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.admin-brand span {
+  color: #ffd6ce;
+  font-size: 15px;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-nav button,
+.admin-logout {
+  border: none;
+  background: transparent;
+  color: white;
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.admin-nav button:hover,
+.admin-nav button.active {
+  background: #374151;
+  color: white;
+}
+
+.admin-logout {
+  margin-top: auto;
+}
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-topbar {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 22px 28px;
+}
+
+.admin-topbar h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.admin-topbar p {
+  margin: 6px 0 0;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.admin-content {
+  flex: 1;
+  padding: 28px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.admin-dashboard {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
   gap: 20px;
 }
 
-.menu button {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-
-  font-size: 16px;
-  font-weight: 600;
-
-  transition: 0.3s;
+.admin-card,
+.admin-form-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
-.menu button:hover {
-  color: #DE300D;
+.admin-card {
+  padding: 24px;
 }
 
-.admin-container {
+.admin-card span {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.admin-card strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 34px;
+}
+
+.admin-card p {
+  color: #6b7280;
+  margin-bottom: 0;
+}
+
+.admin-form-page {
   width: 100%;
-  min-height: 80vh;
+  max-width: 920px;
+}
 
-  display: flex;
-  flex-direction: column;
+.admin-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  color: #6b7280;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.admin-back p {
+  margin: 0;
+}
+
+.admin-back:hover {
+  color: #111827;
+}
+
+.admin-form-card {
+  width: 100%;
+  padding: 28px;
+  box-sizing: border-box;
+}
+
+.admin-form-card h2 {
+  margin: 0 0 8px;
+  font-size: 26px;
+}
+
+.admin-form-card > p {
+  margin: 0 0 24px;
+  color: #6b7280;
+}
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  align-items: center;
+  gap: 14px 18px;
+  width: 100%;
+}
+
+.admin-form-grid input,
+.admin-form-grid select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.admin-form-grid input:focus,
+.admin-form-grid select:focus {
+  border-color: #de300d;
+  box-shadow: 0 0 0 3px rgba(222, 48, 13, 0.12);
+}
+
+.admin-form-grid .mensaje-error,
+.admin-form-grid > div,
+.admin-primary-button {
+  grid-column: 2;
+}
+
+.admin-primary-button {
+  justify-self: start;
+  margin-top: 10px;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #de300d;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-primary-button:hover {
+  background: #ba1f01;
+}
+
+@media (max-width: 900px) {
+  .admin-layout {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+    flex-basis: auto;
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .admin-container,
+  .admin-main {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .admin-content {
+    overflow: visible;
+  }
+
+  .admin-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-form-grid .mensaje-error,
+  .admin-form-grid > div,
+  .admin-primary-button {
+    grid-column: 1;
+  }
 }
