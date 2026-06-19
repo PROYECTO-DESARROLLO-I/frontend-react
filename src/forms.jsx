@@ -57,18 +57,18 @@ function Usuario({ irCrearCuenta }) {
 
     if (!validarEmail(email)) {
       setErrorEmail(true);
-      setMensajeError("El formato de correo no es valido.");
+      setMensajeError("El formato de correo no es válido.");
       return;
     }
 
     if (password.trim().length === 0) {
       setErrorPassword(true);
-      setMensajeError("Por favor, digita una contrasena.");
+      setMensajeError("Por favor, digita una contraseña.");
       return;
     }
 
    try {
-    const response = await fetch("http://localhost:8000/api/auth/auth/login/", {
+    const response = await fetch("http://localhost:8000/api/auth/login/", {
       method: "POST",
       headers: {        
         "Content-Type": "application/json",
@@ -81,7 +81,7 @@ function Usuario({ irCrearCuenta }) {
 
    if (!response.ok)
     {
-    setMensajeError(data.detail || "Error en el inicio de sesion.");
+    setMensajeError(data.detail || "Error en el inicio de sesión.");
     return; 
     }  
 
@@ -96,7 +96,7 @@ function Usuario({ irCrearCuenta }) {
     } else if (rol === "paciente") {
       setVistaActual("paciente");
     } else {
-      setMensajeError("Tu rol no tiene una vista asignada en el front.");
+      setMensajeError("Tu rol aún no tiene una vista asignada en el front.");
     }
     } catch {
     setMensajeError("No se pudo conectar con el servidor.");
@@ -137,12 +137,12 @@ function Usuario({ irCrearCuenta }) {
 
       <div className="der">
         <div className="forms">
-          <img src={String(paciente)} alt="Inicio de sesion para Pacientes" />
+          <img src={String(paciente)} alt="Inicio de sesión para Pacientes" />
           <h4>Ingresa tu Usuario</h4>
-          <p>Solicita y gestiona tus citas medicas</p>
+          <p>Solicita y gestiona tus citas médicas</p>
 
           <div className="campos">
-            Correo electronico
+            Correo electrónico
             <input
               type="email"
               placeholder="usuario@ejemplo.com"
@@ -160,25 +160,23 @@ function Usuario({ irCrearCuenta }) {
               className={errorPassword ? "input-error" : ""}
             />
 
-            <p className="mensaje-error">{mensajeError}</p>
+            {mensajeError && <p className="mensaje-error">{mensajeError}</p>}
           </div>
 
           <button className="enviar" onClick={manejarLogin}>
-            Iniciar sesion
+            Iniciar sesión
           </button>
 
           <div
-            className="recuperar_contrasena"
+            className="recuperar_contraseña"
             onClick={() => setVistaActual("recuperar")}
-            style={{ cursor: "pointer", margin: "16px 0" }}
           >
-            Recuperar Contrasena
+            Recuperar Contraseña
           </div>
 
           <div
             className="crear_cuenta"
             onClick={irCrearCuenta}
-            style={{ cursor: "pointer", marginTop: "20px" }}
           >
             Crear Cuenta
           </div>
