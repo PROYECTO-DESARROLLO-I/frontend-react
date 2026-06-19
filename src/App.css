@@ -658,3 +658,13 @@ margin-top: 20px;
   gap: 10px;
 
 }
+.search-patient input, select {
+  flex: 1;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}

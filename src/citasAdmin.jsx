@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import { GoArrowLeft } from "react-icons/go";
+import { GoSearch } from "react-icons/go";
 
 function CitasAdmin({ volverAlDashboard }) {
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ function CitasAdmin({ volverAlDashboard }) {
     try{
       const response = await fetch(`http://localhost:8000/api/pacientes/buscar/?tdocumento=${formData.tdocumento}&documento=${formData.documento}`);
     const datos = await response.json();
-    
+
     }
     
     catch(error){
@@ -62,7 +63,7 @@ function CitasAdmin({ volverAlDashboard }) {
         <div className="search-patient">
 
           <label>Buscar Paciente</label>
-          <Select
+          <select
             name="Tdocumento"
             value={formData.tdocumento}
             onChange={(e) => setFormData({ ...formData, tdocumento: e.target.value })}>
@@ -71,7 +72,7 @@ function CitasAdmin({ volverAlDashboard }) {
             <option value="CE">Cédula de Extranjería</option>
             <option value="TI">Tarjeta de Identidad</option>
             <option value="PAS">Pasaporte</option>
-          </Select>
+          </select>
 
           <input
             name="documento"
@@ -81,11 +82,10 @@ function CitasAdmin({ volverAlDashboard }) {
             placeholder="Número de documento"
           />
           
-          <button type="button" className="admin-secondary-button" onClick={() => {buscarPaciente(formData.tdocumento, formData.documento)}}>
-            Buscar
-          </button>
+          <div className="admin-back" onClick={buscarPaciente}>
+        <GoSearch />
         </div>
-
+    </div>
         <div className="admin-form-grid">
 
           <label>Correo Electrónico</label>
