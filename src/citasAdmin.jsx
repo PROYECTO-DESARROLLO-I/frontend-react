@@ -22,6 +22,7 @@ function CitasAdmin({ volverAlDashboard }) {
     try{
       const response = await fetch(`http://localhost:8000/api/pacientes/buscar/?tdocumento=${formData.tdocumento}&documento=${formData.documento}`);
     const datos = await response.json();
+    
     }
     
     catch(error){
