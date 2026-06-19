@@ -6,6 +6,7 @@ function CitasAdmin({ volverAlDashboard }) {
   const [formData, setFormData] = useState({
     paciente: "",
     correo: "",
+    tdocumento: "",
     documento: "",
     medico: "",
     especialidad: "",
@@ -13,6 +14,20 @@ function CitasAdmin({ volverAlDashboard }) {
     fecha: "",
     hora: "",
   });
+
+  const agendarCita = (data) => {
+  
+  }
+  const buscarPaciente = async() => {
+    try{
+      const response = await fetch(`http://localhost:8000/api/pacientes/buscar/?tdocumento=${formData.tdocumento}&documento=${formData.documento}`);
+    const datos = await response.json();
+    }
+    
+    catch(error){
+      setMensajeError("Error al buscar paciente. Por favor, intenta nuevamente.");
+  }
+}
 
   const manejarCambio = (e) => {
     const { name, value } = e.target;
@@ -43,17 +58,20 @@ function CitasAdmin({ volverAlDashboard }) {
         <h2>Agendar Cita</h2>
         <p>Registra una nueva cita para un paciente.</p>
 
-        <div className="admin-form-grid">
-          <label>Nombre Paciente</label>
-          <input
-            name="paciente"
-            type="text"
-            value={formData.paciente}
-            onChange={manejarCambio}
-            placeholder="Nombre del paciente"
-          />
+        <div className="search-patient">
 
-          <label>Documento</label>
+          <label>Buscar Paciente</label>
+          <Select
+            name="Tdocumento"
+            value={formData.tdocumento}
+            onChange={(e) => setFormData({ ...formData, tdocumento: e.target.value })}>
+            <option value="">Selecciona tipo de documento</option>
+            <option value="CC">Cédula de Ciudadanía</option>
+            <option value="CE">Cédula de Extranjería</option>
+            <option value="TI">Tarjeta de Identidad</option>
+            <option value="PAS">Pasaporte</option>
+          </Select>
+
           <input
             name="documento"
             type="text"
@@ -61,6 +79,13 @@ function CitasAdmin({ volverAlDashboard }) {
             onChange={manejarCambio}
             placeholder="Número de documento"
           />
+          
+          <button type="button" className="admin-secondary-button" onClick={() => {buscarPaciente(formData.tdocumento, formData.documento)}}>
+            Buscar
+          </button>
+        </div>
+
+        <div className="admin-form-grid">
 
           <label>Correo Electrónico</label>
           <input
@@ -122,7 +147,7 @@ function CitasAdmin({ volverAlDashboard }) {
             onChange={manejarCambio}
           />
 
-          <button className="admin-primary-button" type="submit">
+          <button className="admin-primary-button" type="submit" onClick={() => agendarCita(formData)}>
             Guardar Cita
           </button>
         </div>

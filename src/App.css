@@ -652,3 +652,9 @@ margin-top: 20px;
     grid-column: 1;
   }
 }
+.search-patient {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+}
