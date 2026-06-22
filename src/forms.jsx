@@ -4,7 +4,7 @@ import paciente from "./assets/paciente.png";
 import Card from "./Card";
 import Admin from "./Admin";
 import RecuperarPassword from "./RecuperarPassword";
-import PerfilPaciente from "./PerfilPaciente";
+import Paciente from "./Paciente";
 
 function Usuario({ irCrearCuenta }) {
   const [vistaActual, setVistaActual] = useState("login");
@@ -69,7 +69,7 @@ function Usuario({ irCrearCuenta }) {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/api/auth/login/", {
+      const response = await fetch("http://localhost:8000/api/auth/auth/login/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -118,14 +118,7 @@ function Usuario({ irCrearCuenta }) {
   }
 
   if (vistaActual === "paciente") {
-    return (
-      <div className="comp">
-        <div className="izq">
-          <Card />
-        </div>
-        <PerfilPaciente volverAlDashboard={limpiarLogin} />
-      </div>
-    );
+    return <Paciente volverAlDashboard={limpiarLogin} />;
   }
 
   return (

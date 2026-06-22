@@ -53,7 +53,7 @@ function CitasAdmin({ volverAlDashboard }) {
     <div className="admin-form-page">
       <div className="admin-back" onClick={volverAlDashboard}>
         <GoArrowLeft />
-        <p>Volver al Panel Administrativo</p>
+        <p>Volver al Panel</p>
       </div>
 
       <form className="admin-form-card" onSubmit={manejarEnvio}>
