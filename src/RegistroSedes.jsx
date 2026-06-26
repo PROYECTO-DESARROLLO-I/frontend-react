@@ -34,7 +34,7 @@ function RegistroSedes({ volverAlDashboard }) {
 
     if (!refreshToken) return null;
 
-    const response = await fetch("http://localhost:8000/api/auth/auth/token/refresh/", {
+    const response = await fetch("http://localhost:8000/api/auth/token/refresh/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
