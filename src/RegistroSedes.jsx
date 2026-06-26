@@ -8,20 +8,115 @@ function RegistroSedes({ volverAlDashboard }) {
   const [telefonoSede, setTelefonoSede] = useState("");
   const [mensajeError, setMensajeError] = useState("");
   const [mostrarMensaje, setMostrarMensaje] = useState(false);
+  const [guardando, setGuardando] = useState(false);
 
-  const manejarRegistro = (e) => {
+  const obtenerMensajeError = (respuesta) => {
+    if (respuesta?.detail) return respuesta.detail;
+    const primerError = Object.values(respuesta || {})[0];
+    if (Array.isArray(primerError)) return primerError[0];
+    if (typeof primerError === "string") return primerError;
+    return "Error al crear la sede.";
+  };
+
+  const leerRespuesta = async (response) => {
+    const text = await response.text();
+    if (!text) return {};
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { detail: text };
+    }
+  };
+
+  const renovarToken = async () => {
+    const refreshToken = localStorage.getItem("refreshToken");
+
+    if (!refreshToken) return null;
+
+    const response = await fetch("http://localhost:8000/api/auth/auth/token/refresh/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refresh: refreshToken }),
+    });
+
+    const data = await leerRespuesta(response);
+
+    if (!response.ok || !data.access) return null;
+
+    localStorage.setItem("accessToken", data.access);
+
+    if (data.refresh) {
+      localStorage.setItem("refreshToken", data.refresh);
+    }
+
+    return data.access;
+  };
+
+  const crearSede = async (token) => {
+    return fetch("http://localhost:8000/api/headquarters/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        name: nombreSede.trim(),
+        address: direccionSede.trim(),
+        phone: telefonoSede.trim(),
+        active: true,
+      }),
+    });
+  };
+
+  const manejarRegistro = async (e) => {
     e.preventDefault();
     setMensajeError("");
+    setMostrarMensaje(false);
 
     if (!nombreSede.trim() || !direccionSede.trim() || !telefonoSede.trim()) {
       setMensajeError("Por favor, completa todos los datos de la sede.");
       return;
     }
 
-    setMostrarMensaje(true);
-    setNombreSede("");
-    setDireccionSede("");
-    setTelefonoSede("");
+    const token = localStorage.getItem("accessToken");
+
+    if (!token) {
+      setMensajeError("No hay una sesion activa. Inicia sesion nuevamente.");
+      return;
+    }
+
+    setGuardando(true);
+
+    try {
+      let sedeData = await crearSede(token);
+      let sedeResponse = await leerRespuesta(sedeData);
+
+      if (sedeData.status === 401) {
+        const nuevoToken = await renovarToken();
+
+        if (nuevoToken) {
+          sedeData = await crearSede(nuevoToken);
+          sedeResponse = await leerRespuesta(sedeData);
+        }
+      }
+
+      if (!sedeData.ok) {
+        setMensajeError(obtenerMensajeError(sedeResponse));
+        return;
+      }
+
+      setMostrarMensaje(true);
+      setNombreSede("");
+      setDireccionSede("");
+      setTelefonoSede("");
+    } catch {
+      setMensajeError("Error de conexion. Por favor, intenta nuevamente.");
+    } finally {
+      setGuardando(false);
+    }
   };
 
   return (
@@ -66,8 +161,8 @@ function RegistroSedes({ volverAlDashboard }) {
           <p className="mensaje-error">{mensajeError}</p>
         </div>
 
-        <button className="admin-primary-button" type="submit">
-          Guardar Sede
+        <button className="admin-primary-button" type="submit" disabled={guardando}>
+          {guardando ? "Guardando..." : "Guardar Sede"}
         </button>
 
         {mostrarMensaje && (
