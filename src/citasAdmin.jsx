@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
-import { GoArrowLeft } from "react-icons/go";
-import { GoSearch } from "react-icons/go";
+import { GoArrowLeft, GoSearch } from "react-icons/go";
 
 function CitasAdmin({ volverAlDashboard }) {
+  const [sedes, setSedes] = useState([]);
+  const [medico, setMedico] = useState([]);
+  const [mensajeError, setMensajeError] = useState("");
   const [formData, setFormData] = useState({
     paciente: "",
     correo: "",
@@ -16,20 +18,69 @@ function CitasAdmin({ volverAlDashboard }) {
     hora: "",
   });
 
-  const agendarCita = (data) => {
-  
-  }
-  const buscarPaciente = async() => {
-    try{
-      const response = await fetch(`http://localhost:8000/api/pacientes/buscar/?tdocumento=${formData.tdocumento}&documento=${formData.documento}`);
-    const datos = await response.json();
+  const agendarCita = () => {};
 
-    }
-    
-    catch(error){
+  const buscarPaciente = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/pacientes/buscar/?tdocumento=${formData.tdocumento}&documento=${formData.documento}`,
+      );
+
+      await response.json();
+    } catch {
       setMensajeError("Error al buscar paciente. Por favor, intenta nuevamente.");
-  }
-}
+    }
+  };
+
+  useEffect(() => {
+    const cargarSedes = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/headquarters/", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setMensajeError(data.detail || "Error al cargar las sedes.");
+          return;
+        }
+
+        setSedes(data);
+      } catch {
+        setMensajeError("Error al cargar las sedes. Por favor, intenta nuevamente.");
+      }
+    };
+
+    cargarSedes();
+  }, []);
+
+useEffect(() => {
+    const cargarMedico = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/medico/", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setMensajeError(data.detail || "Error al cargar las medico.");
+          return;
+        }
+
+        setMedico(data);
+      } catch {
+        setMensajeError("Error al cargar las medico. Por favor, intenta nuevamente.");
+      }
+    };
+
+    cargarMedico();
+  }, []);
 
   const manejarCambio = (e) => {
     const { name, value } = e.target;
@@ -42,11 +93,16 @@ function CitasAdmin({ volverAlDashboard }) {
   const manejarEnvio = (e) => {
     e.preventDefault();
 
-    if (!formData.paciente || !formData.correo || !formData.documento || !formData.sede || !formData.fecha || !formData.hora) {
+    if (
+      !formData.paciente ||
+      !formData.correo ||
+      !formData.documento ||
+      !formData.sede ||
+      !formData.fecha ||
+      !formData.hora
+    ) {
       alert("Por favor, completa todos los campos.");
-      return;
     }
-    
   };
 
   return (
@@ -61,15 +117,15 @@ function CitasAdmin({ volverAlDashboard }) {
         <p>Registra una nueva cita para un paciente.</p>
 
         <div className="search-patient">
-
           <label>Buscar Paciente</label>
           <select
-            name="Tdocumento"
+            name="tdocumento"
             value={formData.tdocumento}
-            onChange={(e) => setFormData({ ...formData, tdocumento: e.target.value })}>
+            onChange={manejarCambio}
+          >
             <option value="">Selecciona tipo de documento</option>
-            <option value="CC">Cédula de Ciudadanía</option>
-            <option value="CE">Cédula de Extranjería</option>
+            <option value="CC">Cedula de Ciudadania</option>
+            <option value="CE">Cedula de Extranjeria</option>
             <option value="TI">Tarjeta de Identidad</option>
             <option value="PAS">Pasaporte</option>
           </select>
@@ -77,37 +133,35 @@ function CitasAdmin({ volverAlDashboard }) {
           <input
             name="documento"
             type="text"
-            value={formData.documento} 
+            value={formData.documento}
             onChange={manejarCambio}
-            placeholder="Número de documento"
+            placeholder="Numero de documento"
           />
-          
-          <div className="admin-back" onClick={buscarPaciente}>
-        <GoSearch />
-        </div>
-    </div>
-        <div className="admin-form-grid">
 
-          <label>Correo Electrónico</label>
+          <button className="admin-back" type="button" onClick={buscarPaciente}>
+            <GoSearch />
+          </button>
+        </div>
+
+        <div className="admin-form-grid">
+          <label>Correo Electronico</label>
           <input
             name="correo"
             type="email"
             value={formData.correo}
             onChange={manejarCambio}
-            placeholder="Correo electrónico"
+            placeholder="Correo electronico"
           />
 
           <label>Medico</label>
-          <select
-            name="medico"
-            value={formData.medico}
-            onChange={manejarCambio}
-          >
-            <option value="">Selecciona un médico</option>
-            <option value="dr-johnson">Dr. Johnson</option>
-            <option value="dr-smith">Dr. Smith</option>
-            <option value="dr-williams">Dr. Williams</option>
-            </select>
+          <select name="medico" value={formData.medico} onChange={manejarCambio}>
+            <option value="">Selecciona un medico</option>
+            {medico.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+          </select>
 
           <label>Especialidad</label>
           <select
@@ -116,20 +170,19 @@ function CitasAdmin({ volverAlDashboard }) {
             onChange={manejarCambio}
           >
             <option value="">Selecciona una especialidad</option>
-            <option value="cardiologia">Cardiología</option>
-            <option value="neurologia">Neurología</option>
+            <option value="cardiologia">Cardiologia</option>
+            <option value="neurologia">Neurologia</option>
             <option value="pediatria">Pediatria</option>
           </select>
 
           <label>Sede</label>
-          <select
-            name="sede"
-            value={formData.sede}
-            onChange={manejarCambio}
-          >
+          <select name="sede" value={formData.sede} onChange={manejarCambio}>
             <option value="">Selecciona una sede</option>
-            <option value="sede-1">Sede Principal</option>
-            <option value="sede-2">Sede Secundaria</option>
+            {sedes.map((sede) => (
+              <option key={sede.id} value={sede.id}>
+                {sede.name}
+              </option>
+            ))}
           </select>
 
           <label>Fecha</label>
@@ -148,7 +201,9 @@ function CitasAdmin({ volverAlDashboard }) {
             onChange={manejarCambio}
           />
 
-          <button className="admin-primary-button" type="submit" onClick={() => agendarCita(formData)}>
+          <p className="mensaje-error">{mensajeError}</p>
+
+          <button className="admin-primary-button" type="submit" onClick={agendarCita}>
             Guardar Cita
           </button>
         </div>

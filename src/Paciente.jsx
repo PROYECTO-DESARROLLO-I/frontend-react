@@ -1,5 +1,6 @@
 import PacienteLayout from "./pacienteLayout.jsx";
 import CitasAdmin from "./citasAdmin.jsx";
+import CitasPaciente from "./citasPaciente.jsx";
 import AdminDashboard from "./AdminDashboard";
 import PerfilPaciente from "./PerfilPaciente";
 import RegistroPersonal from "./RegistroPersonal";
@@ -20,7 +21,7 @@ function Paciente({ volverAlDashboard }) {
           {vistaPaciente === "cancelarCita" && <RegistroPersonal volverAlDashboard={() => setVistaPaciente("visualizar")} />}
           {vistaPaciente === "PerfilPaciente" && <PerfilPaciente volverAlDashboard={() => setVistaPaciente("visualizar")} />}
           {vistaPaciente === "reprogramarCita" && <RegistroSedes volverAlDashboard={() => setVistaPaciente("visualizar")} />}
-          {vistaPaciente === "agendarCita" && <CitasAdmin volverAlDashboard={() => setVistaPaciente("visualizar")} />}
+          {vistaPaciente === "agendarCita" && <CitasPaciente volverAlDashboard={() => setVistaPaciente("visualizar")} />}
         </PacienteLayout>
     </div>
   );
