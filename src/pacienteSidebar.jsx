@@ -23,20 +23,6 @@ function PacienteSidebar({ vistaActual, cambiarVista, cerrarSesion }) {
           Agendar Cita
         </button>
 
-        <button
-          className={vistaActual === "reprogramarCita" ? "active" : ""}
-          onClick={() => cambiarVista("reprogramarCita")}
-        >
-          Reprogramar Cita
-        </button>
-
-        <button
-       className={vistaActual === "cancelarCita" ? "active" : ""}
-         onClick={() => cambiarVista("cancelarCita")}
-        >
-            Cancelar Cita
-             </button>
-
          <button
        className={vistaActual === "PerfilPaciente" ? "active" : ""}
          onClick={() => cambiarVista("PerfilPaciente")}

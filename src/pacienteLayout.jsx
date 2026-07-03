@@ -1,6 +1,9 @@
 import "./App.css";
 import PacienteSidebar from "./pacienteSidebar.jsx";
 
+const paciente = JSON.parse(localStorage.getItem("paciente")) || {};
+
+
 function PacienteLayout({ vistaActual, cambiarVista, cerrarSesion, children }) {
     return (
         <div className="admin-layout">
@@ -14,7 +17,9 @@ function PacienteLayout({ vistaActual, cambiarVista, cerrarSesion, children }) {
             <main className="admin-main">
                 <header className="admin-topbar">
                     <div>
-                        <h1>Paciente</h1>
+                        {parseInt(localStorage.getItem("userId")) && (
+                            <p>Bienvenido, {localStorage.getItem("userName")}</p>
+                        )}
                         <p>Gestiona tus citas médicas de forma sencilla y eficiente</p>
                     </div>
                 </header>
