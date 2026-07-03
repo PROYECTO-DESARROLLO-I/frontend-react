@@ -19,7 +19,7 @@ const calendarMinTime = new Date(1970, 0, 1, 6, 0);
 const calendarMaxTime = new Date(1970, 0, 1, 19, 0);
 const calendarScrollTime = new Date(1970, 0, 1, 11, 30);
 
-function AgendamientoCitas({ patientId, volverAlDashboard }) {
+function AgendamientoCitas({ patientId, patientName, volverAlDashboard }) {
   const totalPasos = 4;
   const [pasoActual, setPasoActual] = useState(1);
   const [especialidades, setEspecialidades] = useState([]);
@@ -432,7 +432,7 @@ function AgendamientoCitas({ patientId, volverAlDashboard }) {
             <div>
               <h3>Cita creada</h3>
               <p>Tu cita fue agendada correctamente.</p>
-              <button
+              <button className="enviar"
                 type="button"
                 onClick={() => {
                   setPasoActual(1);
@@ -453,6 +453,8 @@ function AgendamientoCitas({ patientId, volverAlDashboard }) {
 
               {franjaSeleccionada && (
                 <>
+
+                  {patientName && <p>Paciente: {patientName}</p>}
                   <p>Especialidad: {especialidadSeleccionada.name}</p>
                   <p>Medico: {medicoSeleccionado.full_name}</p>
                   <p>Fecha: {franjaSeleccionada.date}</p>
@@ -461,15 +463,15 @@ function AgendamientoCitas({ patientId, volverAlDashboard }) {
                 </>
               )}
 
-              <div className="botones-pasos">
-                <button type="button" onClick={() => setPasoActual(3)}>
+              
+                <button type="button" className="cambiar_horario" onClick={() => setPasoActual(3)}>
                   Cambiar horario
                 </button>
-                <button type="button" onClick={confirmarCita}>
+                <button type="button" className="enviar" onClick={confirmarCita}>
                   Confirmar cita
                 </button>
               </div>
-            </div>
+          
           )}
         </section>
       )}

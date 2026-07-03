@@ -102,6 +102,7 @@ function CitasAdmin({ volverAlDashboard }) {
             <GoSearch />
           </button>
         </div>
+        
 
         {mensajeError && <p className="mensaje-error">{mensajeError}</p>}
 
@@ -110,6 +111,7 @@ function CitasAdmin({ volverAlDashboard }) {
             <thead>
               <tr>
                 <th>Nombre</th>
+                <th>Tipo Documento</th>
                 <th>Documento</th>
                 <th>Telefono</th>
                 <th>EPS</th>
@@ -118,12 +120,9 @@ function CitasAdmin({ volverAlDashboard }) {
 
             <tbody>
               {pacientes.map((paciente) => (
-                <tr key={paciente.id}>
-                  <td>
-                    <button type="button" onClick={() => seleccionarPaciente(paciente)}>
-                      {obtenerNombrePaciente(paciente)}
-                    </button>
-                  </td>
+                <tr key={paciente.id} onClick={() => seleccionarPaciente(paciente)}>
+                  <td>{obtenerNombrePaciente(paciente)}</td>
+                  <td>{paciente.document_type}</td>
                   <td>{paciente.identity_document}</td>
                   <td>{paciente.phone_number || "Sin telefono"}</td>
                   <td>{obtenerEpsPaciente(paciente)}</td>
@@ -136,6 +135,7 @@ function CitasAdmin({ volverAlDashboard }) {
         {pacienteSeleccionado && (
           <AgendamientoCitas
             patientId={pacienteSeleccionado.id}
+            patientName={obtenerNombrePaciente(pacienteSeleccionado)}
             volverAlDashboard={() => setPacienteSeleccionado(null)}
           />
         )}

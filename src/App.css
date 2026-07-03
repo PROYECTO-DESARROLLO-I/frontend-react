@@ -194,7 +194,8 @@
 }
 
 /* ===== crear cuenta ===== */
-.crear_cuenta{
+.crear_cuenta ,
+.cambiar_horario {
 margin-top: 20px;
 
   padding: 14px;
@@ -211,7 +212,9 @@ margin-top: 20px;
 
   transition: all 0.3s ease;
 }
-
+.cambiar_horario {
+  margin-right: 10px;
+}
 .crear_cuenta:hover {
   transform: scale(1.03);
   background-color: #f1c3eb;
@@ -764,4 +767,36 @@ margin-top: 20px;
 .botones-pasos label:hover {
   color: rgb(234, 19, 19);
   
+}
+
+.tabla-pacientes {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+.tabla-pacientes th,
+.tabla-pacientes td {
+  border: 1px solid #e78a8a;
+  padding: 8px;
+  text-align: left;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.tabla-pacientes th {
+  background-color: #de300d;
+  color: white;
+  font-weight: 700;
+}
+
+.tabla-pacientes tr {
+  background-color: #fff;
+  color: #111827;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.tabla-pacientes tr:hover {
+  background-color: #f4c7c7;
+
 }
