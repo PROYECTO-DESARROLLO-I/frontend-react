@@ -1,9 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import { Calendar, dateFnsLocalizer } from "react-big-calendar";
+import { format, getDay, parse, startOfWeek } from "date-fns";
+import { es } from "date-fns/locale";
+
+const locales = { es };
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }),
+  getDay,
+  locales,
+});
+
+const calendarMinTime = new Date(1970, 0, 1, 6, 0);
+const calendarMaxTime = new Date(1970, 0, 1, 19, 0);
+const calendarScrollTime = new Date(1970, 0, 1, 11, 30);
 
 function CitasPaciente({ volverAlDashboard }) {
-  const [paso, setPaso] = useState("especialidad");
-
+  const totalPasos = 4;
+  const [pasoActual, setPasoActual] = useState(1);
   const [especialidades, setEspecialidades] = useState([]);
   const [medicos, setMedicos] = useState([]);
   const [franjas, setFranjas] = useState([]);
@@ -11,40 +29,127 @@ function CitasPaciente({ volverAlDashboard }) {
   const [especialidadSeleccionada, setEspecialidadSeleccionada] = useState(null);
   const [medicoSeleccionado, setMedicoSeleccionado] = useState(null);
   const [franjaSeleccionada, setFranjaSeleccionada] = useState(null);
-
-  const [fechaBase, setFechaBase] = useState(new Date().toISOString().split("T")[0]);
+  const [fechaBase, setFechaBase] = useState(new Date());
   const [vistaCalendario, setVistaCalendario] = useState("week");
+  const [citaCreada, setCitaCreada] = useState(null);
 
   const [mensajeError, setMensajeError] = useState("");
   const [cargando, setCargando] = useState(false);
 
-  const token = localStorage.getItem("accessToken");
+  const progreso = (pasoActual / totalPasos) * 100;
+
+  const leerRespuesta = async (response) => {
+    const text = await response.text();
+    if (!text) return {};
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { detail: text };
+    }
+  };
+
+  const obtenerMensajeError = (data, respaldo) => {
+    if (data?.detail) return data.detail;
+
+    const primerError = Object.values(data || {})[0];
+    if (Array.isArray(primerError)) return primerError[0];
+    if (typeof primerError === "string") return primerError;
+
+    return respaldo;
+  };
+
+  const obtenerToken = () => localStorage.getItem("accessToken");
+
+  const fechaIso = (fecha) => {
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, "0");
+    const day = String(fecha.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const eventosCalendario = useMemo(
+    () =>
+      franjas.map((franja, index) => ({
+        id: `${franja.date}-${franja.start_time}-${index}`,
+        title: `${franja.start_time.slice(0, 5)} - ${franja.end_time.slice(0, 5)}`,
+        start: new Date(`${franja.date}T${franja.start_time}`),
+        end: new Date(`${franja.date}T${franja.end_time}`),
+        resource: franja,
+      })),
+    [franjas],
+  );
 
   useEffect(() => {
+    const cargarEspecialidades = async () => {
+      setCargando(true);
+      setMensajeError("");
+
+      try {
+        const response = await fetch("http://localhost:8000/api/specialties/", {
+          headers: {
+            Authorization: `Bearer ${obtenerToken()}`,
+          },
+        });
+
+        const data = await leerRespuesta(response);
+
+        if (!response.ok) {
+          setMensajeError(
+            obtenerMensajeError(data, "No se pudieron cargar las especialidades."),
+          );
+          return;
+        }
+
+        setEspecialidades(data);
+      } catch {
+        setMensajeError("Error de conexion al cargar especialidades.");
+      } finally {
+        setCargando(false);
+      }
+    };
+
     cargarEspecialidades();
   }, []);
 
-  const cargarEspecialidades = async () => {
+  const cargarDisponibilidad = async (
+    medicoId,
+    especialidadId,
+    fecha,
+    vista,
+  ) => {
     setCargando(true);
     setMensajeError("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/specialties/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const params = new URLSearchParams({
+        doctor: medicoId,
+        specialty: especialidadId,
+        date: fechaIso(fecha),
+        view: vista,
       });
 
-      const data = await response.json();
+      const response = await fetch(
+        `http://localhost:8000/api/availability/slots/?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${obtenerToken()}`,
+          },
+        },
+      );
+
+      const data = await leerRespuesta(response);
 
       if (!response.ok) {
-        setMensajeError(data.detail || "No se pudieron cargar las especialidades.");
+        setMensajeError(
+          obtenerMensajeError(data, "No se pudo cargar la disponibilidad."),
+        );
         return;
       }
 
-      setEspecialidades(data);
+      setFranjas(data.slots || []);
     } catch {
-      setMensajeError("Error de conexion al cargar especialidades.");
+      setMensajeError("Error de conexion al cargar disponibilidad.");
     } finally {
       setCargando(false);
     }
@@ -54,9 +159,9 @@ function CitasPaciente({ volverAlDashboard }) {
     setEspecialidadSeleccionada(especialidad);
     setMedicoSeleccionado(null);
     setFranjaSeleccionada(null);
+    setCitaCreada(null);
     setFranjas([]);
-    setPaso("medico");
-
+    setPasoActual(2);
     setCargando(true);
     setMensajeError("");
 
@@ -65,15 +170,15 @@ function CitasPaciente({ volverAlDashboard }) {
         `http://localhost:8000/api/doctors/?specialty=${especialidad.id}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${obtenerToken()}`,
           },
-        }
+        },
       );
 
-      const data = await response.json();
+      const data = await leerRespuesta(response);
 
       if (!response.ok) {
-        setMensajeError(data.detail || "No se pudieron cargar los medicos.");
+        setMensajeError(obtenerMensajeError(data, "No se pudieron cargar los medicos."));
         return;
       }
 
@@ -88,54 +193,20 @@ function CitasPaciente({ volverAlDashboard }) {
   const seleccionarMedico = async (medico) => {
     setMedicoSeleccionado(medico);
     setFranjaSeleccionada(null);
-    setPaso("calendario");
-    await cargarDisponibilidad(medico.id, especialidadSeleccionada.id, fechaBase, vistaCalendario);
+    setCitaCreada(null);
+    setPasoActual(3);
+    await cargarDisponibilidad(
+      medico.id,
+      especialidadSeleccionada.id,
+      fechaBase,
+      vistaCalendario,
+    );
   };
 
-  const cargarDisponibilidad = async (
-    medicoId,
-    especialidadId,
-    fecha,
-    vista
-  ) => {
-    setCargando(true);
+  const seleccionarFranja = (evento) => {
+    setFranjaSeleccionada(evento.resource);
     setMensajeError("");
-
-    try {
-      const params = new URLSearchParams({
-        doctor: medicoId,
-        specialty: especialidadId,
-        date: fecha,
-        view: vista,
-      });
-
-      const response = await fetch(
-        `http://localhost:8000/api/availability/slots/?${params.toString()}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setMensajeError(data.detail || "No se pudo cargar la disponibilidad.");
-        return;
-      }
-
-      setFranjas(data.slots || []);
-    } catch {
-      setMensajeError("Error de conexion al cargar disponibilidad.");
-    } finally {
-      setCargando(false);
-    }
-  };
-
-  const seleccionarFranja = (franja) => {
-    setFranjaSeleccionada(franja);
-    setPaso("confirmacion");
+    setPasoActual(4);
   };
 
   const confirmarCita = async () => {
@@ -154,7 +225,7 @@ function CitasPaciente({ volverAlDashboard }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${obtenerToken()}`,
         },
         body: JSON.stringify({
           doctor_id: medicoSeleccionado.id,
@@ -164,23 +235,21 @@ function CitasPaciente({ volverAlDashboard }) {
         }),
       });
 
-      const data = await response.json();
+      const data = await leerRespuesta(response);
 
       if (!response.ok) {
-        setMensajeError(data.detail || "No se pudo crear la cita.");
+        setMensajeError(obtenerMensajeError(data, "No se pudo crear la cita."));
         return;
       }
 
-      setPaso("detalle");
+      setCitaCreada(data);
       setFranjaSeleccionada(null);
       await cargarDisponibilidad(
         medicoSeleccionado.id,
         especialidadSeleccionada.id,
         fechaBase,
-        vistaCalendario
+        vistaCalendario,
       );
-
-      console.log("Cita creada:", data);
     } catch {
       setMensajeError("Error de conexion al crear la cita.");
     } finally {
@@ -188,24 +257,92 @@ function CitasPaciente({ volverAlDashboard }) {
     }
   };
 
+  const cambiarVistaCalendario = (vista) => {
+    setVistaCalendario(vista);
+
+    if (medicoSeleccionado && especialidadSeleccionada) {
+      cargarDisponibilidad(
+        medicoSeleccionado.id,
+        especialidadSeleccionada.id,
+        fechaBase,
+        vista,
+      );
+    }
+  };
+
+  const cambiarFecha = (fecha) => {
+    setFechaBase(fecha);
+
+    if (medicoSeleccionado && especialidadSeleccionada) {
+      cargarDisponibilidad(
+        medicoSeleccionado.id,
+        especialidadSeleccionada.id,
+        fecha,
+        vistaCalendario,
+      );
+    }
+  };
+
+  const volverPasoAnterior = () => {
+    setMensajeError("");
+    setCitaCreada(null);
+
+    if (pasoActual === 1) {
+      volverAlDashboard();
+      return;
+    }
+
+    if (pasoActual === 2) {
+      setMedicos([]);
+      setEspecialidadSeleccionada(null);
+    }
+
+    if (pasoActual === 3) {
+      setFranjas([]);
+      setMedicoSeleccionado(null);
+    }
+
+    if (pasoActual === 4) {
+      setFranjaSeleccionada(null);
+    }
+
+    setPasoActual((paso) => Math.max(1, paso - 1));
+  };
+
   return (
-    <div className="admin-form-page">
-      <div className="admin-back" onClick={volverAlDashboard}>
-        <p>Volver</p>
+    <div className="form-citas">
+      <div className="admin-back" onClick={volverPasoAnterior}>
+        Volver
       </div>
 
-      <div className="admin-form-card">
-        <h2>Agendar cita</h2>
+      <div className="progreso">
+        Paso {pasoActual} de {totalPasos}
+      </div>
 
-        {mensajeError && <p className="mensaje-error">{mensajeError}</p>}
-        {cargando && <p>Cargando...</p>}
+      <div className="barra-progreso">
+        <div
+          className="barra-progreso-llena"
+          style={{ width: `${progreso}%` }}
+        />
+      </div>
 
-        {paso === "especialidad" && (
-          <div>
-            <h3>Selecciona una especialidad</h3>
+      <h2>Agendar cita</h2>
 
+      {mensajeError && <p className="mensaje-error">{mensajeError}</p>}
+      {cargando && <p>Cargando...</p>}
+
+      {pasoActual === 1 && (
+        <section>
+          <h3>Selecciona una especialidad</h3>
+
+          {!cargando && especialidades.length === 0 && (
+            <p>No hay especialidades disponibles en este momento.</p>
+          )}
+
+          <div className="citas-card-grid">
             {especialidades.map((especialidad) => (
-              <button className="admin-card"
+              <button
+                className="citas-option-card"
                 key={especialidad.id}
                 type="button"
                 onClick={() => seleccionarEspecialidad(especialidad)}
@@ -216,126 +353,121 @@ function CitasPaciente({ volverAlDashboard }) {
               </button>
             ))}
           </div>
-        )}
+        </section>
+      )}
 
-        {paso === "medico" && (
-          <div>
-            <h3>Selecciona un medico</h3>
+      {pasoActual === 2 && (
+        <section>
+          <h3>Selecciona un medico</h3>
 
-            <button  type="button" onClick={() => setPaso("especialidad")}>
-              Cambiar especialidad
-            </button>
+          {!cargando && medicos.length === 0 && (
+            <p>No hay medicos disponibles para esta especialidad.</p>
+          )}
 
+          <div className="citas-card-grid">
             {medicos.map((medico) => (
               <button
-                
-
+                className="citas-option-card"
                 key={medico.id}
                 type="button"
                 onClick={() => seleccionarMedico(medico)}
               >
                 {medico.full_name}
-                {medico.next_available_date &&
-                  ` - Proxima disponibilidad: ${medico.next_available_date}`}
+                {medico.available_slots_count !== undefined &&
+                  ` - ${medico.available_slots_count} franjas disponibles`}
               </button>
             ))}
           </div>
-        )}
+        </section>
+      )}
 
-        {paso === "calendario" && (
-          <div>
-            <h3>Selecciona una franja horaria</h3>
+      {pasoActual === 3 && (
+        <section>
+          <h3>Selecciona una franja horaria</h3>
 
+      
+
+          <Calendar
+            localizer={localizer}
+            events={eventosCalendario}
+            startAccessor="start"
+            endAccessor="end"
+            date={fechaBase}
+            view={vistaCalendario}
+            views={["week", "month", "day"]}
+            onNavigate={cambiarFecha}
+            onView={cambiarVistaCalendario}
+            onSelectEvent={seleccionarFranja}
+            min={calendarMinTime}
+            max={calendarMaxTime}
+            scrollToTime={calendarScrollTime}
+            step={30}
+            timeslots={1}
+            messages={{
+              next: "Siguiente",
+              previous: "Anterior",
+              today: "Hoy",
+              month: "Mes",
+              week: "Semana",
+              day: "Dia",
+              noEventsInRange: "No hay franjas disponibles en este rango.",
+            }}
+            style={{ height: 520 }}
+          />
+
+          {!cargando && franjas.length === 0 && (
+            <p>No hay franjas disponibles para esta fecha.</p>
+          )}
+        </section>
+      )}
+
+      {pasoActual === 4 && (
+        <section>
+          {citaCreada ? (
             <div>
+              <h3>Cita creada</h3>
+              <p>Tu cita fue agendada correctamente.</p>
               <button
                 type="button"
                 onClick={() => {
-                  setVistaCalendario("week");
-                  cargarDisponibilidad(
-                    medicoSeleccionado.id,
-                    especialidadSeleccionada.id,
-                    fechaBase,
-                    "week"
-                  );
+                  setPasoActual(1);
+                  setEspecialidadSeleccionada(null);
+                  setMedicoSeleccionado(null);
+                  setFranjaSeleccionada(null);
+                  setCitaCreada(null);
+                  setFranjas([]);
+                  setMedicos([]);
                 }}
               >
-                Semana
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setVistaCalendario("month");
-                  cargarDisponibilidad(
-                    medicoSeleccionado.id,
-                    especialidadSeleccionada.id,
-                    fechaBase,
-                    "month"
-                  );
-                }}
-              >
-                Mes
+                Agendar otra cita
               </button>
             </div>
+          ) : (
+            <div>
+              <h3>Confirmar cita</h3>
 
-            <input
-              type="date"
-              value={fechaBase}
-              onChange={(e) => {
-                setFechaBase(e.target.value);
-                cargarDisponibilidad(
-                  medicoSeleccionado.id,
-                  especialidadSeleccionada.id,
-                  e.target.value,
-                  vistaCalendario
-                );
-              }}
-            />
+              {franjaSeleccionada && (
+                <>
+                  <p>Especialidad: {especialidadSeleccionada.name}</p>
+                  <p>Medico: {medicoSeleccionado.full_name}</p>
+                  <p>Fecha: {franjaSeleccionada.date}</p>
+                  <p>Hora: {franjaSeleccionada.start_time}</p>
+                  <p>Sede: {franjaSeleccionada.headquarters_name || "Sin sede"}</p>
+                </>
+              )}
 
-            {franjas.map((franja, index) => (
-              <button
-                key={`${franja.date}-${franja.start_time}-${index}`}
-                type="button"
-                onClick={() => seleccionarFranja(franja)}
-              >
-                {franja.date} - {franja.start_time} a {franja.end_time}
-                {franja.headquarters_name && ` - ${franja.headquarters_name}`}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {paso === "confirmacion" && franjaSeleccionada && (
-          <div>
-            <h3>Confirmar cita</h3>
-
-            <p>Especialidad: {especialidadSeleccionada.name}</p>
-            <p>Medico: {medicoSeleccionado.full_name}</p>
-            <p>Fecha: {franjaSeleccionada.date}</p>
-            <p>Hora: {franjaSeleccionada.start_time}</p>
-            <p>Sede: {franjaSeleccionada.headquarters_name}</p>
-
-            <button type="button" onClick={() => setPaso("calendario")}>
-              Cambiar horario
-            </button>
-
-            <button type="button" onClick={confirmarCita}>
-              Confirmar cita
-            </button>
-          </div>
-        )}
-
-        {paso === "detalle" && (
-          <div>
-            <h3>Cita creada</h3>
-            <p>Tu cita fue agendada correctamente.</p>
-
-            <button type="button" onClick={() => setPaso("especialidad")}>
-              Agendar otra cita
-            </button>
-          </div>
-        )}
-      </div>
+              <div className="botones-pasos">
+                <button type="button" onClick={() => setPasoActual(3)}>
+                  Cambiar horario
+                </button>
+                <button type="button" onClick={confirmarCita}>
+                  Confirmar cita
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+      )}
     </div>
   );
 }

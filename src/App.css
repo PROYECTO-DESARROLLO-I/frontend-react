@@ -497,16 +497,37 @@ margin-top: 20px;
   gap: 20px;
 }
 
-.admin-card,
+
 .admin-form-card {
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  
 }
 
 .admin-card {
+  width: 100%;
+  min-height: 96px;
+  border: 1px solid #e41c1f;
+  border-radius: 8px;
+  background: #fff;
+  text-align: left;
+  font-weight: 700;
+  display: flex;
+  height: 110px;
+  align-items: center;
+  justify-content: space-between;
   padding: 24px;
+  cursor: pointer;
+  white-space: normal;
+  word-break: normal;
+
+  transition: 0.3s ease;
+
+}
+.admin-card:hover {
+  box-shadow: 0 12px 32px rgba(149, 4, 103, 0.12);
+  border-color: #de300d;
 }
 
 .admin-card span {
@@ -667,4 +688,80 @@ margin-top: 20px;
   outline: none;
   margin-bottom: 20px;
   box-sizing: border-box;
+}
+
+.form-citas {
+  width: 100%;
+}
+
+.citas-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  align-items: stretch;
+  width: 100%;
+  max-width: 900px;
+}
+
+.citas-option-card {
+  width: 100%;
+  min-height: 120px;
+  padding: 18px 20px;
+  border: 1px solid #de300d;
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.35;
+  white-space: normal;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.citas-option-card:hover {
+  border-color: #ba1f01;
+  box-shadow: 0 12px 28px rgba(222, 48, 13, 0.12);
+  transform: translateY(-2px);
+}
+
+.progreso-texto {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.barra-progreso {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.barra-progreso-llena {
+  height: 100%;
+  background: #de300d;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.botones-pasos label{
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 10px;
+  color:gray;
+
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.botones-pasos label:hover {
+  color: rgb(234, 19, 19);
+  
 }
