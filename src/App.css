@@ -800,3 +800,233 @@ margin-top: 20px;
   background-color: #f4c7c7;
 
 }
+
+/* ===== SECCIÓN DE REPORTES Y ESTADÍSTICAS ===== */
+
+.admin-reportes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 1100px;
+  animation: aparecer 0.3s ease;
+}
+
+/* Tarjeta contenedora de filtros */
+.filtros-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.filtros-card h3 {
+  margin: 0 0 16px 0;
+  color: #111827;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Rejilla de inputs para filtros combinables */
+.filtros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.filtros-grid input,
+.filtros-grid select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.filtros-grid input:focus,
+.filtros-grid select:focus {
+  border-color: #DE300D;
+  box-shadow: 0 0 0 3px rgba(222, 48, 13, 0.12);
+}
+
+/* Botones de acción */
+.filtros-acciones {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+}
+
+.btn-filtrar,
+.btn-exportar {
+  padding: 11px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-filtrar {
+  background: #DE300D;
+  color: white;
+}
+
+.btn-filtrar:hover {
+  background: #901f09;
+  transform: translateY(-1px);
+}
+
+.btn-exportar {
+  background: #374151;
+  color: white;
+}
+
+.btn-exportar:hover {
+  background: #1f2937;
+  transform: translateY(-1px);
+}
+
+/* Contenedor de la Tabla de Resultados */
+.resultados-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.resultados-card h3 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+}
+
+/* Tabla estructurada de reportes administrativos */
+.reportes-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.reportes-tabla th,
+.reportes-tabla td {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.reportes-tabla th {
+  background-color: #f3f4f6;
+  color: #374151;
+  font-weight: 700;
+}
+
+.reportes-tabla tbody tr {
+  transition: background-color 0.2s;
+}
+
+.reportes-tabla tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Badges estilizados para los estados de las citas */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.status-realizada { background: #d1fae5; color: #065f46; }
+.status-programada { background: #dbeafe; color: #1e40af; }
+.status-cancelada { background: #fee2e2; color: #991b1b; }
+.status-incumplida { background: #fef3c7; color: #92400e; }
+
+/* Auxiliar para centrar textos */
+.text-center {
+  justify-content: center;
+}
+
+/* ===== SOPORTE DE IMPRESIÓN LIMPIA (Criterio de Reporte PDF) ===== */
+@media print {
+  .admin-sidebar,
+  .admin-topbar,
+  .filtros-card,
+  .btn-exportar {
+    display: none !important;
+  }
+  .admin-main,
+  .admin-content,
+  .admin-reportes-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .resultados-card, .filtros-card {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
+
+.reportes-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.reportes-card-kpi {
+  background: #ffffff;
+  border: 1px solid #e41c1f;
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  min-height: 130px;
+  box-shadow: 0 4px 12px rgba(222, 48, 13, 0.02);
+  transition: all 0.3s ease;
+}
+
+.reportes-card-kpi:hover {
+  box-shadow: 0 8px 24px rgba(222, 48, 13, 0.08);
+  transform: translateY(-2px);
+}
+
+.reportes-card-kpi span {
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.reportes-card-kpi strong {
+  font-size: 36px;
+  color: #111827;
+  font-weight: 800;
+  line-height: 1;
+  margin: 4px 0;
+}
+
+.reportes-card-kpi p {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0;
+}
