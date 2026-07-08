@@ -5,6 +5,7 @@ import Card from "./Card";
 import Admin from "./Admin";
 import RecuperarPassword from "./RecuperarPassword";
 import Paciente from "./Paciente";
+import Medico from "./Medico";
 
 function Usuario({ irCrearCuenta }) {
   const [vistaActual, setVistaActual] = useState("login");
@@ -69,7 +70,7 @@ function Usuario({ irCrearCuenta }) {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/api/auth/auth/login/", {
+      const response = await fetch("http://localhost:8000/api/auth/login/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -94,6 +95,8 @@ function Usuario({ irCrearCuenta }) {
         setVistaActual("admin");
       } else if (rol === "paciente") {
         setVistaActual("paciente");
+      } else if (rol === "medico") {
+        setVistaActual("medico");
       } else {
         setMensajeError("Tu rol aún no tiene una vista asignada en el front.");
       }
@@ -119,6 +122,10 @@ function Usuario({ irCrearCuenta }) {
 
   if (vistaActual === "paciente") {
     return <Paciente volverAlDashboard={limpiarLogin} />;
+  }
+
+  if (vistaActual === "medico") {
+    return <Medico volverAlDashboard={limpiarLogin} />;
   }
 
   return (

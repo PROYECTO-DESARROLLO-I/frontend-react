@@ -1,36 +1,35 @@
 import "./App.css";
-import PacienteSidebar from "./pacienteSidebar.jsx";
+import MedicoSidebar from "./MedicoSidebar";
 
-function PacienteLayout({ vistaActual, cambiarVista, cerrarSesion, children }) {
+function MedicoLayout({ vistaActual, cambiarVista, cerrarSesion, children }) {
     const usuarioGuardado = JSON.parse(localStorage.getItem("user")) || {};
 
     const primerNombre = usuarioGuardado.nombre || "";
     const primerApellido = usuarioGuardado.apellido || "";
 
-    const nombreCompleto = `${primerNombre} ${primerApellido}`.trim();
+    const nombreCompletoDoc = `${primerNombre} ${primerApellido}`.trim();
 
     return (
         <div className="admin-layout">
-            <PacienteSidebar
-            vistaActual={vistaActual}
-            cambiarVista={cambiarVista}
-            cerrarSesion={cerrarSesion}
-            
+            <MedicoSidebar
+                vistaActual={vistaActual}
+                cambiarVista={cambiarVista}
+                cerrarSesion={cerrarSesion}
             />
-            
+
             <main className="admin-main">
                 <header className="admin-topbar">
                     <div>
-                        {nombreCompleto ? (
+                        {nombreCompletoDoc ? (
                             <p style={{ fontWeight: "bold", fontSize: "18px", margin: 0 }}>
-                                Bienvenido(a), {nombreCompleto}
+                                Bienvenido(a), Dr(a). {nombreCompletoDoc}
                             </p>
                         ) : (
                             <p style={{ fontWeight: "bold", fontSize: "18px", margin: 0 }}>
-                                Bienvenido(a), Paciente
+                                Bienvenido(a), Profesional de la Salud
                             </p>
                         )}
-                        <p>Gestiona tus citas médicas de forma sencilla y eficiente</p>
+                        <p>Consulte y gestione el estado de sus consultas asignadas</p>
                     </div>
                 </header>
                 <section className="admin-content">
@@ -41,4 +40,4 @@ function PacienteLayout({ vistaActual, cambiarVista, cerrarSesion, children }) {
     );
 }
 
-export default PacienteLayout;
+export default MedicoLayout;
