@@ -17,7 +17,6 @@ function Admin({ volverAlDashboard }) {
         cambiarVista={setVistaAdmin}
         cerrarSesion={volverAlDashboard}
         >
-          {vistaAdmin === "panel" && <AdminDashboard />}
           {vistaAdmin === "registroPersonal" && <RegistroPersonal volverAlDashboard={() => setVistaAdmin("panel")} />}
           {vistaAdmin === "crearSede" && <RegistroSedes volverAlDashboard={() => setVistaAdmin("panel")} />}
           {vistaAdmin === "agendarCita" && <CitasAdmin volverAlDashboard={() => setVistaAdmin("panel")} />}

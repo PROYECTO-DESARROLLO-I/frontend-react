@@ -18,7 +18,7 @@ function CitasMedico() {
             <h2>Mi Agenda de Consultas</h2>
             <p>Gestione las citas asignadas para su jornada de hoy.</p>
 
-            <table className="tabla-pacientes">
+            <table className="reportes-tabla">
                 <thead>
                 <tr>
                     <th>Hora</th>

@@ -945,9 +945,9 @@ margin-top: 20px;
   text-align: center;
 }
 
-.status-realizada { background: #d1fae5; color: #065f46; }
+.status-realizada, .status-activo { background: #d1fae5; color: #065f46; }
 .status-programada { background: #dbeafe; color: #1e40af; }
-.status-cancelada { background: #fee2e2; color: #991b1b; }
+.status-cancelada, .status-inactivo { background: #fee2e2; color: #991b1b; }
 .status-incumplida { background: #fef3c7; color: #92400e; }
 
 /* Auxiliar para centrar textos */
