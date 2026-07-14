@@ -91,6 +91,9 @@ function CitasAgendadasPaciente() {
   const [franjaReprogramacion, setFranjaReprogramacion] = useState(null);
   const [errorReprogramacion, setErrorReprogramacion] = useState("");
   const [confirmacionReprogramacion, setConfirmacionReprogramacion] = useState("");
+  const [modoCancelacion, setModoCancelacion] = useState(false);
+  const [errorCancelacion, setErrorCancelacion] = useState("");
+  const [confirmacionCancelacion, setConfirmacionCancelacion] = useState("");
   const [filtros, setFiltros] = useState({
     especialidad: "",
     medico: "",
@@ -236,20 +239,28 @@ function CitasAgendadasPaciente() {
     setFranjaReprogramacion(null);
     setErrorReprogramacion("");
     setConfirmacionReprogramacion("");
+    setModoCancelacion(false);
+    setErrorCancelacion("");
+    setConfirmacionCancelacion("");
     setFechaReprogramacion(formatoInputFecha(fechaCita(cita)));
   };
 
-  const iniciarReprogramacion = () => {
-    const estado = normalizar(citaSeleccionada?.status);
+  const puedeModificarCita = (cita) => {
+    const estado = normalizar(cita?.status);
+    return estado !== "cancelada" && estado !== "completada";
+  };
 
-    if (estado === "cancelada" || estado === "completada") {
+  const iniciarReprogramacion = () => {
+    if (!puedeModificarCita(citaSeleccionada)) {
       setErrorReprogramacion("Solo puedes reprogramar citas activas o pendientes.");
       return;
     }
 
     setModoReprogramacion(true);
+    setModoCancelacion(false);
     setErrorReprogramacion("");
     setConfirmacionReprogramacion("");
+    setErrorCancelacion("");
   };
 
   const confirmarReprogramacion = () => {
@@ -279,12 +290,54 @@ function CitasAgendadasPaciente() {
     );
   };
 
+  const iniciarCancelacion = () => {
+    if (!puedeModificarCita(citaSeleccionada)) {
+      setErrorCancelacion("Esta cita ya no se puede cancelar por su estado actual.");
+      return;
+    }
+
+    setModoCancelacion(true);
+    setModoReprogramacion(false);
+    setErrorCancelacion("");
+    setErrorReprogramacion("");
+    setConfirmacionCancelacion("");
+  };
+
+  const confirmarCancelacion = () => {
+    if (!citaSeleccionada) {
+      setErrorCancelacion("Selecciona una cita antes de cancelar.");
+      return;
+    }
+
+    if (!puedeModificarCita(citaSeleccionada)) {
+      setErrorCancelacion("Esta cita ya fue cancelada o completada.");
+      return;
+    }
+
+    const citaCancelada = {
+      ...citaSeleccionada,
+      status: "cancelada",
+    };
+
+    setCitas((citasActuales) =>
+      citasActuales.map((cita) =>
+        cita.id === citaCancelada.id ? { ...cita, ...citaCancelada } : cita,
+      ),
+    );
+    setCitaSeleccionada(citaCancelada);
+    setModoCancelacion(false);
+    setErrorCancelacion("");
+    setConfirmacionCancelacion(
+      "Cita cancelada de forma simulada. Cuando exista la API, este cambio debe guardarse en la base de datos.",
+    );
+  };
+
   return (
     <div className="patient-appointments-page">
       <div className="patient-appointments-header">
         <div>
           <h2>Citas agendadas</h2>
-          <p>Consulta tus citas en calendario y filtra por los datos principales.</p>
+          <p>Consulta tus citas en calendario, reprograma o cancela cuando aplique.</p>
         </div>
 
         <button type="button" className="admin-primary-button" onClick={cargarCitas}>
@@ -430,8 +483,52 @@ function CitasAgendadasPaciente() {
             Reprogramar cita
           </button>
 
+          <button type="button" className="cancel-appointment-button" onClick={iniciarCancelacion}>
+            Cancelar cita
+          </button>
+
           {confirmacionReprogramacion && (
             <p className="mensaje-exito">{confirmacionReprogramacion}</p>
+          )}
+
+          {confirmacionCancelacion && (
+            <p className="mensaje-exito">{confirmacionCancelacion}</p>
+          )}
+
+          {errorCancelacion && (
+            <p className="mensaje-error">{errorCancelacion}</p>
+          )}
+
+          {modoCancelacion && (
+            <div className="cancel-confirmation-panel">
+              <h4>Confirmar cancelacion</h4>
+              <p>
+                Esta accion cambiara visualmente el estado de la cita a cancelada.
+                La persistencia queda pendiente hasta que exista el endpoint de cancelacion.
+              </p>
+
+              <div className="cancel-summary">
+                <strong>{citaSeleccionada.specialty_name || "Cita medica"}</strong>
+                <span>{fechaCita(citaSeleccionada).toLocaleString("es-CO")}</span>
+                <span>{citaSeleccionada.doctor_name || "Sin medico"}</span>
+              </div>
+
+              <div className="reschedule-actions">
+                <button
+                  type="button"
+                  className="cambiar_horario"
+                  onClick={() => {
+                    setModoCancelacion(false);
+                    setErrorCancelacion("");
+                  }}
+                >
+                  Conservar cita
+                </button>
+                <button type="button" className="cancel-appointment-button" onClick={confirmarCancelacion}>
+                  Confirmar cancelacion
+                </button>
+              </div>
+            </div>
           )}
 
           {modoReprogramacion && (
