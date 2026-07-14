@@ -479,13 +479,15 @@ function CitasAgendadasPaciente() {
             Cerrar detalle
           </button>
 
-          <button type="button" className="enviar" onClick={iniciarReprogramacion}>
-            Reprogramar cita
-          </button>
+          <div className="appointment-detail-actions">
+            <button type="button" className="enviar" onClick={iniciarReprogramacion}>
+              Reprogramar cita
+            </button>
 
-          <button type="button" className="cancel-appointment-button" onClick={iniciarCancelacion}>
-            Cancelar cita
-          </button>
+            <button type="button" className="cancel-appointment-button" onClick={iniciarCancelacion}>
+              Cancelar cita
+            </button>
+          </div>
 
           {confirmacionReprogramacion && (
             <p className="mensaje-exito">{confirmacionReprogramacion}</p>
