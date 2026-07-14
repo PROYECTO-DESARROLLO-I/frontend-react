@@ -25,6 +25,8 @@ const estadoLabels = {
   cancelled: "Cancelada",
   completada: "Completada",
   completed: "Completada",
+  reprogramada: "Reprogramada",
+  rescheduled: "Reprogramada",
 };
 
 const normalizar = (valor) =>
@@ -41,6 +43,42 @@ const fechaCita = (cita) => new Date(cita.scheduled_at);
 
 const sumarMinutos = (fecha, minutos) => new Date(fecha.getTime() + minutos * 60000);
 
+const formatoInputFecha = (fecha) => {
+  const year = fecha.getFullYear();
+  const month = String(fecha.getMonth() + 1).padStart(2, "0");
+  const day = String(fecha.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const generarFranjasSimuladas = (fechaTexto, duracion = 30) => {
+  if (!fechaTexto) return [];
+
+  const fecha = new Date(`${fechaTexto}T00:00:00`);
+  const hoy = new Date();
+  const horasBase = [8, 9, 10, 11, 14, 15, 16];
+
+  return horasBase
+    .map((hora, index) => {
+      const inicio = new Date(fecha);
+      inicio.setHours(hora, index % 2 === 0 ? 0 : 30, 0, 0);
+      const fin = sumarMinutos(inicio, duracion);
+
+      return {
+        id: `${fechaTexto}-${hora}-${index}`,
+        start: inicio,
+        end: fin,
+        title: `${inicio.toLocaleTimeString("es-CO", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })} - ${fin.toLocaleTimeString("es-CO", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}`,
+      };
+    })
+    .filter((franja) => franja.start > hoy);
+};
+
 function CitasAgendadasPaciente() {
   const [citas, setCitas] = useState([]);
   const [cargando, setCargando] = useState(false);
@@ -48,6 +86,11 @@ function CitasAgendadasPaciente() {
   const [citaSeleccionada, setCitaSeleccionada] = useState(null);
   const [fechaCalendario, setFechaCalendario] = useState(new Date());
   const [vistaCalendario, setVistaCalendario] = useState("month");
+  const [modoReprogramacion, setModoReprogramacion] = useState(false);
+  const [fechaReprogramacion, setFechaReprogramacion] = useState(formatoInputFecha(new Date()));
+  const [franjaReprogramacion, setFranjaReprogramacion] = useState(null);
+  const [errorReprogramacion, setErrorReprogramacion] = useState("");
+  const [confirmacionReprogramacion, setConfirmacionReprogramacion] = useState("");
   const [filtros, setFiltros] = useState({
     especialidad: "",
     medico: "",
@@ -175,6 +218,67 @@ function CitasAgendadasPaciente() {
     className: `cita-evento cita-evento-${estadoClase(event.resource.status)}`,
   });
 
+  const rescheduleEventPropGetter = (event) => ({
+    className:
+      franjaReprogramacion?.id === event.resource.id
+        ? "reschedule-calendar-event selected"
+        : "reschedule-calendar-event",
+  });
+
+  const franjasReprogramacion = useMemo(
+    () => generarFranjasSimuladas(fechaReprogramacion, citaSeleccionada?.duration_minutes || 30),
+    [citaSeleccionada, fechaReprogramacion],
+  );
+
+  const abrirDetalle = (cita) => {
+    setCitaSeleccionada(cita);
+    setModoReprogramacion(false);
+    setFranjaReprogramacion(null);
+    setErrorReprogramacion("");
+    setConfirmacionReprogramacion("");
+    setFechaReprogramacion(formatoInputFecha(fechaCita(cita)));
+  };
+
+  const iniciarReprogramacion = () => {
+    const estado = normalizar(citaSeleccionada?.status);
+
+    if (estado === "cancelada" || estado === "completada") {
+      setErrorReprogramacion("Solo puedes reprogramar citas activas o pendientes.");
+      return;
+    }
+
+    setModoReprogramacion(true);
+    setErrorReprogramacion("");
+    setConfirmacionReprogramacion("");
+  };
+
+  const confirmarReprogramacion = () => {
+    if (!franjaReprogramacion) {
+      setErrorReprogramacion("Selecciona una franja disponible antes de confirmar.");
+      return;
+    }
+
+    const citaActualizada = {
+      ...citaSeleccionada,
+      scheduled_at: franjaReprogramacion.start.toISOString(),
+      status: "reprogramada",
+    };
+
+    setCitas((citasActuales) =>
+      citasActuales.map((cita) =>
+        cita.id === citaActualizada.id ? { ...cita, ...citaActualizada } : cita,
+      ),
+    );
+    setCitaSeleccionada(citaActualizada);
+    setFechaCalendario(franjaReprogramacion.start);
+    setModoReprogramacion(false);
+    setFranjaReprogramacion(null);
+    setErrorReprogramacion("");
+    setConfirmacionReprogramacion(
+      "Cambio simulado correctamente. Cuando exista la API, este paso debe persistir la nueva fecha en la base de datos.",
+    );
+  };
+
   return (
     <div className="patient-appointments-page">
       <div className="patient-appointments-header">
@@ -279,7 +383,7 @@ function CitasAgendadasPaciente() {
             views={["day", "week", "month"]}
             onNavigate={setFechaCalendario}
             onView={setVistaCalendario}
-            onSelectEvent={(evento) => setCitaSeleccionada(evento.resource)}
+            onSelectEvent={(evento) => abrirDetalle(evento.resource)}
             eventPropGetter={eventPropGetter}
             messages={{
               next: "Siguiente",
@@ -321,6 +425,124 @@ function CitasAgendadasPaciente() {
           <button type="button" className="cambiar_horario" onClick={() => setCitaSeleccionada(null)}>
             Cerrar detalle
           </button>
+
+          <button type="button" className="enviar" onClick={iniciarReprogramacion}>
+            Reprogramar cita
+          </button>
+
+          {confirmacionReprogramacion && (
+            <p className="mensaje-exito">{confirmacionReprogramacion}</p>
+          )}
+
+          {modoReprogramacion && (
+            <div className="reschedule-panel">
+              <h4>Reprogramar cita</h4>
+              <p>
+                Selecciona una fecha y una franja disponible. Esta vista queda simulada
+                hasta que el backend exponga el endpoint de reprogramacion.
+              </p>
+
+              <label>
+                Fecha
+                <input
+                  type="date"
+                  value={fechaReprogramacion}
+                  min={formatoInputFecha(new Date())}
+                  onChange={(e) => {
+                    setFechaReprogramacion(e.target.value);
+                    setFranjaReprogramacion(null);
+                    setErrorReprogramacion("");
+                  }}
+                />
+              </label>
+
+              {errorReprogramacion && (
+                <p className="mensaje-error">{errorReprogramacion}</p>
+              )}
+
+              {franjasReprogramacion.length === 0 ? (
+                <div className="appointments-empty">
+                  <h3>No hay horarios disponibles</h3>
+                  <p>Selecciona otra fecha para consultar nuevas franjas.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="reschedule-calendar">
+                    <Calendar
+                      localizer={localizer}
+                      events={franjasReprogramacion.map((franja) => ({
+                        ...franja,
+                        resource: franja,
+                      }))}
+                      startAccessor="start"
+                      endAccessor="end"
+                      date={new Date(`${fechaReprogramacion}T00:00:00`)}
+                      view="day"
+                      views={["day"]}
+                      toolbar={false}
+                      onSelectEvent={(evento) => {
+                        setFranjaReprogramacion(evento.resource);
+                        setErrorReprogramacion("");
+                      }}
+                      eventPropGetter={rescheduleEventPropGetter}
+                      min={new Date(1970, 0, 1, 7, 0)}
+                      max={new Date(1970, 0, 1, 18, 0)}
+                      step={30}
+                      timeslots={1}
+                      messages={{
+                        noEventsInRange: "No hay franjas disponibles en esta fecha.",
+                      }}
+                      style={{ height: 360 }}
+                    />
+                  </div>
+
+                  <div className="reschedule-slots">
+                    {franjasReprogramacion.map((franja) => (
+                      <button
+                        key={franja.id}
+                        type="button"
+                        className={
+                          franjaReprogramacion?.id === franja.id
+                            ? "reschedule-slot selected"
+                            : "reschedule-slot"
+                        }
+                        onClick={() => {
+                          setFranjaReprogramacion(franja);
+                          setErrorReprogramacion("");
+                        }}
+                      >
+                        {franja.title}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {franjaReprogramacion && (
+                <div className="reschedule-confirmation">
+                  <strong>Nuevo horario seleccionado</strong>
+                  <span>{franjaReprogramacion.start.toLocaleString("es-CO")}</span>
+                </div>
+              )}
+
+              <div className="reschedule-actions">
+                <button
+                  type="button"
+                  className="cambiar_horario"
+                  onClick={() => {
+                    setModoReprogramacion(false);
+                    setFranjaReprogramacion(null);
+                    setErrorReprogramacion("");
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button type="button" className="enviar" onClick={confirmarReprogramacion}>
+                  Confirmar cambio
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
