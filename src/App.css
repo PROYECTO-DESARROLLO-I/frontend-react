@@ -732,6 +732,167 @@ margin-top: 20px;
   transform: translateY(-2px);
 }
 
+.patient-appointments-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+}
+
+.patient-appointments-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.patient-appointments-header h2 {
+  margin: 0 0 6px;
+}
+
+.patient-appointments-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.appointments-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr)) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.appointments-filters select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.appointment-status-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  align-items: center;
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  margin-right: -10px;
+}
+
+.appointments-calendar-shell {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.appointments-empty {
+  padding: 28px;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.appointments-empty h3 {
+  margin: 0 0 8px;
+}
+
+.appointments-empty p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.cita-evento {
+  border: none;
+  color: #fff;
+  font-weight: 700;
+}
+
+.cita-evento-confirmada {
+  background: #2563eb !important;
+}
+
+.cita-evento-pendiente {
+  background: #d97706 !important;
+}
+
+.cita-evento-cancelada {
+  background: #dc2626 !important;
+}
+
+.cita-evento-completada {
+  background: #16a34a !important;
+}
+
+.cita-evento-sin-estado {
+  background: #6b7280 !important;
+}
+
+.appointment-detail-panel {
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.appointment-detail-panel h3 {
+  margin: 0 0 6px;
+}
+
+.appointment-detail-panel > div:first-child p {
+  margin: 0 0 16px;
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.appointment-detail-panel dl {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 10px 16px;
+  margin: 0 0 18px;
+}
+
+.appointment-detail-panel dt {
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.appointment-detail-panel dd {
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .patient-appointments-header {
+    flex-direction: column;
+  }
+
+  .appointments-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .appointments-calendar-shell {
+    padding: 10px;
+    overflow-x: auto;
+  }
+
+  .appointments-calendar-shell .rbc-calendar {
+    min-width: 720px;
+  }
+
+  .appointment-detail-panel dl {
+    grid-template-columns: 1fr;
+  }
+}
+
 .progreso-texto {
   font-weight: 700;
   margin-bottom: 8px;
