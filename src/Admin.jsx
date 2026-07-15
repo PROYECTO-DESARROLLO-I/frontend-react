@@ -2,7 +2,6 @@ import { useState } from "react";
 import "./App.css";
 import AdminLayout from "./AdminLayout";
 import CitasAdmin from "./citasAdmin.jsx";
-import AdminDashboard from "./AdminDashboard";
 import RegistroPersonal from "./RegistroPersonal";
 import RegistroSedes from "./RegistroSedes";
 import AdminReportes from "./AdminReportes";
