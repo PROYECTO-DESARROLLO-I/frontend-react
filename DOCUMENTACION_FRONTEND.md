@@ -424,6 +424,58 @@ POST /api/appointments/book/
 
 ---
 
+## Avances recientes del modulo paciente
+
+Se creo una estructura inicial para la vista del paciente autenticado. El login identifica el rol recibido desde el backend y, cuando el valor es `paciente`, muestra el componente `Paciente`.
+
+Los archivos principales agregados para este flujo son:
+
+| Archivo | Funcion |
+|---|---|
+| `src/Paciente.jsx` | Controla la vista activa dentro del modulo paciente. |
+| `src/pacienteLayout.jsx` | Define la estructura general con sidebar y contenido principal. |
+| `src/pacienteSidebar.jsx` | Contiene la navegacion entre citas, agendamiento, perfil y cierre de sesion. |
+
+El menu del paciente incluye actualmente estas opciones:
+
+- Citas agendadas.
+- Agendar cita.
+- Reprogramar cita.
+- Cancelar cita.
+- Perfil.
+- Cerrar sesion.
+
+Tambien se corrigio la forma en la que React carga los componentes `PacienteLayout` y `PacienteSidebar`. Estos componentes deben comenzar con mayuscula para que React los interprete como componentes y no como etiquetas HTML. La vista inicial del modulo se establecio como `visualizar`.
+
+### Vistas provisionales pendientes de creacion
+
+Las ventanas de **visualizacion de citas**, **reprogramar cita** y **cancelar cita** todavia estan pendientes de creacion. Por ahora, los botones del sidebar permiten navegar, pero muestran componentes provisionales reutilizados de otras partes del proyecto:
+
+| Opcion del paciente | Vista provisional actual | Estado real |
+|---|---|---|
+| Citas agendadas | `AdminDashboard` | Pendiente crear la vista que liste las citas del paciente. |
+| Reprogramar cita | `RegistroSedes` | Pendiente crear el formulario y flujo de reprogramacion. |
+| Cancelar cita | `RegistroPersonal` | Pendiente crear la vista de seleccion y cancelacion de cita. |
+
+Estas vistas provisionales solo permiten validar la navegacion y el layout. No representan el diseno final ni ejecutan las funciones reales de visualizar, reprogramar o cancelar citas.
+
+### Agendar cita en proceso
+
+La opcion **Agendar cita** muestra provisionalmente el componente `CitasAdmin`, pero este formulario se encuentra en proceso de modificacion para adaptarlo al flujo del paciente.
+
+El trabajo de diseno e integracion esta a la espera de una API de busqueda de pacientes. Esa API debe permitir localizar al paciente mediante su tipo y numero de documento antes de continuar con el formulario de agendamiento.
+
+Hasta que el backend exponga ese endpoint:
+
+- La busqueda de pacientes no puede completarse desde el frontend.
+- No se puede validar ni cargar automaticamente la informacion del paciente.
+- El formulario de agendamiento conserva campos y datos provisionales.
+- El diseno definitivo del flujo queda pendiente de la respuesta y estructura de la API.
+
+Una vez disponible la API, se debera conectar la busqueda, completar los datos del paciente encontrado y continuar con la seleccion real de especialidad, medico, sede, fecha y horario.
+
+---
+
 ## Que esta conectado y que falta conectar
 
 | Modulo | Estado |
@@ -435,7 +487,10 @@ POST /api/appointments/book/
 | Registro personal | Simulado, falta endpoint backend. |
 | Crear sede | Simulado, falta endpoint backend. |
 | Agendar cita admin | Simulado, falta integracion. |
-| Agendamiento paciente | Backend documentado, falta integrar interfaz completa si se requiere. |
+| Visualizacion de citas del paciente | Vista provisional; pendiente crear la pantalla real. |
+| Reprogramar cita | Vista provisional; pendiente crear e integrar el flujo real. |
+| Cancelar cita | Vista provisional; pendiente crear e integrar el flujo real. |
+| Agendamiento paciente | En proceso; pendiente API de busqueda de pacientes para continuar el diseno y la integracion. |
 
 ---
 

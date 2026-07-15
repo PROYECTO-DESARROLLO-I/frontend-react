@@ -5,7 +5,9 @@ import { GoArrowLeft } from "react-icons/go";
 function RegistroPersonal({ volverAlDashboard }) {
     const [nombre, setNombre] = useState("");
     const [apellido, setApellido] = useState("");
+    const [identityDocument, setIdentityDocument] = useState("");
     const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [rol, setRol] = useState(""); // "medico" o "administrativo".
 
     // Estados para campos específicos de Médicos.
@@ -31,13 +33,15 @@ function RegistroPersonal({ volverAlDashboard }) {
         }, 4000);
     };
 
-    const manejarRegistro = (e) => {
+    const manejarRegistro = async (e) => {
         e.preventDefault();
         let nuevosErrores = {};
 
         if (!nombre.trim()) nuevosErrores.nombre = true;
         if (!apellido.trim()) nuevosErrores.apellido = true;
+        if (!identityDocument.trim()) nuevosErrores.identityDocument = true;
         if (!email.trim() || !validarEmail(email)) nuevosErrores.email = true;
+        if (!password.trim()) nuevosErrores.password = true;
         if (!rol) nuevosErrores.rol = true;
 
         // Validaciones dinámicas según el rol.
@@ -57,16 +61,70 @@ function RegistroPersonal({ volverAlDashboard }) {
 
         setErrores({});
         setFormEnviado(false);
-            
-        /* TODO: Tarea "Consumir endpoint de creación de usuarios internos"
-           Aquí se hará el fetch/axios hacia el backend.
-        */
 
-        const textoRol = rol === "medico" ? "Médico" : "Administrativo";
-        mostrarToast(`¡Registro exitoso! El ${textoRol} ha sido creado correctamente.`, "exito");
+        try {
+            const token = localStorage.getItem("accessToken");
+            if (!token) {
+                mostrarToast("No autorizado. Inicia sesión como administrador para registrar usuarios.", "error");
+                return;
+            }
 
-        setNombre(""); setApellido(""); setEmail(""); setRol("");
-        setEspecialidad(""); setTarjetaProfesional(""); setArea("");
+            if (rol === "medico") {
+                const mapaEspecialidades = {
+                    "medicina_general": 1,
+                    "pediatria": 2,
+                    "cardiologia": 3,
+                    "ginecologia": 4,
+                    "odontologia": 5
+                };
+
+                const bodyRequest = {
+                    nombre: nombre.trim(),
+                    apellido: apellido.trim(),
+                    email: email.trim(),
+                    password: password,
+                    identity_document: identityDocument.trim(),
+                    register_number: tarjetaProfesional.trim(),
+                    specialty_ids: [mapaEspecialidades[especialidad]]
+                };
+
+                const response = await fetch("http://localhost:8000/api/doctors/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(bodyRequest)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    const campoError = Object.keys(data)[0];
+                    const mensajeBackend = data[campoError];
+                    mostrarToast(Array.isArray(mensajeBackend) ? mensajeBackend[0] : "Error en el formulario.", "error");
+                    return;
+                }
+            } else if (rol === "administrativo") {
+                /* TODO: Consumir endpoint de administrativos en esta parte. */
+                mostrarToast("Aún está pendiente el desarrollo del registro de administrativos.", "error");
+                return;
+            }
+
+            const textoRol = rol === "medico" ? "Médico" : "Administrativo";
+            mostrarToast(`¡Registro exitoso! El ${textoRol} ha sido creado correctamente.`, "exito");
+            setNombre("");
+            setApellido("");
+            setEmail("");
+            setRol("");
+            setEspecialidad("");
+            setTarjetaProfesional("");
+            setArea("");
+            setIdentityDocument("");
+            setPassword("");
+        } catch (error) {
+            mostrarToast("No se pudo conectar con el servidor.", "error");
+        }
     };
 
     const tieneErroresActivos = Object.values(errores).some(valor => valor === true);
@@ -150,6 +208,15 @@ function RegistroPersonal({ volverAlDashboard }) {
                         placeholder="Ej. Pérez Gómez"
                     />
 
+                    Documento de Identidad
+                    <input
+                        type="text"
+                        value={identityDocument}
+                        onChange={(e) => { setIdentityDocument(e.target.value); setErrores({...errores, identityDocument: false}); }}
+                        className={errores.identityDocument ? "input-error" : ""}
+                        placeholder="Ej. 1105326766"
+                    />
+
                     Correo Electrónico Corporativo
                     <input
                         type="email"
@@ -157,6 +224,15 @@ function RegistroPersonal({ volverAlDashboard }) {
                         onChange={(e) => { setEmail(e.target.value); setErrores({...errores, email: false}); }}
                         className={errores.email ? "input-error" : ""}
                         placeholder="carlos.perez@saludagendax.com"
+                    />
+
+                    Contraseña Preliminar
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => { setPassword(e.target.value); setErrores({...errores, password: false}); }}
+                        className={errores.password ? "input-error" : ""}
+                        placeholder="...."
                     />
 
                     Rol en la Clínica
@@ -202,7 +278,7 @@ function RegistroPersonal({ volverAlDashboard }) {
                     )}
 
                     {/* Formulario de creación de administrativos */}
-                    {rol === "administrative" || rol === "administrativo" && (
+                    {rol === "administrativo" && (
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", gap: "5px" }}>
                             Área Administrativa
                             <select

@@ -37,7 +37,7 @@ function PerfilPaciente({ volverAlDashboard }) {
     };
 
     const manejarCambioTelefono = (e) => {
-        const valor = e.target.value;
+        const valor = e.target.value.replace(/[^0-9]/g, "");
         setTelefono(valor);
         if (valor.trim().length < 7) {
             setErrores(prev => ({ ...prev, telefono: "El teléfono debe tener mínimo 7 dígitos." }));
@@ -109,7 +109,7 @@ function PerfilPaciente({ volverAlDashboard }) {
     };
 
     return (
-        <div className="der" style={{ width: "100%", maxWidth: "600px", margin: "0 auto", position: "relative" }}>
+        <div className="admin-form-page">
 
             {/* INYECCIÓN LOCAL DE ANIMACIONES */}
             <style>{`
@@ -146,14 +146,37 @@ function PerfilPaciente({ volverAlDashboard }) {
                     visibility: visible;
                     animation: fadeOutToast 0.4s ease-in-out forwards;
                 }
-                .select-perfil {
+
+                .select-perfil { 
+                    width: 100%; 
+                    padding: 8px 10px;
+                    border: 1px solid #ccc; 
+                    border-radius: 5px; 
+                    background-color: white; 
+                    font-size: 14px; 
+                    box-sizing: border-box;
+                    margin: 0;
+                    display: block;
+                    line-height: 1.2;
+                }
+                
+                .select-perfil:disabled { 
+                    background-color: #f5f5f5; 
+                    color: #888; 
+                    cursor: not-allowed; 
+                }
+    
+                .admin-form-grid input {
+                    height: 38px;
+                    box-sizing: border-box;
+                }
+
+                .contenedor-botones-perfil {
+                    grid-column: 2;
+                    display: flex;
+                    justify-content: flex-start;
+                    margin-top: 10px;
                     width: 100%;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    background-color: white;
-                    font-size: 14px;
-                    margin-bottom: 20px;
                 }
             `}</style>
 
@@ -167,140 +190,129 @@ function PerfilPaciente({ volverAlDashboard }) {
                 {toast.mensaje}
             </div>
 
-            <div className="atras" onClick={volverAlDashboard} style={{ cursor: "pointer" }}>
+            <div className="admin-back" onClick={volverAlDashboard}>
                 <GoArrowLeft />
                 <p>Volver al Panel de Paciente</p>
             </div>
 
-            <div className="forms">
+            <div className="admin-form-card">
                 <h2>Mi Perfil - SaludAgendaX</h2>
                 <p style={{ fontSize: "14px", color: "grey", marginBottom: "30px" }}>
                     Mantén tus datos de contacto actualizados para garantizar la correcta asignación de citas y notificaciones.
                 </p>
 
-                <div className="campos" style={{ width: "100%" }}>
+                <form onSubmit={guardarCambios} className="admin-form-grid">
+                    <label>Tipo de Documento</label>
+                    <select
+                        className="select-perfil"
+                        value={tipoDocumento}
+                        onChange={manejarCambioTipoDocumento}
+                        disabled={!modoEdicion}
+                    >
+                        <option value="Cédula de Ciudadanía">Cédula de Ciudadanía</option>
+                        <option value="Cédula de Extranjería">Cédula de Extranjería</option>
+                        <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
+                        <option value="Pasaporte">Pasaporte</option>
+                        <option value="PPT">PPT</option>
+                        <option value="PEP">PEP</option>
+                    </select>
 
-                    {/* VISTA DE LECTURA */}
-                    {!modoEdicion ? (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "15px", marginTop: "10px" }}>
-                            <div>
-                                <strong style={{ fontSize: "13px", color: "gray" }}>Tipo de Documento:</strong>
-                                <p style={{ fontSize: "16px", margin: "5px 0 0 0" }}>{datosPaciente.tipoDocumento}</p>
-                            </div>
-                            <div>
-                                <strong style={{ fontSize: "13px", color: "gray" }}>Número de Documento:</strong>
-                                <p style={{ fontSize: "16px", margin: "5px 0 0 0" }}>{datosPaciente.cedula}</p>
-                            </div>
-                            <div>
-                                <strong style={{ fontSize: "13px", color: "gray" }}>Nombre Completo:</strong>
-                                <p style={{ fontSize: "16px", margin: "5px 0 0 0" }}>{datosPaciente.nombre}</p>
-                            </div>
-                            <div>
-                                <strong style={{ fontSize: "13px", color: "gray" }}>Número de Teléfono:</strong>
-                                <p style={{ fontSize: "16px", margin: "5px 0 0 0" }}>{datosPaciente.telefono}</p>
-                            </div>
-                            <div>
-                                <strong style={{ fontSize: "13px", color: "gray" }}>Correo Electrónico:</strong>
-                                <p style={{ fontSize: "16px", margin: "5px 0 0 0" }}>{datosPaciente.email}</p>
-                            </div>
-
-                            <button className="enviar" onClick={() => setModoEdicion(true)} style={{ marginTop: "20px" }}>
-                                Editar Perfil
-                            </button>
-                        </div>
-                    ) : (
-                        // MODO EDICIÓN (Formulario activo)
-                        <form onSubmit={guardarCambios} style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-                            <span style={{ marginTop: "20px", marginBottom: "12px", fontWeight: "500" }}>Tipo de Documento</span>
-                            <select
-                            className="select-perfil"
-                            value={tipoDocumento}
-                            onChange={manejarCambioTipoDocumento}
-                            >
-                                <option value="Cédula de Ciudadanía">Cédula de Ciudadanía</option>
-                                <option value="Cédula de Extranjería">Cédula de Extranjería</option>
-                                <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
-                                <option value="Pasaporte">Pasaporte</option>
-                                <option value="PPT">PPT</option>
-                                <option value="PEP">PEP</option>
-                            </select>
-                            <span style={{ marginTop: "20px", marginBottom: "12px", fontWeight: "500" }}>Número de Documento</span>
-                            <input
+                    <label>Número de Documento</label>
+                    <div style={{ width: "100%" }}>
+                        <input
                             type="text"
                             value={cedula}
                             onChange={(e) => setCedula(e.target.value)}
-                            disabled={esDocumentoBloqueado()}
+                            disabled={!modoEdicion || esDocumentoBloqueado()}
                             style={{
-                                backgroundColor: esDocumentoBloqueado() ? "#f5f5f5" : "#fff",
-                                color: esDocumentoBloqueado() ? "#888" : "#000",
-                                marginBottom: "24px",
-                                cursor: esDocumentoBloqueado() ? "not-allowed" : "text"
+                                backgroundColor: (!modoEdicion || esDocumentoBloqueado()) ? "#f5f5f5" : "#fff",
+                                color: (!modoEdicion || esDocumentoBloqueado()) ? "#888" : "#000",
+                                cursor: (!modoEdicion || esDocumentoBloqueado()) ? "not-allowed" : "text"
                             }}
                             required
-                            />
+                        />
+                    </div>
 
-                            <span style={{ marginTop: "20px", marginBottom: "12px", fontWeight: "500" }}>Nombre Completo</span>
-                            <input
-                                type="text"
-                                value={nombre}
-                                onChange={(e) => setNombre(e.target.value)}
-                                style={{ marginBottom: "24px" }}
-                                required
-                            />
+                    <label>Nombre Completo</label>
+                    <input
+                        type="text"
+                        value={nombre}
+                        onChange={(e) => setNombre(e.target.value)}
+                        disabled={!modoEdicion}
+                        style={{ backgroundColor: modoEdicion ? "#fff" : "#f5f5f5" }}
+                        required
+                    />
 
-                            <span style={{ marginBottom: "12px", fontWeight: "500" }}>Número de Teléfono</span>
-                            <input
-                                type="text"
-                                value={telefono}
-                                onChange={manejarCambioTelefono}
-                                className={errores.telefono ? "input-error" : ""}
-                                style={{ marginBottom: errores.telefono ? "4px" : "24px" }}
-                            />
-                            {errores.telefono && (
-                                <span style={{ color: "#DE300D", fontSize: "12px", marginBottom: "24px", display: "block" }}>
+                    <label>Número de Teléfono</label>
+                    <div style={{ width: "100%" }}>
+                        <input
+                            type="text"
+                            value={telefono}
+                            onChange={manejarCambioTelefono}
+                            disabled={!modoEdicion}
+                            className={errores.telefono && modoEdicion ? "input-error" : ""}
+                            style={{ backgroundColor: modoEdicion ? "#fff" : "f5f5f5" }}
+                            required
+                        />
+                        {errores.telefono && modoEdicion && (
+                            <span style={{ color: "#DE300D", fontSize: "12px", marginTop: "5px", display: "block" }}>
                                     {errores.telefono}
-                                </span>
-                            )}
+                            </span>
+                        )}
+                    </div>
 
-                            <span style={{ marginBottom: "12px", fontWeight: "500" }}>Correo Electrónico</span>
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={manejarCambioEmail}
-                                className={errores.email ? "input-error" : ""}
-                                style={{ marginBottom: errores.email ? "4px" : "24px" }}
-                            />
-                            {errores.email && (
-                                <span style={{ color: "#DE300D", fontSize: "12px", marginBottom: "24px", display: "block" }}>
+                    <label>Correo Electrónico</label>
+                    <div style={{ width: "100%" }}>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={manejarCambioEmail}
+                            disabled={!modoEdicion}
+                            className={errores.email && modoEdicion ? "input-error" : ""}
+                            style={{ backgroundColor: modoEdicion ? "#fff" : "f5f5f5" }}
+                            required
+                        />
+                        {errores.email && modoEdicion && (
+                            <span style={{ color: "#DE300D", fontSize: "12px", marginTop: "5px", display: "block" }}>
                                     {errores.email}
-                                </span>
-                            )}
+                            </span>
+                        )}
+                    </div>
 
-                            <div style={{ display: "flex", gap: "15px", marginTop: "10px", width: "100%" }}>
-                                <button type="submit" className="enviar" style={{ flex: 1, margin: 0 }}>
+                    <div className="contenedor-botones-perfil">
+                        {!modoEdicion ? (
+                            <button
+                                type="button"
+                                className="admin-primary-button"
+                                onClick={() => setModoEdicion(true)}
+                                style={{ margin: 0, width: "auto", padding: "10px 30px" }}
+                            >
+                                Editar Perfil
+                            </button>
+                        ) : (
+                            <div style={{ display: "flex", gap: "15px", width: "100%" }}>
+                                <button type="submit" className="admin-primary-button" style={{ flex: 1 }}>
                                     Guardar Cambios
                                 </button>
+
                                 <button
                                     type="button"
                                     onClick={cancelarEdicion}
-                                    className="enviar"
+                                    className="admin-primary-button"
                                     style={{
                                         flex: 1,
-                                        margin: 0,
                                         backgroundColor: "white",
                                         color: "#DE300D",
-                                        border: "2px solid #DE300D",
-                                        borderRadius: "5px",
-                                        cursor: "pointer",
-                                        fontWeight: "bold"
+                                        border: "2px solid #DE300D"
                                     }}
                                 >
                                     Cancelar
+
                                 </button>
                             </div>
-                        </form>
-                    )}
-                </div>
+                        )}
+                    </div>
+                </form>
             </div>
         </div>
     );

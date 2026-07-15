@@ -4,7 +4,8 @@ import paciente from "./assets/paciente.png";
 import Card from "./Card";
 import Admin from "./Admin";
 import RecuperarPassword from "./RecuperarPassword";
-import PerfilPaciente from "./PerfilPaciente";
+import Paciente from "./Paciente";
+import Medico from "./Medico";
 
 function Usuario({ irCrearCuenta }) {
   const [vistaActual, setVistaActual] = useState("login");
@@ -94,6 +95,8 @@ function Usuario({ irCrearCuenta }) {
         setVistaActual("admin");
       } else if (rol === "paciente") {
         setVistaActual("paciente");
+      } else if (rol === "medico") {
+        setVistaActual("medico");
       } else {
         setMensajeError("Tu rol aún no tiene una vista asignada en el front.");
       }
@@ -118,14 +121,11 @@ function Usuario({ irCrearCuenta }) {
   }
 
   if (vistaActual === "paciente") {
-    return (
-      <div className="comp">
-        <div className="izq">
-          <Card />
-        </div>
-        <PerfilPaciente volverAlDashboard={limpiarLogin} />
-      </div>
-    );
+    return <Paciente volverAlDashboard={limpiarLogin} />;
+  }
+
+  if (vistaActual === "medico") {
+    return <Medico volverAlDashboard={limpiarLogin} />;
   }
 
   return (

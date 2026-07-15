@@ -3,6 +3,7 @@ import Card from "./Card";
 import { GoArrowLeft } from "react-icons/go";
 import { useState } from "react";
 
+
 function CrearCuenta({ volverLogin }) {
   const [date_birth, setFecha] = useState("");
   const [email, setEmail] = useState("");

@@ -1,75 +1,99 @@
 import { useState } from "react";
 import "./App.css";
-import { GoArrowLeft } from "react-icons/go";
-import { GoSearch } from "react-icons/go";
+import { GoArrowLeft, GoSearch } from "react-icons/go";
+import AgendamientoCitas from "./agendamientoCitas.jsx";
 
 function CitasAdmin({ volverAlDashboard }) {
-  const [formData, setFormData] = useState({
-    paciente: "",
-    correo: "",
+  const [pacientes, setPacientes] = useState([]);
+  const [pacienteSeleccionado, setPacienteSeleccionado] = useState(null);
+  const [mensajeError, setMensajeError] = useState("");
+  const [busqueda, setBusqueda] = useState({
     tdocumento: "",
     documento: "",
-    medico: "",
-    especialidad: "",
-    sede: "",
-    fecha: "",
-    hora: "",
   });
 
-  const agendarCita = (data) => {
-  
-  }
-  const buscarPaciente = async() => {
-    try{
-      const response = await fetch(`http://localhost:8000/api/pacientes/buscar/?tdocumento=${formData.tdocumento}&documento=${formData.documento}`);
-    const datos = await response.json();
-
-    }
-    
-    catch(error){
-      setMensajeError("Error al buscar paciente. Por favor, intenta nuevamente.");
-  }
-}
-
-  const manejarCambio = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const obtenerNombrePaciente = (paciente) => {
+    const nombre = paciente.user?.nombre || paciente.nombre || "";
+    const apellido = paciente.user?.apellido || paciente.apellido || "";
+    return `${nombre} ${apellido}`.trim() || "Paciente sin nombre";
   };
 
-  const manejarEnvio = (e) => {
-    e.preventDefault();
+  const obtenerEpsPaciente = (paciente) => (
+    paciente.eps?.name || paciente.eps?.nombre || paciente.eps_name || "Sin EPS"
+  );
 
-    if (!formData.paciente || !formData.correo || !formData.documento || !formData.sede || !formData.fecha || !formData.hora) {
-      alert("Por favor, completa todos los campos.");
-      return;
+  const obtenerEstadoPaciente = (paciente) => (
+    paciente.estado || paciente.status || (paciente.user?.is_active === false ? "Inactivo" : "Activo")
+  );
+
+  const obtenerClaseEstado = (estado) => (
+    estado.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  );
+
+  const buscarPaciente = async () => {
+    setMensajeError("");
+    setPacienteSeleccionado(null);
+    setPacientes([]);
+
+  
+
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/appointments/patients/search/?q=${encodeURIComponent(busqueda.documento.trim())}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setMensajeError(data.detail || "No se pudieron buscar pacientes.");
+        return;
+      }
+
+      const pacientesFiltrados = busqueda.tdocumento
+        ? data.filter((paciente) => paciente.document_type === busqueda.tdocumento)
+        : data;
+
+      if (pacientesFiltrados.length === 0) {
+        setMensajeError("No se encontraron pacientes relacionados con la busqueda.");
+      }
+
+      setPacientes(pacientesFiltrados);
+    } catch {
+      setMensajeError("Error al buscar paciente. Por favor, intenta nuevamente.");
     }
-    
+  };
+
+  const seleccionarPaciente = (paciente) => {
+    setPacienteSeleccionado(paciente);
+    setMensajeError("");
   };
 
   return (
     <div className="admin-form-page">
       <div className="admin-back" onClick={volverAlDashboard}>
         <GoArrowLeft />
-        <p>Volver al Panel Administrativo</p>
+        <p>Volver al Panel</p>
       </div>
 
-      <form className="admin-form-card" onSubmit={manejarEnvio}>
+      <div className="admin-form-card">
         <h2>Agendar Cita</h2>
-        <p>Registra una nueva cita para un paciente.</p>
+        <p>Busca un paciente y selecciona el registro para agendarle una cita.</p>
 
         <div className="search-patient">
-
           <label>Buscar Paciente</label>
           <select
-            name="Tdocumento"
-            value={formData.tdocumento}
-            onChange={(e) => setFormData({ ...formData, tdocumento: e.target.value })}>
-            <option value="">Selecciona tipo de documento</option>
-            <option value="CC">Cédula de Ciudadanía</option>
-            <option value="CE">Cédula de Extranjería</option>
+            name="tdocumento"
+            value={busqueda.tdocumento}
+            onChange={(e) => setBusqueda({ ...busqueda, tdocumento: e.target.value })}
+          >
+            <option value="">Tipo de documento</option>
+            <option value="CC">Cedula de Ciudadania</option>
+            <option value="CE">Cedula de Extranjeria</option>
             <option value="TI">Tarjeta de Identidad</option>
             <option value="PAS">Pasaporte</option>
           </select>
@@ -77,82 +101,65 @@ function CitasAdmin({ volverAlDashboard }) {
           <input
             name="documento"
             type="text"
-            value={formData.documento} 
-            onChange={manejarCambio}
-            placeholder="Número de documento"
-          />
-          
-          <div className="admin-back" onClick={buscarPaciente}>
-        <GoSearch />
-        </div>
-    </div>
-        <div className="admin-form-grid">
-
-          <label>Correo Electrónico</label>
-          <input
-            name="correo"
-            type="email"
-            value={formData.correo}
-            onChange={manejarCambio}
-            placeholder="Correo electrónico"
+            value={busqueda.documento}
+            onChange={(e) => setBusqueda({ ...busqueda, documento: e.target.value })}
+            placeholder="Numero de documento"
           />
 
-          <label>Medico</label>
-          <select
-            name="medico"
-            value={formData.medico}
-            onChange={manejarCambio}
-          >
-            <option value="">Selecciona un médico</option>
-            <option value="dr-johnson">Dr. Johnson</option>
-            <option value="dr-smith">Dr. Smith</option>
-            <option value="dr-williams">Dr. Williams</option>
-            </select>
-
-          <label>Especialidad</label>
-          <select
-            name="especialidad"
-            value={formData.especialidad}
-            onChange={manejarCambio}
-          >
-            <option value="">Selecciona una especialidad</option>
-            <option value="cardiologia">Cardiología</option>
-            <option value="neurologia">Neurología</option>
-            <option value="pediatria">Pediatria</option>
-          </select>
-
-          <label>Sede</label>
-          <select
-            name="sede"
-            value={formData.sede}
-            onChange={manejarCambio}
-          >
-            <option value="">Selecciona una sede</option>
-            <option value="sede-1">Sede Principal</option>
-            <option value="sede-2">Sede Secundaria</option>
-          </select>
-
-          <label>Fecha</label>
-          <input
-            name="fecha"
-            type="date"
-            value={formData.fecha}
-            onChange={manejarCambio}
-          />
-
-          <label>Hora</label>
-          <input
-            name="hora"
-            type="time"
-            value={formData.hora}
-            onChange={manejarCambio}
-          />
-
-          <button className="admin-primary-button" type="submit" onClick={() => agendarCita(formData)}>
-            Guardar Cita
+          <button className="admin-back" type="button" onClick={buscarPaciente}>
+            <GoSearch />
           </button>
         </div>
-      </form>
+        
+
+        {mensajeError && <p className="mensaje-error">{mensajeError}</p>}
+
+        {pacientes.length > 0 && !pacienteSeleccionado && (
+          <table className="reportes-tabla">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Tipo Documento</th>
+                <th>Documento</th>
+                <th>Telefono</th>
+                <th>EPS</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {pacientes.map((paciente) => (
+                (() => {
+                  const estado = obtenerEstadoPaciente(paciente);
+
+                  return (
+                    <tr key={paciente.id} onClick={() => seleccionarPaciente(paciente)}>
+                      <td>{obtenerNombrePaciente(paciente)}</td>
+                      <td>{paciente.document_type || "Sin tipo"}</td>
+                      <td>{paciente.identity_document || "Sin documento"}</td>
+                      <td>{paciente.phone_number || paciente.user?.phone_number || "Sin telefono"}</td>
+                      <td>{obtenerEpsPaciente(paciente)}</td>
+                      <td>
+                        <span className={`badge status-${obtenerClaseEstado(estado)}`}>
+                          {estado}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })()
+              ))}
+            </tbody>
+          </table>
+        )}
+
+        {pacienteSeleccionado && (
+          <AgendamientoCitas
+            patientId={pacienteSeleccionado.id}
+            patientName={obtenerNombrePaciente(pacienteSeleccionado)}
+            volverAlDashboard={() => setPacienteSeleccionado(null)}
+          />
+        )}
+      </div>
     </div>
   );
 }
