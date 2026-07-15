@@ -39,6 +39,16 @@ const obtenerEstado = (estado) => estadoLabels[normalizar(estado)] || estado || 
 
 const estadoClase = (estado) => normalizar(obtenerEstado(estado)) || "sin-estado";
 
+const obtenerMensajeError = (data, respaldo) => {
+  if (data?.detail) return data.detail;
+
+  const primerError = Object.values(data || {})[0];
+  if (Array.isArray(primerError)) return primerError[0];
+  if (typeof primerError === "string") return primerError;
+
+  return respaldo;
+};
+
 const fechaCita = (cita) => new Date(cita.scheduled_at);
 
 const sumarMinutos = (fecha, minutos) => new Date(fecha.getTime() + minutos * 60000);
@@ -48,6 +58,15 @@ const formatoInputFecha = (fecha) => {
   const month = String(fecha.getMonth() + 1).padStart(2, "0");
   const day = String(fecha.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+};
+
+const formatoDateTimeLocal = (fecha) => {
+  const year = fecha.getFullYear();
+  const month = String(fecha.getMonth() + 1).padStart(2, "0");
+  const day = String(fecha.getDate()).padStart(2, "0");
+  const hours = String(fecha.getHours()).padStart(2, "0");
+  const minutes = String(fecha.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}:00`;
 };
 
 const generarFranjasSimuladas = (fechaTexto, duracion = 30) => {
@@ -252,31 +271,57 @@ function CitasAgendadasPaciente() {
     setConfirmacionReprogramacion("");
   };
 
-  const confirmarReprogramacion = () => {
+  const confirmarReprogramacion = async () => {
     if (!franjaReprogramacion) {
       setErrorReprogramacion("Selecciona una franja disponible antes de confirmar.");
       return;
     }
 
-    const citaActualizada = {
-      ...citaSeleccionada,
-      scheduled_at: franjaReprogramacion.start.toISOString(),
-      status: "reprogramada",
-    };
-
-    setCitas((citasActuales) =>
-      citasActuales.map((cita) =>
-        cita.id === citaActualizada.id ? { ...cita, ...citaActualizada } : cita,
-      ),
-    );
-    setCitaSeleccionada(citaActualizada);
-    setFechaCalendario(franjaReprogramacion.start);
-    setModoReprogramacion(false);
-    setFranjaReprogramacion(null);
+    setCargando(true);
     setErrorReprogramacion("");
-    setConfirmacionReprogramacion(
-      "Cambio simulado correctamente. Cuando exista la API, este paso debe persistir la nueva fecha en la base de datos.",
-    );
+    setConfirmacionReprogramacion("");
+
+    try {
+      const token = localStorage.getItem("accessToken");
+      const response = await fetch(
+        `http://localhost:8000/api/appointments/${citaSeleccionada.id}/patient-reschedule/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            scheduled_at: formatoDateTimeLocal(franjaReprogramacion.start),
+            reason: "Reprogramacion solicitada por el paciente",
+          }),
+        },
+      );
+
+      const data = await leerRespuesta(response);
+
+      if (!response.ok) {
+        setErrorReprogramacion(obtenerMensajeError(data, "No se pudo reprogramar la cita."));
+        return;
+      }
+
+      const citaActualizada = { ...citaSeleccionada, ...data };
+
+      setCitas((citasActuales) =>
+        citasActuales.map((cita) =>
+          cita.id === citaActualizada.id ? { ...cita, ...citaActualizada } : cita,
+        ),
+      );
+      setCitaSeleccionada(citaActualizada);
+      setFechaCalendario(fechaCita(citaActualizada));
+      setModoReprogramacion(false);
+      setFranjaReprogramacion(null);
+      setConfirmacionReprogramacion("Cita reprogramada correctamente.");
+    } catch {
+      setErrorReprogramacion("Error de conexion al reprogramar la cita.");
+    } finally {
+      setCargando(false);
+    }
   };
 
   return (
@@ -438,8 +483,7 @@ function CitasAgendadasPaciente() {
             <div className="reschedule-panel">
               <h4>Reprogramar cita</h4>
               <p>
-                Selecciona una fecha y una franja disponible. Esta vista queda simulada
-                hasta que el backend exponga el endpoint de reprogramacion.
+                Selecciona una fecha y una franja disponible para cambiar tu cita.
               </p>
 
               <label>
