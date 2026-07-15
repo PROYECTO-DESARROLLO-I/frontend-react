@@ -1,8 +1,7 @@
 import { useState } from "react";
 import "./App.css";
-import { GoArrowLeft } from "react-icons/go";
 
-function RegistroSedes({ volverAlDashboard }) {
+function RegistroSedes() {
   const [nombreSede, setNombreSede] = useState("");
   const [direccionSede, setDireccionSede] = useState("");
   const [telefonoSede, setTelefonoSede] = useState("");
@@ -121,11 +120,6 @@ function RegistroSedes({ volverAlDashboard }) {
 
   return (
     <div className="admin-form-page">
-      <div className="admin-back" onClick={volverAlDashboard}>
-        <GoArrowLeft />
-        <p>Volver al Panel Administrativo</p>
-      </div>
-
       <form className="admin-form-card" onSubmit={manejarRegistro}>
         <h2>Crear Sede</h2>
         <p>Registra una nueva sede para la plataforma.</p>

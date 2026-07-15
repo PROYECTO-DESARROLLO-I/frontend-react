@@ -1,6 +1,7 @@
 import { useState } from "react";
 import MedicoLayout from "./MedicoLayout";
 import CitasMedico from "./CitasMedico";
+import DisponibilidadMedico from "./DisponibilidadMedico";
 
 function Medico({ volverAlDashboard }) {
     const [vistaMedico, setVistaMedico] = useState("agenda");
@@ -13,6 +14,7 @@ function Medico({ volverAlDashboard }) {
                 cerrarSesion={volverAlDashboard}
             >
                 {vistaMedico === "agenda" && <CitasMedico />}
+                {vistaMedico === "disponibilidad" && <DisponibilidadMedico />}
                 {vistaMedico === "historial" && (
                     <div className="admin-form-card">
                         <h2>Historial de Pacientes</h2>

@@ -10,12 +10,12 @@ function AdminSidebar({ vistaActual, cambiarVista, cerrarSesion }) {
 
             <nav className="admin-nav">
                 <button
-                    className={vistaActual === "panel" ? "active" : ""}
-                    onClick={() => cambiarVista("panel")}
+                    className={vistaActual === "reportes" ? "active" : ""}
+                    onClick={() => cambiarVista("reportes")}
                 >
-                    Panel
+                    Reportes y Estadísticas
                 </button>
-
+                
                 <button
                     className={vistaActual === "registroPersonal" ? "active" : ""}
                     onClick={() => cambiarVista("registroPersonal")}
@@ -37,12 +37,6 @@ function AdminSidebar({ vistaActual, cambiarVista, cerrarSesion }) {
                     Agendar Cita Paciente
                 </button>
 
-                <button
-                    className={vistaActual === "reportes" ? "active" : ""}
-                    onClick={() => cambiarVista("reportes")}
-                >
-                    Reportes y Estadísticas
-                </button>
             </nav>
         
             <button className="admin-logout" onClick={cerrarSesion}>

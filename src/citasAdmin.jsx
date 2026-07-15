@@ -1,9 +1,9 @@
 import { useState } from "react";
 import "./App.css";
-import { GoArrowLeft, GoSearch } from "react-icons/go";
+import { GoSearch } from "react-icons/go";
 import AgendamientoCitas from "./agendamientoCitas.jsx";
 
-function CitasAdmin({ volverAlDashboard }) {
+function CitasAdmin() {
   const [pacientes, setPacientes] = useState([]);
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState(null);
   const [mensajeError, setMensajeError] = useState("");
@@ -75,11 +75,6 @@ function CitasAdmin({ volverAlDashboard }) {
 
   return (
     <div className="admin-form-page">
-      <div className="admin-back" onClick={volverAlDashboard}>
-        <GoArrowLeft />
-        <p>Volver al Panel</p>
-      </div>
-
       <div className="admin-form-card">
         <h2>Agendar Cita</h2>
         <p>Busca un paciente y selecciona el registro para agendarle una cita.</p>
