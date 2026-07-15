@@ -215,6 +215,11 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard }) {
       return;
     }
 
+    if (!franjaSeleccionada.headquarters_id) {
+      setMensajeError("La franja seleccionada no tiene una sede asociada.");
+      return;
+    }
+
     setCargando(true);
     setMensajeError("");
 
@@ -222,6 +227,7 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard }) {
     const body = {
       doctor_id: medicoSeleccionado.id,
       specialty_id: especialidadSeleccionada.id,
+      headquarters_id: franjaSeleccionada.headquarters_id,
       scheduled_at: scheduledAt,
       consultation_reason: "Cita agendada",
     };

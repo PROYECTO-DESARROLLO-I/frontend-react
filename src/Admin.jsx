@@ -16,10 +16,11 @@ function Admin({ volverAlDashboard }) {
         cambiarVista={setVistaAdmin}
         cerrarSesion={volverAlDashboard}
         >
+          {vistaAdmin === "reportes" && <AdminReportes />}
           {vistaAdmin === "registroPersonal" && <RegistroPersonal volverAlDashboard={() => setVistaAdmin("registroPersonal")} />}
           {vistaAdmin === "crearSede" && <RegistroSedes volverAlDashboard={() => setVistaAdmin("registroPersonal")} />}
           {vistaAdmin === "agendarCita" && <CitasAdmin volverAlDashboard={() => setVistaAdmin("registroPersonal")} />}
-          {vistaAdmin === "reportes" && <AdminReportes />}
+          
         </AdminLayout>
     </div>
   );
