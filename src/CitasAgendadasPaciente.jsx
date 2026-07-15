@@ -39,6 +39,16 @@ const obtenerEstado = (estado) => estadoLabels[normalizar(estado)] || estado || 
 
 const estadoClase = (estado) => normalizar(obtenerEstado(estado)) || "sin-estado";
 
+const obtenerMensajeError = (data, respaldo) => {
+  if (data?.detail) return data.detail;
+
+  const primerError = Object.values(data || {})[0];
+  if (Array.isArray(primerError)) return primerError[0];
+  if (typeof primerError === "string") return primerError;
+
+  return respaldo;
+};
+
 const fechaCita = (cita) => new Date(cita.scheduled_at);
 
 const sumarMinutos = (fecha, minutos) => new Date(fecha.getTime() + minutos * 60000);
@@ -303,7 +313,7 @@ function CitasAgendadasPaciente() {
     setConfirmacionCancelacion("");
   };
 
-  const confirmarCancelacion = () => {
+  const confirmarCancelacion = async () => {
     if (!citaSeleccionada) {
       setErrorCancelacion("Selecciona una cita antes de cancelar.");
       return;
@@ -314,22 +324,48 @@ function CitasAgendadasPaciente() {
       return;
     }
 
-    const citaCancelada = {
-      ...citaSeleccionada,
-      status: "cancelada",
-    };
-
-    setCitas((citasActuales) =>
-      citasActuales.map((cita) =>
-        cita.id === citaCancelada.id ? { ...cita, ...citaCancelada } : cita,
-      ),
-    );
-    setCitaSeleccionada(citaCancelada);
-    setModoCancelacion(false);
+    setCargando(true);
     setErrorCancelacion("");
-    setConfirmacionCancelacion(
-      "Cita cancelada de forma simulada. Cuando exista la API, este cambio debe guardarse en la base de datos.",
-    );
+    setConfirmacionCancelacion("");
+
+    try {
+      const token = localStorage.getItem("accessToken");
+      const response = await fetch(`http://localhost:8000/api/appointments/${citaSeleccionada.id}/cancel/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          reason: "Cancelacion solicitada por el paciente",
+        }),
+      });
+
+      const data = await leerRespuesta(response);
+
+      if (!response.ok) {
+        setErrorCancelacion(obtenerMensajeError(data, "No se pudo cancelar la cita."));
+        return;
+      }
+
+      const citaCancelada = {
+        ...citaSeleccionada,
+        status: "cancelada",
+      };
+
+      setCitas((citasActuales) =>
+        citasActuales.map((cita) =>
+          cita.id === citaCancelada.id ? { ...cita, ...citaCancelada } : cita,
+        ),
+      );
+      setCitaSeleccionada(citaCancelada);
+      setModoCancelacion(false);
+      setConfirmacionCancelacion(data.detail || "Cita cancelada correctamente.");
+    } catch {
+      setErrorCancelacion("Error de conexion al cancelar la cita.");
+    } finally {
+      setCargando(false);
+    }
   };
 
   return (
@@ -505,8 +541,7 @@ function CitasAgendadasPaciente() {
             <div className="cancel-confirmation-panel">
               <h4>Confirmar cancelacion</h4>
               <p>
-                Esta accion cambiara visualmente el estado de la cita a cancelada.
-                La persistencia queda pendiente hasta que exista el endpoint de cancelacion.
+                Esta accion cancelara la cita y actualizara su estado en la agenda.
               </p>
 
               <div className="cancel-summary">
