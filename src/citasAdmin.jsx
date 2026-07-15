@@ -19,7 +19,15 @@ function CitasAdmin({ volverAlDashboard }) {
   };
 
   const obtenerEpsPaciente = (paciente) => (
-    paciente.eps?.name || paciente.eps_name || "Sin EPS"
+    paciente.eps?.name || paciente.eps?.nombre || paciente.eps_name || "Sin EPS"
+  );
+
+  const obtenerEstadoPaciente = (paciente) => (
+    paciente.estado || paciente.status || (paciente.user?.is_active === false ? "Inactivo" : "Activo")
+  );
+
+  const obtenerClaseEstado = (estado) => (
+    estado.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   );
 
   const buscarPaciente = async () => {
@@ -107,7 +115,7 @@ function CitasAdmin({ volverAlDashboard }) {
         {mensajeError && <p className="mensaje-error">{mensajeError}</p>}
 
         {pacientes.length > 0 && !pacienteSeleccionado && (
-          <table className="tabla-pacientes">
+          <table className="reportes-tabla">
             <thead>
               <tr>
                 <th>Nombre</th>
@@ -115,18 +123,30 @@ function CitasAdmin({ volverAlDashboard }) {
                 <th>Documento</th>
                 <th>Telefono</th>
                 <th>EPS</th>
+                <th>Estado</th>
               </tr>
             </thead>
 
             <tbody>
               {pacientes.map((paciente) => (
-                <tr key={paciente.id} onClick={() => seleccionarPaciente(paciente)}>
-                  <td>{obtenerNombrePaciente(paciente)}</td>
-                  <td>{paciente.document_type}</td>
-                  <td>{paciente.identity_document}</td>
-                  <td>{paciente.phone_number || "Sin telefono"}</td>
-                  <td>{obtenerEpsPaciente(paciente)}</td>
-                </tr>
+                (() => {
+                  const estado = obtenerEstadoPaciente(paciente);
+
+                  return (
+                    <tr key={paciente.id} onClick={() => seleccionarPaciente(paciente)}>
+                      <td>{obtenerNombrePaciente(paciente)}</td>
+                      <td>{paciente.document_type || "Sin tipo"}</td>
+                      <td>{paciente.identity_document || "Sin documento"}</td>
+                      <td>{paciente.phone_number || paciente.user?.phone_number || "Sin telefono"}</td>
+                      <td>{obtenerEpsPaciente(paciente)}</td>
+                      <td>
+                        <span className={`badge status-${obtenerClaseEstado(estado)}`}>
+                          {estado}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })()
               ))}
             </tbody>
           </table>

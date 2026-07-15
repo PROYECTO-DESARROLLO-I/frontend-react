@@ -2,7 +2,6 @@ import { useState } from "react";
 import "./App.css";
 import AdminLayout from "./AdminLayout";
 import CitasAdmin from "./citasAdmin.jsx";
-import AdminDashboard from "./AdminDashboard";
 import RegistroPersonal from "./RegistroPersonal";
 import RegistroSedes from "./RegistroSedes";
 import AdminReportes from "./AdminReportes";
@@ -17,7 +16,6 @@ function Admin({ volverAlDashboard }) {
         cambiarVista={setVistaAdmin}
         cerrarSesion={volverAlDashboard}
         >
-          {vistaAdmin === "panel" && <AdminDashboard />}
           {vistaAdmin === "registroPersonal" && <RegistroPersonal volverAlDashboard={() => setVistaAdmin("panel")} />}
           {vistaAdmin === "crearSede" && <RegistroSedes volverAlDashboard={() => setVistaAdmin("panel")} />}
           {vistaAdmin === "agendarCita" && <CitasAdmin volverAlDashboard={() => setVistaAdmin("panel")} />}
