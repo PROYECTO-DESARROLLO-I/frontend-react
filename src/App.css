@@ -167,6 +167,41 @@
   box-shadow: 0 0 0 2px rgba(222, 48, 13, 0.15);
 }
 
+.password-input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.password-input-wrap input {
+  padding-right: 48px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.password-toggle:hover {
+  color: #de300d;
+}
+
+.password-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
 /* ===== BOTON ===== */
 
 .enviar {
@@ -1314,57 +1349,67 @@ margin-top: 20px;
   }
 }
 
-.reportes-kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
-  width: 100%;
-  margin-bottom: 10px;
+.reportes-grafica-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
-.reportes-card-kpi {
-  background: #ffffff;
-  border: 1px solid #e41c1f;
-  border-radius: 12px;
-  padding: 20px 24px;
+.reportes-grafica-card h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.reportes-grafica-card p {
+  margin: 0 0 20px;
+  color: #6b7280;
+}
+
+.reportes-bar-chart {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 6px;
-  box-sizing: border-box;
-  min-height: 130px;
-  box-shadow: 0 4px 12px rgba(222, 48, 13, 0.02);
-  transition: all 0.3s ease;
+  gap: 14px;
 }
 
-.reportes-card-kpi:hover {
-  box-shadow: 0 8px 24px rgba(222, 48, 13, 0.08);
-  transform: translateY(-2px);
+.reportes-bar-row {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: 14px;
 }
 
-.reportes-card-kpi span {
-  color: #6b7280;
+.reportes-bar-row span {
+  color: #374151;
   font-size: 14px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-.reportes-card-kpi strong {
-  font-size: 36px;
+.reportes-bar-row strong {
   color: #111827;
-  font-weight: 800;
-  line-height: 1;
-  margin: 4px 0;
+  font-size: 14px;
+  text-align: right;
 }
 
-.reportes-card-kpi p {
-  color: #6b7280;
-  font-size: 13px;
-  font-weight: 500;
-  margin: 0;
+.reportes-bar-track {
+  height: 18px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #f3f4f6;
 }
+
+.reportes-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #de300d;
+  transition: width 0.25s ease;
+}
+
+.reportes-bar-fill.estado-confirmada { background: #2563eb; }
+.reportes-bar-fill.estado-pendiente { background: #f59e0b; }
+.reportes-bar-fill.estado-atendida { background: #16a34a; }
+.reportes-bar-fill.estado-cancelada { background: #dc2626; }
 
 /* ===== ANIMACIÓN DE TRANSICIÓN SUAVE PARA VISTAS ===== */
 .animate-aparecer {

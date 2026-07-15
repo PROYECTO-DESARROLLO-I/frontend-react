@@ -22,6 +22,13 @@ function MedicoSidebar({ vistaActual, cambiarVista, cerrarSesion }) {
                 >
                     Historial de Pacientes
                 </button>
+
+                <button
+                    className={vistaActual === "disponibilidad" ? "active" : ""}
+                    onClick={() => cambiarVista("disponibilidad")}
+                >
+                    Mi Disponibilidad
+                </button>
             </nav>
 
             <button className="admin-logout" onClick={cerrarSesion}>

@@ -6,6 +6,7 @@ import Admin from "./Admin";
 import RecuperarPassword from "./RecuperarPassword";
 import Paciente from "./Paciente";
 import Medico from "./Medico";
+import { GoEye, GoEyeClosed } from "react-icons/go";
 
 function Usuario({ irCrearCuenta }) {
   const [vistaActual, setVistaActual] = useState("login");
@@ -14,6 +15,7 @@ function Usuario({ irCrearCuenta }) {
   const [errorEmail, setErrorEmail] = useState(false);
   const [errorPassword, setErrorPassword] = useState(false);
   const [mensajeError, setMensajeError] = useState("");
+  const [mostrarPassword, setMostrarPassword] = useState(false);
 
   const validarEmail = (correo) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -151,13 +153,24 @@ function Usuario({ irCrearCuenta }) {
             />
 
             Contraseña
-            <input
-              type="password"
-              placeholder="...."
-              value={password}
-              onChange={manejarCambioPassword}
-              className={errorPassword ? "input-error" : ""}
-            />
+            <div className="password-input-wrap">
+              <input
+                type={mostrarPassword ? "text" : "password"}
+                placeholder="...."
+                value={password}
+                onChange={manejarCambioPassword}
+                className={errorPassword ? "input-error" : ""}
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setMostrarPassword((valor) => !valor)}
+                aria-label={mostrarPassword ? "Ocultar contrasena" : "Mostrar contrasena"}
+                title={mostrarPassword ? "Ocultar contrasena" : "Mostrar contrasena"}
+              >
+                {mostrarPassword ? <GoEyeClosed /> : <GoEye />}
+              </button>
+            </div>
 
             <p className="mensaje-error">{mensajeError}</p>
           </div>

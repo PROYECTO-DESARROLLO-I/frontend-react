@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import "./App.css";
 
 function AdminReportes() {
@@ -13,7 +13,6 @@ function AdminReportes() {
 
     const [citas, setCitas] = useState([]);
     const [especialidades, setEspecialidades] = useState([]); // Almacena especialidades de la BD
-    const [kpis, setKpis] = useState({ citasDelDia: 0, tasaCancelacion: 0, ocupacion: 0 });
     const [cargando, setCargando] = useState(false);
     const [error, setError] = useState("");
 
@@ -22,7 +21,7 @@ function AdminReportes() {
         setFiltros({ ...filtros, [name]: value });
     };
 
-    const construirQueryParams = () => {
+    const construirQueryParams = useCallback(() => {
         const params = new URLSearchParams();
         if (filtros.fechaDesde) params.append("date_from", filtros.fechaDesde);
         if (filtros.fechaHasta) params.append("date_to", filtros.fechaHasta);
@@ -31,10 +30,10 @@ function AdminReportes() {
         if (filtros.estado) params.append("status", filtros.estado.toLowerCase());
         if (filtros.paciente) params.append("patient_name", filtros.paciente);
         return params.toString();
-    };
+    }, [filtros]);
 
     // Función para cargar especialidades desde el backend
-    const cargarEspecialidades = async () => {
+    const cargarEspecialidades = useCallback(async () => {
         const token = localStorage.getItem("accessToken");
         try {
             // Ajusta esta URL según la ruta de especialidades de tu backend (ej. /api/specialties/ o /api/appointments/specialties/)
@@ -50,28 +49,14 @@ function AdminReportes() {
         } catch (err) {
             console.error("Error al cargar especialidades para el filtro:", err);
         }
-    };
+    }, []);
 
-    const consultarDatos = async () => {
+    const consultarDatos = useCallback(async () => {
         setCargando(true);
         setError("");
         const token = localStorage.getItem("accessToken");
 
         try {
-            // 1. Obtener KPIs del dashboard
-            const kpiRes = await fetch("http://localhost:8000/api/dashboard/kpis/", {
-                headers: { "Authorization": `Bearer ${token}` }
-            });
-            if (kpiRes.ok) {
-                const kpiData = await kpiRes.json();
-                setKpis({
-                    citasDelDia: kpiData.total_today,
-                    tasaCancelacion: kpiData.cancellation_rate_percent,
-                    ocupacion: kpiData.occupation_by_doctor.length > 0 ? 85.0 : 0
-                });
-            }
-
-            // 2. Obtener citas filtradas
             const queryParams = construirQueryParams();
             const appointmentsRes = await fetch(`http://localhost:8000/api/dashboard/appointments/?${queryParams}`, {
                 headers: { "Authorization": `Bearer ${token}` }
@@ -101,7 +86,28 @@ function AdminReportes() {
         } finally {
             setCargando(false);
         }
-    };
+    }, [construirQueryParams]);
+
+    const graficaEstados = useMemo(() => {
+        const estadosBase = ["Confirmada", "Pendiente", "Atendida", "Cancelada"];
+        const conteo = estadosBase.reduce((acumulado, estado) => ({
+            ...acumulado,
+            [estado]: 0,
+        }), {});
+
+        citas.forEach((cita) => {
+            const estado = cita.estado || "Sin estado";
+            conteo[estado] = (conteo[estado] || 0) + 1;
+        });
+
+        const maximo = Math.max(...Object.values(conteo), 1);
+
+        return Object.entries(conteo).map(([estado, total]) => ({
+            estado,
+            total,
+            porcentaje: Math.max((total / maximo) * 100, total > 0 ? 8 : 0),
+        }));
+    }, [citas]);
 
     useEffect(() => {
         // Ejecutamos ambas consultas al montar el componente
@@ -109,7 +115,7 @@ function AdminReportes() {
         consultarDatos().catch((err) => {
             console.error("Error al inicializar los reportes:", err);
         });
-    }, []);
+    }, [cargarEspecialidades, consultarDatos]);
 
     const handleExportarPDF = async () => {
         const token = localStorage.getItem("accessToken");
@@ -172,21 +178,25 @@ function AdminReportes() {
                 </div>
             </section>
 
-            <section className="reportes-kpi-grid">
-                <div className="reportes-card-kpi" style={{ borderColor: "#DE300D" }}>
-                    <span>Citas del Día</span>
-                    <strong>{kpis.citasDelDia}</strong>
-                    <p>Monitoreo en tiempo real</p>
+            <section className="reportes-grafica-card">
+                <div>
+                    <h3>Distribución de citas por estado</h3>
+                    <p>Resumen visual de los resultados filtrados.</p>
                 </div>
-                <div className="reportes-card-kpi" style={{ borderColor: "#DE300D" }}>
-                    <span>Tasa de Cancelación</span>
-                    <strong>{kpis.tasaCancelacion}%</strong>
-                    <p>Frente a citas realizadas</p>
-                </div>
-                <div className="reportes-card-kpi" style={{ borderColor: "#DE300D" }}>
-                    <span>Ocupación de Agenda</span>
-                    <strong>{kpis.ocupacion}%</strong>
-                    <p>Promedio por médico</p>
+
+                <div className="reportes-bar-chart">
+                    {graficaEstados.map((item) => (
+                        <div className="reportes-bar-row" key={item.estado}>
+                            <span>{item.estado}</span>
+                            <div className="reportes-bar-track">
+                                <div
+                                    className={`reportes-bar-fill estado-${item.estado.toLowerCase()}`}
+                                    style={{ width: `${item.porcentaje}%` }}
+                                />
+                            </div>
+                            <strong>{item.total}</strong>
+                        </div>
+                    ))}
                 </div>
             </section>
 
