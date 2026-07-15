@@ -1,8 +1,7 @@
 import { useState } from "react";
 import "./App.css";
-import { GoArrowLeft } from "react-icons/go";
 
-function RegistroPersonal({ volverAlDashboard }) {
+function RegistroPersonal() {
     const [nombre, setNombre] = useState("");
     const [apellido, setApellido] = useState("");
     const [identityDocument, setIdentityDocument] = useState("");
@@ -207,11 +206,6 @@ function RegistroPersonal({ volverAlDashboard }) {
                 }}
             >
                 {toast.mensaje}
-            </div>
-
-            <div className="admin-back" onClick={volverAlDashboard}>
-                <GoArrowLeft />
-                <p>Volver al Panel Administrativo</p>
             </div>
 
             <div className="admin-form-card">

@@ -7,7 +7,7 @@ import RegistroSedes from "./RegistroSedes";
 import AdminReportes from "./AdminReportes";
 
 function Admin({ volverAlDashboard }) {
-  const [vistaAdmin, setVistaAdmin] = useState("registroPersonal");
+  const [vistaAdmin, setVistaAdmin] = useState("reportes");
 
   return (
     <div className="admin-container">
