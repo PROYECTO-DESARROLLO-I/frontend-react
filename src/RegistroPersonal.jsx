@@ -106,9 +106,40 @@ function RegistroPersonal({ volverAlDashboard }) {
                     return;
                 }
             } else if (rol === "administrativo") {
-                /* TODO: Consumir endpoint de administrativos en esta parte. */
-                mostrarToast("Aún está pendiente el desarrollo del registro de administrativos.", "error");
-                return;
+                const mapaAreas = {
+                    recepcion: "Recepcion y Citas",
+                    recursos_humanos: "Recursos Humanos",
+                    facturacion: "Facturacion y Finanzas",
+                    gerencia: "Gerencia / Direccion"
+                };
+
+                const bodyRequest = {
+                    nombre: nombre.trim(),
+                    apellido: apellido.trim(),
+                    email: email.trim(),
+                    password: password,
+                    rol: "administrativo",
+                    identity_document: identityDocument.trim(),
+                    position: mapaAreas[area] || area
+                };
+
+                const response = await fetch("http://localhost:8000/api/auth/staff/register/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(bodyRequest)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    const campoError = Object.keys(data)[0];
+                    const mensajeBackend = data[campoError];
+                    mostrarToast(Array.isArray(mensajeBackend) ? mensajeBackend[0] : data.detail || "Error en el formulario.", "error");
+                    return;
+                }
             }
 
             const textoRol = rol === "medico" ? "Médico" : "Administrativo";
@@ -122,7 +153,7 @@ function RegistroPersonal({ volverAlDashboard }) {
             setArea("");
             setIdentityDocument("");
             setPassword("");
-        } catch (error) {
+        } catch {
             mostrarToast("No se pudo conectar con el servidor.", "error");
         }
     };
