@@ -69,35 +69,6 @@ const formatoDateTimeLocal = (fecha) => {
   return `${year}-${month}-${day}T${hours}:${minutes}:00`;
 };
 
-const generarFranjasSimuladas = (fechaTexto, duracion = 30) => {
-  if (!fechaTexto) return [];
-
-  const fecha = new Date(`${fechaTexto}T00:00:00`);
-  const hoy = new Date();
-  const horasBase = [8, 9, 10, 11, 14, 15, 16];
-
-  return horasBase
-    .map((hora, index) => {
-      const inicio = new Date(fecha);
-      inicio.setHours(hora, index % 2 === 0 ? 0 : 30, 0, 0);
-      const fin = sumarMinutos(inicio, duracion);
-
-      return {
-        id: `${fechaTexto}-${hora}-${index}`,
-        start: inicio,
-        end: fin,
-        title: `${inicio.toLocaleTimeString("es-CO", {
-          hour: "2-digit",
-          minute: "2-digit",
-        })} - ${fin.toLocaleTimeString("es-CO", {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}`,
-      };
-    })
-    .filter((franja) => franja.start > hoy);
-};
-
 function CitasAgendadasPaciente() {
   const [citas, setCitas] = useState([]);
   const [cargando, setCargando] = useState(false);
@@ -108,6 +79,8 @@ function CitasAgendadasPaciente() {
   const [modoReprogramacion, setModoReprogramacion] = useState(false);
   const [fechaReprogramacion, setFechaReprogramacion] = useState(formatoInputFecha(new Date()));
   const [franjaReprogramacion, setFranjaReprogramacion] = useState(null);
+  const [franjasReprogramacion, setFranjasReprogramacion] = useState([]);
+  const [cargandoFranjas, setCargandoFranjas] = useState(false);
   const [errorReprogramacion, setErrorReprogramacion] = useState("");
   const [confirmacionReprogramacion, setConfirmacionReprogramacion] = useState("");
   const [modoCancelacion, setModoCancelacion] = useState(false);
@@ -247,10 +220,108 @@ function CitasAgendadasPaciente() {
         : "reschedule-calendar-event",
   });
 
-  const franjasReprogramacion = useMemo(
-    () => generarFranjasSimuladas(fechaReprogramacion, citaSeleccionada?.duration_minutes || 30),
-    [citaSeleccionada, fechaReprogramacion],
-  );
+  const resolverDatosDisponibilidad = useCallback(async (cita, token) => {
+    if (cita.doctor_id && cita.specialty_id) {
+      return {
+        doctorId: cita.doctor_id,
+        specialtyId: cita.specialty_id,
+      };
+    }
+
+    const specialtiesResponse = await fetch("http://localhost:8000/api/specialties/", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const specialtiesData = await leerRespuesta(specialtiesResponse);
+
+    if (!specialtiesResponse.ok) {
+      throw new Error(obtenerMensajeError(specialtiesData, "No se pudo identificar la especialidad."));
+    }
+
+    const specialty = specialtiesData.find(
+      (item) => normalizar(item.name) === normalizar(cita.specialty_name),
+    );
+
+    if (!specialty) {
+      throw new Error("No se pudo identificar la especialidad de esta cita.");
+    }
+
+    const doctorsResponse = await fetch(`http://localhost:8000/api/doctors/?specialty=${specialty.id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const doctorsData = await leerRespuesta(doctorsResponse);
+
+    if (!doctorsResponse.ok) {
+      throw new Error(obtenerMensajeError(doctorsData, "No se pudo identificar el medico."));
+    }
+
+    const nombreCita = normalizar(cita.doctor_name).replace(/^dr\(a\)\.\s*/, "");
+    const doctor = doctorsData.find((item) => normalizar(item.full_name) === nombreCita);
+
+    if (!doctor) {
+      throw new Error("No se pudo identificar el medico de esta cita.");
+    }
+
+    return {
+      doctorId: doctor.id,
+      specialtyId: specialty.id,
+    };
+  }, [leerRespuesta]);
+
+  const cargarFranjasReprogramacion = useCallback(async (cita, fechaTexto) => {
+    if (!cita || !fechaTexto) return;
+
+    setCargandoFranjas(true);
+    setErrorReprogramacion("");
+    setFranjasReprogramacion([]);
+
+    try {
+      const token = localStorage.getItem("accessToken");
+      const { doctorId, specialtyId } = await resolverDatosDisponibilidad(cita, token);
+      const params = new URLSearchParams({
+        doctor: doctorId,
+        specialty: specialtyId,
+        date: fechaTexto,
+        view: "week",
+      });
+
+      const response = await fetch(`http://localhost:8000/api/availability/slots/?${params.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await leerRespuesta(response);
+
+      if (!response.ok) {
+        setErrorReprogramacion(obtenerMensajeError(data, "No se pudo cargar la disponibilidad."));
+        return;
+      }
+
+      const franjas = (data.slots || [])
+        .filter((franja) => franja.date === fechaTexto)
+        .map((franja, index) => ({
+          id: `${franja.date}-${franja.start_time}-${index}`,
+          start: new Date(`${franja.date}T${franja.start_time}`),
+          end: new Date(`${franja.date}T${franja.end_time}`),
+          title: `${String(franja.start_time).slice(0, 5)} - ${String(franja.end_time).slice(0, 5)}`,
+          resource: franja,
+        }));
+
+      setFranjasReprogramacion(franjas);
+    } catch (error) {
+      setErrorReprogramacion(error.message || "Error de conexion al cargar disponibilidad.");
+    } finally {
+      setCargandoFranjas(false);
+    }
+  }, [leerRespuesta, resolverDatosDisponibilidad]);
+
+  useEffect(() => {
+    if (!modoReprogramacion) return;
+    cargarFranjasReprogramacion(citaSeleccionada, fechaReprogramacion);
+  }, [cargarFranjasReprogramacion, citaSeleccionada, fechaReprogramacion, modoReprogramacion]);
 
   const abrirDetalle = (cita) => {
     setCitaSeleccionada(cita);
@@ -276,6 +347,7 @@ function CitasAgendadasPaciente() {
     }
 
     setModoReprogramacion(true);
+    setFranjasReprogramacion([]);
     setModoCancelacion(false);
     setErrorReprogramacion("");
     setConfirmacionReprogramacion("");
@@ -316,7 +388,12 @@ function CitasAgendadasPaciente() {
         return;
       }
 
-      const citaActualizada = { ...citaSeleccionada, ...data };
+      const citaActualizada = {
+        ...citaSeleccionada,
+        ...data,
+        doctor_id: citaSeleccionada.doctor_id,
+        specialty_id: citaSeleccionada.specialty_id,
+      };
 
       setCitas((citasActuales) =>
         citasActuales.map((cita) =>
@@ -628,12 +705,16 @@ function CitasAgendadasPaciente() {
                 <p className="mensaje-error">{errorReprogramacion}</p>
               )}
 
-              {franjasReprogramacion.length === 0 ? (
+              {cargandoFranjas && <p>Cargando horarios disponibles...</p>}
+
+              {!cargandoFranjas && franjasReprogramacion.length === 0 && (
                 <div className="appointments-empty">
                   <h3>No hay horarios disponibles</h3>
                   <p>Selecciona otra fecha para consultar nuevas franjas.</p>
                 </div>
-              ) : (
+              )}
+
+              {!cargandoFranjas && franjasReprogramacion.length > 0 && (
                 <>
                   <div className="reschedule-calendar">
                     <Calendar
@@ -705,7 +786,12 @@ function CitasAgendadasPaciente() {
                 >
                   Cancelar
                 </button>
-                <button type="button" className="enviar" onClick={confirmarReprogramacion}>
+                <button
+                  type="button"
+                  className="enviar"
+                  onClick={confirmarReprogramacion}
+                  disabled={cargandoFranjas}
+                >
                   Confirmar cambio
                 </button>
               </div>

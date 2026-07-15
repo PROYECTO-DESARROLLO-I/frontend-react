@@ -2,8 +2,6 @@ import PacienteLayout from "./pacienteLayout.jsx";
 import CitasPaciente from "./citasPaciente.jsx";
 import CitasAgendadasPaciente from "./CitasAgendadasPaciente.jsx";
 import PerfilPaciente from "./PerfilPaciente";
-import RegistroPersonal from "./RegistroPersonal";
-import RegistroSedes from "./RegistroSedes";
 import { useState } from "react";
 
 function Paciente({ volverAlDashboard }) {
@@ -17,9 +15,7 @@ function Paciente({ volverAlDashboard }) {
         cerrarSesion={volverAlDashboard}
         >
           {vistaPaciente === "visualizar" && <CitasAgendadasPaciente />}
-          {vistaPaciente === "cancelarCita" && <RegistroPersonal volverAlDashboard={() => setVistaPaciente("visualizar")} />}
           {vistaPaciente === "PerfilPaciente" && <PerfilPaciente volverAlDashboard={() => setVistaPaciente("visualizar")} />}
-          {vistaPaciente === "reprogramarCita" && <RegistroSedes volverAlDashboard={() => setVistaPaciente("visualizar")} />}
           {vistaPaciente === "agendarCita" && <CitasPaciente volverAlDashboard={() => setVistaPaciente("visualizar")} />}
         </PacienteLayout>
     </div>

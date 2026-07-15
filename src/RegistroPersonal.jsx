@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 function RegistroPersonal() {
@@ -11,6 +11,8 @@ function RegistroPersonal() {
 
     // Estados para campos específicos de Médicos.
     const [especialidad, setEspecialidad] = useState("");
+    const [especialidades, setEspecialidades] = useState([]);
+    const [cargandoEspecialidades, setCargandoEspecialidades] = useState(false);
     const [tarjetaProfesional, setTarjetaProfesional] = useState("");
 
     // Estados para campos específicos de Administrativos.
@@ -31,6 +33,35 @@ function RegistroPersonal() {
             setToast({ visible: false, mensaje: "", tipo: "" });
         }, 4000);
     };
+
+    useEffect(() => {
+        const cargarEspecialidades = async () => {
+            setCargandoEspecialidades(true);
+
+            try {
+                const token = localStorage.getItem("accessToken");
+                const response = await fetch("http://localhost:8000/api/specialties/", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+
+                if (!response.ok) {
+                    mostrarToast(data.detail || "No se pudieron cargar las especialidades.", "error");
+                    return;
+                }
+
+                setEspecialidades(data);
+            } catch {
+                mostrarToast("No se pudo conectar con el servidor para cargar especialidades.", "error");
+            } finally {
+                setCargandoEspecialidades(false);
+            }
+        };
+
+        cargarEspecialidades();
+    }, []);
 
     const manejarRegistro = async (e) => {
         e.preventDefault();
@@ -69,14 +100,6 @@ function RegistroPersonal() {
             }
 
             if (rol === "medico") {
-                const mapaEspecialidades = {
-                    "medicina_general": 1,
-                    "pediatria": 2,
-                    "cardiologia": 3,
-                    "ginecologia": 4,
-                    "odontologia": 5
-                };
-
                 const bodyRequest = {
                     nombre: nombre.trim(),
                     apellido: apellido.trim(),
@@ -84,7 +107,7 @@ function RegistroPersonal() {
                     password: password,
                     identity_document: identityDocument.trim(),
                     register_number: tarjetaProfesional.trim(),
-                    specialty_ids: [mapaEspecialidades[especialidad]]
+                    specialty_ids: [Number(especialidad)]
                 };
 
                 const response = await fetch("http://localhost:8000/api/doctors/", {
@@ -282,13 +305,16 @@ function RegistroPersonal() {
                                 value={especialidad}
                                 onChange={(e) => { setEspecialidad(e.target.value); setErrores({...errores, especialidad: false}); }}
                                 style={{ padding: "10px", borderRadius: "5px", marginBottom: "15px", border: errores.especialidad ? "1px solid #DE300D" : "1px solid #ccc" }}
+                                disabled={cargandoEspecialidades}
                             >
-                                <option value="">-- Seleccione Especialidad --</option>
-                                <option value="medicina_general">Medicina General</option>
-                                <option value="pediatria">Pediatría</option>
-                                <option value="cardiologia">Cardiología</option>
-                                <option value="ginecologia">Ginecología</option>
-                                <option value="odontologia">Odontología</option>
+                                <option value="">
+                                    {cargandoEspecialidades ? "Cargando especialidades..." : "-- Seleccione Especialidad --"}
+                                </option>
+                                {especialidades.map((item) => (
+                                    <option key={item.id} value={item.id}>
+                                        {item.name}
+                                    </option>
+                                ))}
                             </select>
 
                             Número de Tarjeta Profesional
