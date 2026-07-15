@@ -10,13 +10,6 @@ function AdminSidebar({ vistaActual, cambiarVista, cerrarSesion }) {
 
             <nav className="admin-nav">
                 <button
-                    className={vistaActual === "panel" ? "active" : ""}
-                    onClick={() => cambiarVista("panel")}
-                >
-                    Panel
-                </button>
-
-                <button
                     className={vistaActual === "registroPersonal" ? "active" : ""}
                     onClick={() => cambiarVista("registroPersonal")}
                 >

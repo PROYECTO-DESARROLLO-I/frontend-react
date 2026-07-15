@@ -874,6 +874,22 @@ margin-top: 20px;
   margin: 0;
 }
 
+.appointment-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.appointment-detail-actions .enviar,
+.appointment-detail-actions .cancel-appointment-button {
+  width: 180px;
+  min-height: 46px;
+  margin-top: 0;
+  padding: 12px 18px;
+  text-align: center;
+}
+
 .mensaje-exito {
   margin: 14px 0 0;
   color: #166534;
@@ -965,6 +981,52 @@ margin-top: 20px;
   gap: 10px;
 }
 
+.cancel-appointment-button {
+  justify-self: start;
+  margin-top: 10px;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #dc2626;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancel-appointment-button:hover {
+  background: #991b1b;
+}
+
+.cancel-confirmation-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fef2f2;
+}
+
+.cancel-confirmation-panel h4 {
+  margin: 0;
+  color: #991b1b;
+}
+
+.cancel-confirmation-panel p {
+  margin: 0;
+  color: #7f1d1d;
+}
+
+.cancel-summary {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-left: 4px solid #dc2626;
+  border-radius: 6px;
+  background: #fff;
+}
+
 @media (max-width: 900px) {
   .patient-appointments-header {
     flex-direction: column;
@@ -993,6 +1055,15 @@ margin-top: 20px;
 
   .appointment-detail-panel dl {
     grid-template-columns: 1fr;
+  }
+
+  .appointment-detail-actions {
+    flex-direction: column;
+  }
+
+  .appointment-detail-actions .enviar,
+  .appointment-detail-actions .cancel-appointment-button {
+    width: 100%;
   }
 }
 

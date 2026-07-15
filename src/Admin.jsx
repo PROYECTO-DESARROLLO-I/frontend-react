@@ -7,7 +7,7 @@ import RegistroSedes from "./RegistroSedes";
 import AdminReportes from "./AdminReportes";
 
 function Admin({ volverAlDashboard }) {
-  const [vistaAdmin, setVistaAdmin] = useState("panel");
+  const [vistaAdmin, setVistaAdmin] = useState("registroPersonal");
 
   return (
     <div className="admin-container">
@@ -16,9 +16,9 @@ function Admin({ volverAlDashboard }) {
         cambiarVista={setVistaAdmin}
         cerrarSesion={volverAlDashboard}
         >
-          {vistaAdmin === "registroPersonal" && <RegistroPersonal volverAlDashboard={() => setVistaAdmin("panel")} />}
-          {vistaAdmin === "crearSede" && <RegistroSedes volverAlDashboard={() => setVistaAdmin("panel")} />}
-          {vistaAdmin === "agendarCita" && <CitasAdmin volverAlDashboard={() => setVistaAdmin("panel")} />}
+          {vistaAdmin === "registroPersonal" && <RegistroPersonal volverAlDashboard={() => setVistaAdmin("registroPersonal")} />}
+          {vistaAdmin === "crearSede" && <RegistroSedes volverAlDashboard={() => setVistaAdmin("registroPersonal")} />}
+          {vistaAdmin === "agendarCita" && <CitasAdmin volverAlDashboard={() => setVistaAdmin("registroPersonal")} />}
           {vistaAdmin === "reportes" && <AdminReportes />}
         </AdminLayout>
     </div>
