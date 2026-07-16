@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import paciente from "./assets/paciente.png";
 import Card from "./Card";
 import Admin from "./Admin";
 import RecuperarPassword from "./RecuperarPassword";
+import RestablecerPassword from "./RestablecerPassword";
 import Paciente from "./Paciente";
 import Medico from "./Medico";
 import { GoEye, GoEyeClosed } from "react-icons/go";
@@ -15,17 +16,31 @@ function Usuario({ irCrearCuenta }) {
   const [errorEmail, setErrorEmail] = useState(false);
   const [errorPassword, setErrorPassword] = useState(false);
   const [mensajeError, setMensajeError] = useState("");
+  const [mensajeExitoLogin, setMensajeExitoLogin] = useState("");
   const [mostrarPassword, setMostrarPassword] = useState(false);
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const uid = queryParams.get("uid");
+    const token = queryParams.get("token");
+
+    if (uid && token) {
+      setVistaActual("restablecer");
+    }
+  }, []);
 
   const validarEmail = (correo) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(correo);
   };
 
-  const limpiarLogin = () => {
+  const limpiarLogin = (desdeRestablecimientoExitoso = false) => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
+
+    const urlLimpia = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    window.history.pushState({ path: urlLimpia }, "", urlLimpia);
 
     setVistaActual("login");
     setEmail("");
@@ -33,6 +48,12 @@ function Usuario({ irCrearCuenta }) {
     setErrorEmail(false);
     setErrorPassword(false);
     setMensajeError("");
+
+    if (desdeRestablecimientoExitoso === true) {
+      setMensajeExitoLogin("¡Tu contraseña ha sido actualizada con éxito! Ya puedes ingresar.");
+    } else {
+      setMensajeExitoLogin("");
+    }
   };
 
   const manejarCambioEmail = (e) => {
@@ -45,12 +66,14 @@ function Usuario({ irCrearCuenta }) {
     setPassword(e.target.value);
     setErrorPassword(false);
     setMensajeError("");
+    setMensajeExitoLogin("");
   };
 
   const manejarLogin = async () => {
     setErrorEmail(false);
     setErrorPassword(false);
     setMensajeError("");
+    setMensajeExitoLogin("");
 
     if (!email && !password) {
       setErrorEmail(true);
@@ -118,6 +141,17 @@ function Usuario({ irCrearCuenta }) {
     );
   }
 
+  if (vistaActual === "restablecer") {
+    return (
+        <div className="comp">
+          <div className="izq">
+            <Card />
+          </div>
+          <RestablecerPassword volverAlLogin={limpiarLogin} />
+        </div>
+    );
+  }
+
   if (vistaActual === "admin") {
     return <Admin volverAlDashboard={limpiarLogin} />;
   }
@@ -138,6 +172,28 @@ function Usuario({ irCrearCuenta }) {
 
       <div className="der">
         <div className="forms">
+          {mensajeExitoLogin && (
+              <div style={{
+                backgroundColor: "#e8f5e9",
+                border: "1px solid #a5d6a7",
+                borderRadius: "8px",
+                padding: "12px",
+                marginBottom: "15px",
+                width: "100%",
+                boxSizing: "border-box",
+                textAlign: "center"
+              }}>
+                <p style={{
+                  color: "#2e7d32",
+                  margin: 0,
+                  fontSize: "13.5px",
+                  fontWeight: "bold"
+                }}>
+                  {mensajeExitoLogin}
+                </p>
+              </div>
+          )}
+
           <img src={String(paciente)} alt="Inicio de sesión para Pacientes" />
           <h4>Ingresa tu Usuario</h4>
           <p>Solicita y gestiona tus citas médicas</p>
@@ -165,8 +221,8 @@ function Usuario({ irCrearCuenta }) {
                 type="button"
                 className="password-toggle"
                 onClick={() => setMostrarPassword((valor) => !valor)}
-                aria-label={mostrarPassword ? "Ocultar contrasena" : "Mostrar contrasena"}
-                title={mostrarPassword ? "Ocultar contrasena" : "Mostrar contrasena"}
+                aria-label={mostrarPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                title={mostrarPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
               >
                 {mostrarPassword ? <GoEyeClosed /> : <GoEye />}
               </button>
