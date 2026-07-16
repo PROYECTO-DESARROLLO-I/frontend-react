@@ -37,6 +37,13 @@ function AdminSidebar({ vistaActual, cambiarVista, cerrarSesion }) {
                     Agendar Cita Paciente
                 </button>
 
+                <button
+                    className={vistaActual === "pacientes" ? "active" : ""}
+                    onClick={() => cambiarVista("pacientes")}
+                >
+                    Gestion de pacientes
+                </button>
+
             </nav>
         
             <button className="admin-logout" onClick={cerrarSesion}>

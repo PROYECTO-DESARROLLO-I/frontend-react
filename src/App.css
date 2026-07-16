@@ -670,6 +670,22 @@ margin-top: 20px;
   background: #ba1f01;
 }
 
+.admin-detail-list {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 10px 16px;
+  margin: 0;
+}
+
+.admin-detail-list dt {
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.admin-detail-list dd {
+  margin: 0;
+}
+
 @media (max-width: 900px) {
   .admin-layout {
     flex-direction: column;
