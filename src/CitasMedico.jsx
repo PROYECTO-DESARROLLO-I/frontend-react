@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 
 const normalizar = (valor) =>
@@ -72,6 +72,8 @@ function CitasMedico() {
     const [motivoCancelacion, setMotivoCancelacion] = useState("");
     const [errorCancelacion, setErrorCancelacion] = useState("");
     const [confirmacionCancelacion, setConfirmacionCancelacion] = useState("");
+    const reprogramacionRef = useRef(null);
+    const cancelacionRef = useRef(null);
 
     const leerRespuesta = useCallback(async (response) => {
         const text = await response.text();
@@ -355,9 +357,15 @@ function CitasMedico() {
         if (accion === "reprogramar") {
             setModoReprogramacion(true);
             setModoCancelacion(false);
+            setTimeout(() => {
+                reprogramacionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 0);
         } else if (accion === "cancelar") {
             setModoCancelacion(true);
             setModoReprogramacion(false);
+            setTimeout(() => {
+                cancelacionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 0);
         }
     };
 
@@ -545,7 +553,7 @@ function CitasMedico() {
 
             {/* --- PANEL INTERACTIVO DE REPROGRAMACIÓN --- */}
             {modoReprogramacion && citaSeleccionada && (
-                <div className="appointment-detail-panel animate-aparecer" style={{ marginTop: "30px" }}>
+                <div className="appointment-detail-panel animate-aparecer" ref={reprogramacionRef} style={{ marginTop: "30px" }}>
                     <h3>Reprogramar Cita de {citaSeleccionada.patient_name}</h3>
                     <p>Selecciona una nueva fecha y franja disponible para el paciente.</p>
 
@@ -631,7 +639,7 @@ function CitasMedico() {
 
             {/* --- PANEL INTERACTIVO DE CANCELACIÓN --- */}
             {modoCancelacion && citaSeleccionada && (
-                <div className="appointment-detail-panel animate-aparecer" style={{ marginTop: "30px" }}>
+                <div className="appointment-detail-panel animate-aparecer" ref={cancelacionRef} style={{ marginTop: "30px" }}>
                     <h3>Confirmar Cancelación</h3>
                     <p>¿Estás seguro de que deseas cancelar la cita del siguiente paciente?</p>
 

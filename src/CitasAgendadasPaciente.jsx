@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, getDay, parse, startOfWeek } from "date-fns";
 import { es } from "date-fns/locale";
@@ -92,6 +92,8 @@ function CitasAgendadasPaciente() {
     estado: "",
     sede: "",
   });
+  const detalleCitaRef = useRef(null);
+  const reprogramacionRef = useRef(null);
 
   const leerRespuesta = useCallback(async (response) => {
     const text = await response.text();
@@ -360,6 +362,9 @@ function CitasAgendadasPaciente() {
     setErrorCancelacion("");
     setConfirmacionCancelacion("");
     setFechaReprogramacion(formatoInputFecha(fechaCita(cita)));
+    setTimeout(() => {
+      detalleCitaRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
   };
 
   const puedeModificarCita = (cita) => {
@@ -379,6 +384,9 @@ function CitasAgendadasPaciente() {
     setErrorReprogramacion("");
     setConfirmacionReprogramacion("");
     setErrorCancelacion("");
+    setTimeout(() => {
+      reprogramacionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
   };
 
   const confirmarReprogramacion = async () => {
@@ -629,7 +637,7 @@ function CitasAgendadasPaciente() {
       )}
 
       {citaSeleccionada && (
-        <div className="appointment-detail-panel">
+        <div className="appointment-detail-panel" ref={detalleCitaRef}>
           <div>
             <h3>{citaSeleccionada.specialty_name || "Detalle de cita"}</h3>
             <p>{obtenerEstado(citaSeleccionada.status)}</p>
@@ -708,7 +716,7 @@ function CitasAgendadasPaciente() {
           )}
 
           {modoReprogramacion && (
-            <div className="reschedule-panel">
+            <div className="reschedule-panel" ref={reprogramacionRef}>
               <h4>Reprogramar cita</h4>
               <p>
                 Selecciona una fecha inicial y una franja disponible para cambiar tu cita.

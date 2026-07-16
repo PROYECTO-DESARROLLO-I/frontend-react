@@ -1370,6 +1370,19 @@ margin-top: 20px;
   background-color: #f9fafb;
 }
 
+.acciones-tabla {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.acciones-tabla .admin-primary-button,
+.acciones-tabla .cambiar_horario {
+  margin-top: 0;
+  padding: 8px 12px;
+}
+
 /* Badges estilizados para los estados de las citas */
 .badge {
   display: inline-block;

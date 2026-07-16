@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { GoSearch } from "react-icons/go";
 import "./App.css";
 
@@ -18,6 +18,8 @@ function AdminPacientes() {
     tdocumento: "",
     documento: "",
   });
+  const detallePacienteRef = useRef(null);
+  const edicionPacienteRef = useRef(null);
 
   const obtenerNombrePaciente = (paciente) => {
     const nombre = paciente.user?.nombre || paciente.nombre || "";
@@ -96,6 +98,9 @@ function AdminPacientes() {
       active: obtenerEstadoPaciente(paciente).toLowerCase() !== "inactivo",
     });
     setMensajeError("");
+    setTimeout(() => {
+      detallePacienteRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
   };
 
   const iniciarEdicion = () => {
@@ -108,6 +113,9 @@ function AdminPacientes() {
       phone_number: pacienteSeleccionado.phone_number || pacienteSeleccionado.user?.phone_number || "",
       active: obtenerEstadoPaciente(pacienteSeleccionado).toLowerCase() !== "inactivo",
     });
+    setTimeout(() => {
+      edicionPacienteRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
   };
 
   const manejarCambioEdicion = (e) => {
@@ -204,7 +212,7 @@ function AdminPacientes() {
       </div>
 
       {pacienteSeleccionado && (
-        <div className="admin-form-card" style={{ marginTop: "22px" }}>
+        <div className="admin-form-card" ref={detallePacienteRef} style={{ marginTop: "22px" }}>
           <h2>Detalle del paciente</h2>
           
 
@@ -232,7 +240,7 @@ function AdminPacientes() {
           )}
 
           {modoEdicion && (
-            <form className="admin-form-grid patient-edit-form" onSubmit={guardarCambiosPaciente}>
+            <form className="admin-form-grid patient-edit-form" ref={edicionPacienteRef} onSubmit={guardarCambiosPaciente}>
               <label>Correo</label>
               <input
                 type="email"

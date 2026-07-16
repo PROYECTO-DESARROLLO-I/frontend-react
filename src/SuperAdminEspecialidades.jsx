@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 
 const especialidadInicial = {
@@ -17,11 +17,13 @@ function SuperAdminEspecialidades() {
   const [eps, setEps] = useState([]);
   const [especialidadForm, setEspecialidadForm] = useState(especialidadInicial);
   const [epsForm, setEpsForm] = useState(epsInicial);
+  const [epsEditando, setEpsEditando] = useState(null);
   const [busquedaEspecialidad, setBusquedaEspecialidad] = useState("");
   const [mensajeError, setMensajeError] = useState("");
   const [mensajeExito, setMensajeExito] = useState("");
   const [toast, setToast] = useState({ visible: false, mensaje: "", tipo: "" });
   const [cargando, setCargando] = useState(false);
+  const epsFormRef = useRef(null);
 
   const headers = useMemo(
     () => ({
@@ -120,14 +122,17 @@ function SuperAdminEspecialidades() {
     mostrarToast(mensaje, "error");
   };
 
-  const crearEPS = async (e) => {
+  const guardarEPS = async (e) => {
     e.preventDefault();
     setMensajeError("");
     setMensajeExito("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/eps/", {
-        method: "POST",
+      const url = epsEditando
+        ? `http://localhost:8000/api/eps/${epsEditando.id}/`
+        : "http://localhost:8000/api/eps/";
+      const response = await fetch(url, {
+        method: epsEditando ? "PATCH" : "POST",
         headers,
         body: JSON.stringify({
           name: epsForm.name.trim(),
@@ -138,15 +143,68 @@ function SuperAdminEspecialidades() {
       const data = await leerRespuesta(response);
 
       if (!response.ok) {
-        const mensaje = obtenerMensajeError(data, "No se pudo crear la EPS.");
+        const mensaje = obtenerMensajeError(data, "No se pudo guardar la EPS.");
         setMensajeError(mensaje);
         mostrarToast(mensaje, "error");
         return;
       }
 
-      setMensajeExito("EPS creada correctamente.");
-      mostrarToast("EPS registrada correctamente.", "exito");
+      setMensajeExito(epsEditando ? "EPS actualizada correctamente." : "EPS creada correctamente.");
+      mostrarToast(epsEditando ? "EPS actualizada correctamente." : "EPS registrada correctamente.", "exito");
       setEpsForm(epsInicial);
+      setEpsEditando(null);
+      await cargarDatos();
+    } catch {
+      const mensaje = "No se pudo conectar con el servidor.";
+      setMensajeError(mensaje);
+      mostrarToast(mensaje, "error");
+    }
+  };
+
+  const editarEPS = (item) => {
+    setEpsEditando(item);
+    setEpsForm({
+      name: item.name || "",
+      code: item.code || "",
+      active: Boolean(item.active),
+    });
+    setMensajeError("");
+    setMensajeExito("");
+    setTimeout(() => {
+      epsFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  };
+
+  const cancelarEdicionEPS = () => {
+    setEpsEditando(null);
+    setEpsForm(epsInicial);
+    setMensajeError("");
+    setMensajeExito("");
+  };
+
+  const eliminarEPS = async (item) => {
+    const confirmar = window.confirm(`Eliminar la EPS ${item.name}?`);
+    if (!confirmar) return;
+
+    setMensajeError("");
+    setMensajeExito("");
+
+    try {
+      const response = await fetch(`http://localhost:8000/api/eps/${item.id}/`, {
+        method: "DELETE",
+        headers,
+      });
+
+      if (!response.ok) {
+        const data = await leerRespuesta(response);
+        const mensaje = obtenerMensajeError(data, "No se pudo eliminar la EPS.");
+        setMensajeError(mensaje);
+        mostrarToast(mensaje, "error");
+        return;
+      }
+
+      mostrarToast("EPS eliminada correctamente.", "exito");
+      if (epsEditando?.id === item.id) cancelarEdicionEPS();
       await cargarDatos();
     } catch {
       const mensaje = "No se pudo conectar con el servidor.";
@@ -186,7 +244,7 @@ function SuperAdminEspecialidades() {
         {cargando && <p>Cargando informacion...</p>}
       </div>
 
-      <div className="admin-form-card" style={{ marginTop: "22px" }}>
+      <div className="admin-form-card" ref={epsFormRef} style={{ marginTop: "22px" }}>
         <h2>Crear especialidad</h2>
       
 
@@ -217,9 +275,9 @@ function SuperAdminEspecialidades() {
 
       <div className="admin-form-card" style={{ marginTop: "22px" }}>
         <h2>Añadir EPS</h2>
-        <p>Este formulario sí consume el endpoint existente de superadmin: POST /api/eps/.</p>
+        
 
-        <form className="admin-form-grid" onSubmit={crearEPS}>
+        <form className="admin-form-grid" onSubmit={guardarEPS}>
           <label>Nombre</label>
           <input name="name" value={epsForm.name} onChange={manejarEPS} placeholder="Ej. Sura" required />
 
@@ -239,8 +297,13 @@ function SuperAdminEspecialidades() {
           </div>
 
           <button type="submit" className="admin-primary-button">
-            Guardar EPS
+            {epsEditando ? "Actualizar EPS" : "Guardar EPS"}
           </button>
+          {epsEditando && (
+            <button type="button" className="cambiar_horario" onClick={cancelarEdicionEPS}>
+              Cancelar edicion
+            </button>
+          )}
         </form>
       </div>
 
@@ -290,12 +353,13 @@ function SuperAdminEspecialidades() {
               <th>Nombre</th>
               <th>Codigo</th>
               <th>Estado</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {eps.length === 0 && (
               <tr>
-                <td colSpan="3">No hay EPS para mostrar.</td>
+                <td colSpan="4">No hay EPS para mostrar.</td>
               </tr>
             )}
             {eps.map((item) => (
@@ -306,6 +370,16 @@ function SuperAdminEspecialidades() {
                   <span className={`badge ${item.active ? "status-activo" : "status-inactivo"}`}>
                     {item.active ? "Activa" : "Inactiva"}
                   </span>
+                </td>
+                <td>
+                  <div className="acciones-tabla">
+                    <button type="button" className="cambiar_horario" onClick={() => editarEPS(item)}>
+                      Editar
+                    </button>
+                    <button type="button" className="admin-primary-button" onClick={() => eliminarEPS(item)}>
+                      Eliminar
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

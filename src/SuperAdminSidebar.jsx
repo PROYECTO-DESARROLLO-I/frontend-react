@@ -21,6 +21,9 @@ function SuperAdminSidebar({ vistaActual, cambiarVista, cerrarSesion }) {
         <button className={vistaActual === "sedes" ? "active" : ""} onClick={() => cambiarVista("sedes")}>
           Sedes
         </button>
+        <button className={vistaActual === "disponibilidad" ? "active" : ""} onClick={() => cambiarVista("disponibilidad")}>
+          Disponibilidad
+        </button>
         <button className={vistaActual === "reglas" ? "active" : ""} onClick={() => cambiarVista("reglas")}>
           Reglas de negocio
         </button>

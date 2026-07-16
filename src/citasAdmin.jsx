@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import "./App.css";
 import { GoSearch } from "react-icons/go";
 import AgendamientoCitas from "./agendamientoCitas.jsx";
@@ -11,6 +11,7 @@ function CitasAdmin() {
     tdocumento: "",
     documento: "",
   });
+  const agendamientoRef = useRef(null);
 
   const obtenerNombrePaciente = (paciente) => {
     const nombre = paciente.user?.nombre || paciente.nombre || "";
@@ -71,6 +72,9 @@ function CitasAdmin() {
   const seleccionarPaciente = (paciente) => {
     setPacienteSeleccionado(paciente);
     setMensajeError("");
+    setTimeout(() => {
+      agendamientoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
   };
 
   return (
@@ -148,11 +152,13 @@ function CitasAdmin() {
         )}
 
         {pacienteSeleccionado && (
-          <AgendamientoCitas
-            patientId={pacienteSeleccionado.id}
-            patientName={obtenerNombrePaciente(pacienteSeleccionado)}
-            volverAlDashboard={() => setPacienteSeleccionado(null)}
-          />
+          <div ref={agendamientoRef}>
+            <AgendamientoCitas
+              patientId={pacienteSeleccionado.id}
+              patientName={obtenerNombrePaciente(pacienteSeleccionado)}
+              volverAlDashboard={() => setPacienteSeleccionado(null)}
+            />
+          </div>
         )}
       </div>
     </div>

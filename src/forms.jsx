@@ -20,6 +20,20 @@ function Usuario({ irCrearCuenta }) {
   const [mensajeExitoLogin, setMensajeExitoLogin] = useState("");
   const [mostrarPassword, setMostrarPassword] = useState(false);
 
+  const irVistaPorRol = (rol) => {
+    if (rol === "superadmin") {
+      setVistaActual("superadmin");
+    } else if (rol === "administrativo" || rol === "admin") {
+      setVistaActual("admin");
+    } else if (rol === "paciente") {
+      setVistaActual("paciente");
+    } else if (rol === "medico") {
+      setVistaActual("medico");
+    } else {
+      setMensajeError("Tu rol aÃºn no tiene una vista asignada en el front.");
+    }
+  };
+
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const uid = queryParams.get("uid");
@@ -27,7 +41,39 @@ function Usuario({ irCrearCuenta }) {
 
     if (uid && token) {
       setVistaActual("restablecer");
+      return;
     }
+
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) return;
+
+    const verificarSesion = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/auth/auth/me/", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("user");
+          return;
+        }
+
+        localStorage.setItem("user", JSON.stringify(data));
+        irVistaPorRol(data?.rol);
+      } catch {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+      }
+    };
+
+    verificarSesion();
   }, []);
 
   const validarEmail = (correo) => {

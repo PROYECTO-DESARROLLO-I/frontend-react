@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import "./App.css";
 import AdminReportes from "./AdminReportes";
 import RegistroSedes from "./RegistroSedes";
+import SuperAdminDisponibilidad from "./SuperAdminDisponibilidad";
 import SuperAdminEspecialidades from "./SuperAdminEspecialidades";
 import SuperAdminLayout from "./SuperAdminLayout";
 import SuperAdminReglas from "./SuperAdminReglas";
@@ -31,6 +32,9 @@ function SuperAdminResumen({ cambiarVista }) {
           <button type="button" className="cambiar_horario" onClick={() => cambiarVista("sedes")}>
             Gestionar sedes
           </button>
+          <button type="button" className="cambiar_horario" onClick={() => cambiarVista("disponibilidad")}>
+            Gestionar disponibilidad
+          </button>
           <button type="button" className="cambiar_horario" onClick={() => cambiarVista("reglas")}>
             Reglas de negocio
           </button>
@@ -54,6 +58,7 @@ function SuperAdmin({ volverAlDashboard }) {
         {vistaSuperAdmin === "reportes" && <AdminReportes />}
         {vistaSuperAdmin === "especialidades" && <SuperAdminEspecialidades />}
         {vistaSuperAdmin === "sedes" && <RegistroSedes volverAlDashboard={() => setVistaSuperAdmin("sedes")} />}
+        {vistaSuperAdmin === "disponibilidad" && <SuperAdminDisponibilidad />}
         {vistaSuperAdmin === "reglas" && <SuperAdminReglas />}
       </SuperAdminLayout>
     </div>
