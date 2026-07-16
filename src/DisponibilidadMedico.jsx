@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import "./App.css";
 
+// Ajustado al estándar ISO: Lunes = 1, Domingo = 7 para perfecta sincronía con Django
 const diasSemana = [
-    { value: 0, label: "Lunes" },
-    { value: 1, label: "Martes" },
-    { value: 2, label: "Miercoles" },
-    { value: 3, label: "Jueves" },
-    { value: 4, label: "Viernes" },
-    { value: 5, label: "Sabado" },
-    { value: 6, label: "Domingo" },
+    { value: 1, label: "Lunes" },
+    { value: 2, label: "Martes" },
+    { value: 3, label: "Miercoles" },
+    { value: 4, label: "Jueves" },
+    { value: 5, label: "Viernes" },
+    { value: 6, label: "Sabado" },
+    { value: 7, label: "Domingo" },
 ];
 
 function DisponibilidadMedico() {
@@ -20,10 +21,12 @@ function DisponibilidadMedico() {
     const [toastVisible, setToastVisible] = useState(false);
     const [cargando, setCargando] = useState(false);
     const [guardando, setGuardando] = useState(false);
+
+    // Tipamos explícitamente el estado inicial para que IntelliJ no asuma que weekdays es un arreglo "never"
     const [formulario, setFormulario] = useState({
         specialty: "",
         headquarters: "",
-        weekdays: [],
+        weekdays: /** @type {number[]} */ ([]),
         start_time: "",
         end_time: "",
         appointment_duration: "30",
@@ -70,6 +73,8 @@ function DisponibilidadMedico() {
                 },
             });
 
+            // Declaramos 'data' una sola vez y le indicamos a IntelliJ que puede contener cualquier estructura (any)
+            /** @type {any} */
             const data = await leerRespuesta(response);
 
             if (!response.ok) {
@@ -77,6 +82,7 @@ function DisponibilidadMedico() {
                 return;
             }
 
+            // Asignamos las variables del endpoint de forma única y limpia
             setEspecialidades(data.specialties || []);
             setSedes(data.headquarters || []);
             setDisponibilidades(data.availabilities || []);
@@ -88,7 +94,10 @@ function DisponibilidadMedico() {
     }, [leerRespuesta]);
 
     useEffect(() => {
-        cargarDatos();
+        // Ejecución de la promesa capturando su rechazo para evitar "Promise returned is ignored"
+        cargarDatos().catch((error) => {
+            console.error("Error al cargar los datos de disponibilidad iniciales:", error);
+        });
     }, [cargarDatos]);
 
     useEffect(() => {
@@ -113,17 +122,31 @@ function DisponibilidadMedico() {
     };
 
     const manejarCambioDia = (dia) => {
-        setFormulario((actual) => {
-            const diasActuales = actual.weekdays;
-            const diasActualizados = diasActuales.includes(dia)
-                ? diasActuales.filter((valor) => valor !== dia)
-                : [...diasActuales, dia].sort((a, b) => a - b);
+        setFormulario(
+            /**
+             * @param {{
+             *   specialty: string,
+             *   headquarters: string,
+             *   weekdays: number[],
+             *   start_time: string,
+             *   end_time: string,
+             *   appointment_duration: string,
+             *   consulting_room: string,
+             *   active: boolean
+             * }} actual
+             */
+            (actual) => {
+                const diasActuales = Array.isArray(actual.weekdays) ? actual.weekdays : [];
+                const diasActualizados = diasActuales.includes(dia)
+                    ? diasActuales.filter((valor) => valor !== dia)
+                    : [...diasActuales, dia].sort((a, b) => a - b);
 
-            return {
-                ...actual,
-                weekdays: diasActualizados,
-            };
-        });
+                return {
+                    ...actual,
+                    weekdays: diasActualizados,
+                };
+            }
+        );
         setMensajeError("");
     };
 
@@ -178,18 +201,22 @@ function DisponibilidadMedico() {
                     body: JSON.stringify(body),
                 });
 
+                /** @type {any} */
                 const data = await leerRespuesta(response);
 
                 if (!response.ok) {
                     const dia = diasSemana.find((item) => item.value === weekday)?.label || "el dia seleccionado";
                     setMensajeError(`${dia}: ${obtenerMensajeError(data)}`);
+                    setGuardando(false);
                     return;
                 }
 
                 creadas.push(data);
             }
 
-            setDisponibilidades((actuales) => [...actuales, ...creadas]);
+            // Recargamos los datos completos del backend para asegurar la consistencia y pantallas actualizadas
+            await cargarDatos();
+
             setMensajeExito(
                 creadas.length === 1
                     ? "Disponibilidad registrada correctamente."
@@ -387,36 +414,40 @@ function DisponibilidadMedico() {
                 ) : (
                     <table className="reportes-tabla">
                         <thead>
-                            <tr>
-                                <th>Dia</th>
-                                <th>Horario</th>
-                                <th>Especialidad</th>
-                                <th>Sede</th>
-                                <th>Duracion</th>
-                                <th>Consultorio</th>
-                                <th>Estado</th>
-                            </tr>
+                        <tr>
+                            <th>Dia</th>
+                            <th>Horario</th>
+                            <th>Especialidad</th>
+                            <th>Sede</th>
+                            <th>Duracion</th>
+                            <th>Consultorio</th>
+                            <th>Estado</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {disponibilidades.map((disponibilidad) => (
-                                <tr key={disponibilidad.id}>
-                                    <td>{disponibilidad.weekday_display || diasSemana[disponibilidad.weekday]?.label}</td>
-                                    <td>
-                                        <strong>
-                                            {String(disponibilidad.start_time).slice(0, 5)} - {String(disponibilidad.end_time).slice(0, 5)}
-                                        </strong>
-                                    </td>
-                                    <td>{disponibilidad.specialty_name || "Sin especialidad"}</td>
-                                    <td>{disponibilidad.headquarters_name || "Sin sede"}</td>
-                                    <td>{disponibilidad.appointment_duration} min</td>
-                                    <td>{disponibilidad.consulting_room || "Sin consultorio"}</td>
-                                    <td>
-                                        <span className={`badge ${disponibilidad.active ? "status-activo" : "status-inactivo"}`}>
-                                            {disponibilidad.active ? "Activa" : "Inactiva"}
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))}
+                        {disponibilidades.map((disponibilidad) => (
+                            <tr key={disponibilidad.id}>
+                                <td>
+                                    {disponibilidad.weekday_display ||
+                                        diasSemana.find(d => d.value === disponibilidad.weekday)?.label ||
+                                        "Sin día"}
+                                </td>
+                                <td>
+                                    <strong>
+                                        {String(disponibilidad.start_time).slice(0, 5)} - {String(disponibilidad.end_time).slice(0, 5)}
+                                    </strong>
+                                </td>
+                                <td>{disponibilidad.specialty_name || "Sin especialidad"}</td>
+                                <td>{disponibilidad.headquarters_name || "Sin sede"}</td>
+                                <td>{disponibilidad.appointment_duration} min</td>
+                                <td>{disponibilidad.consulting_room || "Sin consultorio"}</td>
+                                <td>
+                                    <span className={`badge ${disponibilidad.active ? "status-programada" : "status-cancelada"}`}>
+                                        {disponibilidad.active ? "Activa" : "Inactiva"}
+                                    </span>
+                                </td>
+                            </tr>
+                        ))}
                         </tbody>
                     </table>
                 )}
