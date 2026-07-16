@@ -6,6 +6,7 @@ import RegistroPersonal from "./RegistroPersonal";
 import RegistroSedes from "./RegistroSedes";
 import AdminReportes from "./AdminReportes";
 import AdminPacientes from "./AdminPacientes";
+import AdminEspecialidades from "./AdminEspecialidades";
 
 function Admin({ volverAlDashboard }) {
   const [vistaAdmin, setVistaAdmin] = useState("reportes");
@@ -22,6 +23,7 @@ function Admin({ volverAlDashboard }) {
           {vistaAdmin === "crearSede" && <RegistroSedes volverAlDashboard={() => setVistaAdmin("registroPersonal")} />}
           {vistaAdmin === "agendarCita" && <CitasAdmin volverAlDashboard={() => setVistaAdmin("registroPersonal")} />}
           {vistaAdmin === "pacientes" && <AdminPacientes />}
+          {vistaAdmin === "especialidades" && <AdminEspecialidades />}
           
         </AdminLayout>
     </div>
