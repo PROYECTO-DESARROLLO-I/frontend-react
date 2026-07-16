@@ -44,13 +44,6 @@ function AdminSidebar({ vistaActual, cambiarVista, cerrarSesion }) {
                     Gestion de pacientes
                 </button>
 
-                <button
-                    className={vistaActual === "especialidades" ? "active" : ""}
-                    onClick={() => cambiarVista("especialidades")}
-                >
-                    Gestion de especialidades
-                </button>
-
             </nav>
         
             <button className="admin-logout" onClick={cerrarSesion}>
