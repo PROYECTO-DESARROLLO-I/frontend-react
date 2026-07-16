@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import "./App.css";
-import AdminEspecialidades from "./AdminEspecialidades";
 import AdminReportes from "./AdminReportes";
 import RegistroSedes from "./RegistroSedes";
+import SuperAdminEspecialidades from "./SuperAdminEspecialidades";
 import SuperAdminLayout from "./SuperAdminLayout";
 import SuperAdminReglas from "./SuperAdminReglas";
 
@@ -19,7 +19,7 @@ function SuperAdminResumen({ cambiarVista }) {
     <div className="admin-form-page">
       <div className="admin-form-card">
         <h2>Bienvenido(a), {usuario.nombre || "SuperAdmin"}</h2>
-        <p>Desde este panel puedes entrar a las areas globales que ya permite el front.</p>
+        <p>Desde este panel puedes entrar a las areas globales.</p>
 
         <div className="superadmin-actions">
           <button type="button" className="admin-primary-button" onClick={() => cambiarVista("reportes")}>
@@ -52,7 +52,7 @@ function SuperAdmin({ volverAlDashboard }) {
       >
         {vistaSuperAdmin === "resumen" && <SuperAdminResumen cambiarVista={setVistaSuperAdmin} />}
         {vistaSuperAdmin === "reportes" && <AdminReportes />}
-        {vistaSuperAdmin === "especialidades" && <AdminEspecialidades />}
+        {vistaSuperAdmin === "especialidades" && <SuperAdminEspecialidades />}
         {vistaSuperAdmin === "sedes" && <RegistroSedes volverAlDashboard={() => setVistaSuperAdmin("sedes")} />}
         {vistaSuperAdmin === "reglas" && <SuperAdminReglas />}
       </SuperAdminLayout>
