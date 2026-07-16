@@ -1439,6 +1439,36 @@ margin-top: 20px;
 .reportes-bar-fill.estado-atendida { background: #16a34a; }
 .reportes-bar-fill.estado-cancelada { background: #dc2626; }
 
+.dashboard-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.dashboard-kpi-item {
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.dashboard-kpi-item span {
+  display: block;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.dashboard-kpi-item strong {
+  color: #111827;
+  font-size: 28px;
+}
+
+.reportes-bar-row-wide {
+  grid-template-columns: minmax(160px, 220px) minmax(0, 1fr) 44px;
+}
+
 /* ===== ANIMACIÓN DE TRANSICIÓN SUAVE PARA VISTAS ===== */
 .animate-aparecer {
   animation: fadeIn 0.4s ease-in-out;
