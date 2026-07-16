@@ -258,8 +258,15 @@ function CitasAgendadasPaciente() {
       throw new Error(obtenerMensajeError(doctorsData, "No se pudo identificar el medico."));
     }
 
-    const nombreCita = normalizar(cita.doctor_name).replace(/^dr\(a\)\.\s*/, "");
-    const doctor = doctorsData.find((item) => normalizar(item.full_name) === nombreCita);
+    const nombreCita = normalizar(cita.doctor_name)
+      .replace(/^dr\(a\)\.\s*/, "")
+      .replace(/^dra\.\s*/, "")
+      .replace(/^dr\.\s*/, "")
+      .trim();
+    const doctor = doctorsData.find((item) => {
+      const nombreDoctor = normalizar(item.full_name).trim();
+      return nombreDoctor === nombreCita || nombreCita.includes(nombreDoctor) || nombreDoctor.includes(nombreCita);
+    });
 
     if (!doctor) {
       throw new Error("No se pudo identificar el medico de esta cita.");
@@ -301,7 +308,6 @@ function CitasAgendadasPaciente() {
       }
 
       const franjas = (data.slots || [])
-        .filter((franja) => franja.date === fechaTexto)
         .map((franja, index) => ({
           id: `${franja.date}-${franja.start_time}-${index}`,
           start: new Date(`${franja.date}T${franja.start_time}`),
@@ -322,6 +328,27 @@ function CitasAgendadasPaciente() {
     if (!modoReprogramacion) return;
     cargarFranjasReprogramacion(citaSeleccionada, fechaReprogramacion);
   }, [cargarFranjasReprogramacion, citaSeleccionada, fechaReprogramacion, modoReprogramacion]);
+
+  const rangoReprogramacion = useMemo(() => {
+    if (franjasReprogramacion.length === 0) {
+      return {
+        min: new Date(1970, 0, 1, 7, 0),
+        max: new Date(1970, 0, 1, 18, 0),
+        scrollToTime: new Date(1970, 0, 1, 7, 0),
+      };
+    }
+
+    const inicios = franjasReprogramacion.map((franja) => franja.start);
+    const fines = franjasReprogramacion.map((franja) => franja.end);
+    const primerInicio = new Date(Math.min(...inicios));
+    const ultimoFin = new Date(Math.max(...fines));
+
+    const min = new Date(1970, 0, 1, Math.max(0, primerInicio.getHours() - 1), 0);
+    const max = new Date(1970, 0, 1, Math.min(23, ultimoFin.getHours() + 2), 0);
+    const scrollToTime = new Date(1970, 0, 1, primerInicio.getHours(), primerInicio.getMinutes());
+
+    return { min, max, scrollToTime };
+  }, [franjasReprogramacion]);
 
   const abrirDetalle = (cita) => {
     setCitaSeleccionada(cita);
@@ -684,11 +711,11 @@ function CitasAgendadasPaciente() {
             <div className="reschedule-panel">
               <h4>Reprogramar cita</h4>
               <p>
-                Selecciona una fecha y una franja disponible para cambiar tu cita.
+                Selecciona una fecha inicial y una franja disponible para cambiar tu cita.
               </p>
 
               <label>
-                Fecha
+                Consultar desde
                 <input
                   type="date"
                   value={fechaReprogramacion}
@@ -716,8 +743,13 @@ function CitasAgendadasPaciente() {
 
               {!cargandoFranjas && franjasReprogramacion.length > 0 && (
                 <>
+                  <p>
+                    {franjasReprogramacion.length} franja(s) disponible(s). Selecciona una directamente en el calendario.
+                  </p>
+
                   <div className="reschedule-calendar">
                     <Calendar
+                      key={`${fechaReprogramacion}-${franjasReprogramacion.length}-${rangoReprogramacion.scrollToTime.toTimeString()}`}
                       localizer={localizer}
                       events={franjasReprogramacion.map((franja) => ({
                         ...franja,
@@ -726,16 +758,17 @@ function CitasAgendadasPaciente() {
                       startAccessor="start"
                       endAccessor="end"
                       date={new Date(`${fechaReprogramacion}T00:00:00`)}
-                      view="day"
-                      views={["day"]}
+                      view="week"
+                      views={["week"]}
                       toolbar={false}
                       onSelectEvent={(evento) => {
                         setFranjaReprogramacion(evento.resource);
                         setErrorReprogramacion("");
                       }}
                       eventPropGetter={rescheduleEventPropGetter}
-                      min={new Date(1970, 0, 1, 7, 0)}
-                      max={new Date(1970, 0, 1, 18, 0)}
+                      min={rangoReprogramacion.min}
+                      max={rangoReprogramacion.max}
+                      scrollToTime={rangoReprogramacion.scrollToTime}
                       step={30}
                       timeslots={1}
                       messages={{
@@ -745,25 +778,6 @@ function CitasAgendadasPaciente() {
                     />
                   </div>
 
-                  <div className="reschedule-slots">
-                    {franjasReprogramacion.map((franja) => (
-                      <button
-                        key={franja.id}
-                        type="button"
-                        className={
-                          franjaReprogramacion?.id === franja.id
-                            ? "reschedule-slot selected"
-                            : "reschedule-slot"
-                        }
-                        onClick={() => {
-                          setFranjaReprogramacion(franja);
-                          setErrorReprogramacion("");
-                        }}
-                      >
-                        {franja.title}
-                      </button>
-                    ))}
-                  </div>
                 </>
               )}
 
