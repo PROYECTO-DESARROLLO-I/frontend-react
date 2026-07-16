@@ -420,6 +420,39 @@ margin-top: 20px;
     transform: scale(1);
   }
 }
+
+@keyframes fadeInToast {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.toast-animado {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  z-index: 99999;
+  min-width: 260px;
+  max-width: 420px;
+  padding: 14px 24px;
+  border-radius: 999px;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toast-animado.entrar {
+  animation: fadeInToast 0.25s ease-in-out forwards;
+}
 /* ===== ADMIN LAYOUT ===== */
 
 .admin-container,

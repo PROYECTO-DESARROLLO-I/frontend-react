@@ -20,6 +20,7 @@ function SuperAdminEspecialidades() {
   const [busquedaEspecialidad, setBusquedaEspecialidad] = useState("");
   const [mensajeError, setMensajeError] = useState("");
   const [mensajeExito, setMensajeExito] = useState("");
+  const [toast, setToast] = useState({ visible: false, mensaje: "", tipo: "" });
   const [cargando, setCargando] = useState(false);
 
   const headers = useMemo(
@@ -49,6 +50,13 @@ function SuperAdminEspecialidades() {
   };
 
   const normalizarLista = (data) => (Array.isArray(data) ? data : data.results || []);
+
+  const mostrarToast = (mensaje, tipo) => {
+    setToast({ visible: true, mensaje, tipo });
+    setTimeout(() => {
+      setToast({ visible: false, mensaje: "", tipo: "" });
+    }, 4000);
+  };
 
   const cargarDatos = useCallback(async () => {
     setCargando(true);
@@ -105,10 +113,11 @@ function SuperAdminEspecialidades() {
 
   const crearEspecialidad = (e) => {
     e.preventDefault();
+    const mensaje =
+      "Aun no existe endpoint para registrar especialidades. Cuando backend lo cree, este formulario queda listo para conectarse.";
     setMensajeExito("");
-    setMensajeError(
-      "No existe endpoint de backend para crear especialidades. El formulario queda listo para conectarlo cuando exista POST /api/specialties/ o /api/specialties/admin/.",
-    );
+    setMensajeError(mensaje);
+    mostrarToast(mensaje, "error");
   };
 
   const crearEPS = async (e) => {
@@ -129,15 +138,20 @@ function SuperAdminEspecialidades() {
       const data = await leerRespuesta(response);
 
       if (!response.ok) {
-        setMensajeError(obtenerMensajeError(data, "No se pudo crear la EPS."));
+        const mensaje = obtenerMensajeError(data, "No se pudo crear la EPS.");
+        setMensajeError(mensaje);
+        mostrarToast(mensaje, "error");
         return;
       }
 
       setMensajeExito("EPS creada correctamente.");
+      mostrarToast("EPS registrada correctamente.", "exito");
       setEpsForm(epsInicial);
       await cargarDatos();
     } catch {
-      setMensajeError("No se pudo conectar con el servidor.");
+      const mensaje = "No se pudo conectar con el servidor.";
+      setMensajeError(mensaje);
+      mostrarToast(mensaje, "error");
     }
   };
 
@@ -154,6 +168,15 @@ function SuperAdminEspecialidades() {
 
   return (
     <div className="admin-form-page">
+      <div
+        className={`toast-animado ${toast.visible ? "entrar" : ""}`}
+        style={{
+          backgroundColor: toast.tipo === "exito" ? "#2e7d32" : "#DE300D",
+        }}
+      >
+        {toast.mensaje}
+      </div>
+
       <div className="admin-form-card">
         <h2>Especialidades y EPS</h2>
         <p>Gestiona la informacion base que usa el sistema para disponibilidad, reglas y agendamiento.</p>
@@ -165,7 +188,7 @@ function SuperAdminEspecialidades() {
 
       <div className="admin-form-card" style={{ marginTop: "22px" }}>
         <h2>Crear especialidad</h2>
-        <p>Formulario preparado en front. Falta endpoint de escritura en backend para guardarlo en BD.</p>
+      
 
         <form className="admin-form-grid" onSubmit={crearEspecialidad}>
           <label>Nombre</label>
