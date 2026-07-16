@@ -1,74 +1,163 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { GoSearch } from "react-icons/go";
 import "./App.css";
 
 function AdminPacientes() {
-  const [busqueda, setBusqueda] = useState("");
   const [pacientes, setPacientes] = useState([]);
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState(null);
+  const [modoEdicion, setModoEdicion] = useState(false);
+  const [formEdicion, setFormEdicion] = useState({
+    email: "",
+    phone_number: "",
+    active: true,
+  });
+  const [mensajeEdicion, setMensajeEdicion] = useState("");
   const [mensajeError, setMensajeError] = useState("");
   const [cargando, setCargando] = useState(false);
+  const [busqueda, setBusqueda] = useState({
+    tdocumento: "",
+    documento: "",
+  });
 
   const obtenerNombrePaciente = (paciente) => {
-    const nombre = paciente.user?.nombre || "";
-    const apellido = paciente.user?.apellido || "";
+    const nombre = paciente.user?.nombre || paciente.nombre || "";
+    const apellido = paciente.user?.apellido || paciente.apellido || "";
     return `${nombre} ${apellido}`.trim() || "Paciente sin nombre";
   };
 
-  const buscarPacientes = async (e) => {
-    e.preventDefault();
+  const obtenerEpsPaciente = (paciente) => (
+    paciente.eps?.name || paciente.eps?.nombre || paciente.eps_name || "Sin EPS"
+  );
+
+  const obtenerEstadoPaciente = (paciente) => (
+    paciente.estado || paciente.status || (paciente.user?.is_active === false ? "Inactivo" : "Activo")
+  );
+
+  const obtenerClaseEstado = (estado) => (
+    estado.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  );
+
+  const consultarPacientes = useCallback(async (termino = "@", tipoDocumento = "") => {
     setMensajeError("");
     setPacienteSeleccionado(null);
-
-    if (!busqueda.trim()) {
-      setPacientes([]);
-      setMensajeError("Escribe un nombre, correo o documento para buscar pacientes.");
-      return;
-    }
-
     setCargando(true);
+
     try {
-      const token = localStorage.getItem("accessToken");
       const response = await fetch(
-        `http://localhost:8000/api/appointments/patients/search/?q=${encodeURIComponent(busqueda.trim())}`,
+        `http://localhost:8000/api/appointments/patients/search/?q=${encodeURIComponent(termino)}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         },
       );
       const data = await response.json();
 
       if (!response.ok) {
-        setMensajeError(data.detail || "No se pudieron consultar los pacientes.");
+        setMensajeError(data.detail || "No se pudieron buscar pacientes.");
         setPacientes([]);
         return;
       }
 
-      setPacientes(Array.isArray(data) ? data : data.results || []);
+      const lista = Array.isArray(data) ? data : data.results || [];
+      const pacientesFiltrados = tipoDocumento
+        ? lista.filter((paciente) => paciente.document_type === tipoDocumento)
+        : lista;
+
+      if (pacientesFiltrados.length === 0) {
+        setMensajeError("No se encontraron pacientes relacionados con la busqueda.");
+      }
+
+      setPacientes(pacientesFiltrados);
     } catch {
-      setMensajeError("No se pudo conectar con el servidor.");
+      setMensajeError("Error al buscar paciente. Por favor, intenta nuevamente.");
       setPacientes([]);
     } finally {
       setCargando(false);
     }
+  }, []);
+
+  useEffect(() => {
+    consultarPacientes("@");
+  }, [consultarPacientes]);
+
+  const buscarPaciente = () => {
+    const termino = busqueda.documento.trim() || "@";
+    consultarPacientes(termino, busqueda.tdocumento);
+  };
+
+  const seleccionarPaciente = (paciente) => {
+    setPacienteSeleccionado(paciente);
+    setModoEdicion(false);
+    setMensajeEdicion("");
+    setFormEdicion({
+      email: paciente.user?.email || "",
+      phone_number: paciente.phone_number || paciente.user?.phone_number || "",
+      active: obtenerEstadoPaciente(paciente).toLowerCase() !== "inactivo",
+    });
+    setMensajeError("");
+  };
+
+  const iniciarEdicion = () => {
+    if (!pacienteSeleccionado) return;
+
+    setModoEdicion(true);
+    setMensajeEdicion("");
+    setFormEdicion({
+      email: pacienteSeleccionado.user?.email || "",
+      phone_number: pacienteSeleccionado.phone_number || pacienteSeleccionado.user?.phone_number || "",
+      active: obtenerEstadoPaciente(pacienteSeleccionado).toLowerCase() !== "inactivo",
+    });
+  };
+
+  const manejarCambioEdicion = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormEdicion((actual) => ({
+      ...actual,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+    setMensajeEdicion("");
+  };
+
+  const guardarCambiosPaciente = (e) => {
+    e.preventDefault();
+    setMensajeEdicion(
+      "No existe una API administrativa para modificar este paciente. El endpoint PATCH /api/patients/me/ solo permite que el paciente autenticado edite su propio correo y telefono; tampoco permite cambiar estado activo.",
+    );
   };
 
   return (
     <div className="admin-form-page">
       <div className="admin-form-card">
         <h2>Gestion administrativa de pacientes</h2>
-        <p>Consulta pacientes activos por nombre, correo o documento para revisar sus datos basicos.</p>
+        <p>Consulta pacientes activos y revisa su informacion basica.</p>
 
-        <form className="search-patient" onSubmit={buscarPacientes}>
+        <div className="search-patient">
+          <label>Buscar Paciente</label>
+          <select
+            name="tdocumento"
+            value={busqueda.tdocumento}
+            onChange={(e) => setBusqueda({ ...busqueda, tdocumento: e.target.value })}
+          >
+            <option value="">Tipo de documento</option>
+            <option value="CC">Cedula de Ciudadania</option>
+            <option value="CE">Cedula de Extranjeria</option>
+            <option value="TI">Tarjeta de Identidad</option>
+            <option value="PAS">Pasaporte</option>
+          </select>
+
           <input
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            placeholder="Buscar por nombre, correo o documento"
+            name="documento"
+            type="text"
+            value={busqueda.documento}
+            onChange={(e) => setBusqueda({ ...busqueda, documento: e.target.value })}
+            placeholder="Numero de documento"
           />
-          <button type="submit" className="admin-primary-button">
-            Buscar
+
+          <button className="admin-back" type="button" onClick={buscarPaciente}>
+            <GoSearch />
           </button>
-        </form>
+        </div>
 
         {mensajeError && <p className="mensaje-error">{mensajeError}</p>}
         {cargando && <p>Cargando pacientes...</p>}
@@ -77,35 +166,39 @@ function AdminPacientes() {
           <thead>
             <tr>
               <th>Nombre</th>
+              <th>Tipo Documento</th>
               <th>Documento</th>
               <th>Telefono</th>
               <th>Correo</th>
               <th>EPS</th>
-              <th>Accion</th>
+              <th>Estado</th>
             </tr>
           </thead>
           <tbody>
             {!cargando && pacientes.length === 0 && (
               <tr>
-                <td colSpan="6">No hay pacientes para mostrar.</td>
+                <td colSpan="7">No hay pacientes para mostrar.</td>
               </tr>
             )}
-            {pacientes.map((paciente) => (
-              <tr key={paciente.id}>
-                <td>{obtenerNombrePaciente(paciente)}</td>
-                <td>
-                  {paciente.document_type} {paciente.identity_document}
-                </td>
-                <td>{paciente.phone_number || "Sin telefono"}</td>
-                <td>{paciente.user?.email || "Sin correo"}</td>
-                <td>{paciente.eps?.name || "Sin EPS"}</td>
-                <td>
-                  <button type="button" className="cambiar_horario" onClick={() => setPacienteSeleccionado(paciente)}>
-                    Ver detalle
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {pacientes.map((paciente) => {
+              const estado = obtenerEstadoPaciente(paciente);
+
+              return (
+                <tr key={paciente.id} onClick={() => seleccionarPaciente(paciente)}>
+                  <td>{obtenerNombrePaciente(paciente)}</td>
+                  <td>{paciente.document_type || "Sin tipo"}</td>
+                  <td>{paciente.identity_document || "Sin documento"}</td>
+                  <td>{paciente.phone_number || paciente.user?.phone_number || "Sin telefono"}</td>
+                  <td>{paciente.user?.email || "Sin correo"}</td>
+                  <td>{obtenerEpsPaciente(paciente)}</td>
+                  <td>
+                    <span className={`badge status-${obtenerClaseEstado(estado)}`}>
+                      {estado}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -113,7 +206,7 @@ function AdminPacientes() {
       {pacienteSeleccionado && (
         <div className="admin-form-card" style={{ marginTop: "22px" }}>
           <h2>Detalle del paciente</h2>
-          <p>Informacion disponible desde la API actual de busqueda de pacientes.</p>
+          
 
           <dl className="admin-detail-list">
             <dt>Nombre</dt>
@@ -123,16 +216,60 @@ function AdminPacientes() {
               {pacienteSeleccionado.document_type} {pacienteSeleccionado.identity_document}
             </dd>
             <dt>Telefono</dt>
-            <dd>{pacienteSeleccionado.phone_number || "Sin telefono"}</dd>
+            <dd>{pacienteSeleccionado.phone_number || pacienteSeleccionado.user?.phone_number || "Sin telefono"}</dd>
             <dt>Correo</dt>
             <dd>{pacienteSeleccionado.user?.email || "Sin correo"}</dd>
             <dt>EPS</dt>
-            <dd>{pacienteSeleccionado.eps?.name || "Sin EPS"}</dd>
+            <dd>{obtenerEpsPaciente(pacienteSeleccionado)}</dd>
+            <dt>Estado</dt>
+            <dd>{obtenerEstadoPaciente(pacienteSeleccionado)}</dd>
           </dl>
 
-          <p className="mensaje-error">
-            Pendiente backend: no existe endpoint administrativo para crear, editar o desactivar pacientes.
-          </p>
+          {!modoEdicion && (
+            <button type="button" className="admin-primary-button" onClick={iniciarEdicion}>
+              Modificar
+            </button>
+          )}
+
+          {modoEdicion && (
+            <form className="admin-form-grid patient-edit-form" onSubmit={guardarCambiosPaciente}>
+              <label>Correo</label>
+              <input
+                type="email"
+                name="email"
+                value={formEdicion.email}
+                onChange={manejarCambioEdicion}
+              />
+
+              <label>Telefono</label>
+              <input
+                name="phone_number"
+                value={formEdicion.phone_number}
+                onChange={manejarCambioEdicion}
+              />
+
+              <label>Estado</label>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <input
+                  type="checkbox"
+                  name="active"
+                  checked={formEdicion.active}
+                  onChange={manejarCambioEdicion}
+                  style={{ width: "auto" }}
+                />
+                <span>Paciente activo</span>
+              </div>
+
+              <button type="submit" className="admin-primary-button">
+                Guardar cambios
+              </button>
+              <button type="button" className="cambiar_horario" onClick={() => setModoEdicion(false)}>
+                Cancelar
+              </button>
+
+              {mensajeEdicion && <p className="mensaje-error">{mensajeEdicion}</p>}
+            </form>
+          )}
         </div>
       )}
     </div>

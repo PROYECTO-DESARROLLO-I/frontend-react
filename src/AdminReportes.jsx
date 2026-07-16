@@ -249,7 +249,7 @@ function AdminReportes() {
 
       <section className="reportes-grafica-card">
         <h3>Operacion del dia {kpis?.date ? `(${kpis.date})` : ""}</h3>
-        <p>Indicadores consumidos desde /api/dashboard/kpis/.</p>
+        
 
         <div className="dashboard-kpi-grid">
           <div className="dashboard-kpi-item">
@@ -281,7 +281,7 @@ function AdminReportes() {
 
       <section className="reportes-grafica-card">
         <h3>Distribucion de citas del dia</h3>
-        <p>Estados reportados por el endpoint de KPIs.</p>
+        
 
         <div className="reportes-bar-chart">
           {graficaEstados.map((item) => (
@@ -368,42 +368,7 @@ function AdminReportes() {
         </table>
       </section>
 
-      <section className="resultados-card">
-        <h3>Recordatorios operativos</h3>
-        <p>
-          Próximas citas que deberían recibir recordatorio. El envío automático por correo requiere una tarea o endpoint en backend.
-        </p>
-
-        <table className="reportes-tabla">
-          <thead>
-            <tr>
-              <th>Fecha/Hora</th>
-              <th>Paciente</th>
-              <th>Medico</th>
-              <th>Especialidad</th>
-              <th>Sede</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {recordatorios.length === 0 && (
-              <tr>
-                <td colSpan="6">No hay recordatorios próximos.</td>
-              </tr>
-            )}
-            {recordatorios.map((cita) => (
-              <tr key={cita.id}>
-                <td>{new Date(cita.scheduled_at).toLocaleString("es-CO")}</td>
-                <td>{cita.patient_name}</td>
-                <td>Dr(a). {cita.doctor_name}</td>
-                <td>{cita.specialty_name}</td>
-                <td>{cita.headquarters_name || "Sin sede"}</td>
-                <td><span className="badge status-programada">{cita.status}</span></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      
 
       <section className="resultados-card">
         <h3>Resultados del reporte</h3>

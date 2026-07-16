@@ -719,6 +719,10 @@ margin-top: 20px;
   margin: 0;
 }
 
+.patient-edit-form {
+  margin-top: 22px;
+}
+
 .superadmin-actions {
   display: flex;
   flex-wrap: wrap;
