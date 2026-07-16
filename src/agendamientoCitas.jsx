@@ -80,6 +80,33 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard }) {
     [franjas],
   );
 
+  const rangoCalendario = useMemo(() => {
+    if (eventosCalendario.length === 0) {
+      return {
+        min: calendarMinTime,
+        max: calendarMaxTime,
+        scrollToTime: calendarScrollTime,
+      };
+    }
+
+    const minutosInicio = eventosCalendario.map(
+      (evento) => evento.start.getHours() * 60 + evento.start.getMinutes(),
+    );
+    const minutosFin = eventosCalendario.map(
+      (evento) => evento.end.getHours() * 60 + evento.end.getMinutes(),
+    );
+    const primerMinuto = Math.min(...minutosInicio);
+    const ultimoMinuto = Math.max(...minutosFin);
+    const horaInicio = Math.max(0, Math.floor((primerMinuto - 60) / 60));
+    const horaFin = Math.min(23, Math.ceil((ultimoMinuto + 60) / 60));
+
+    return {
+      min: new Date(1970, 0, 1, horaInicio, 0),
+      max: new Date(1970, 0, 1, horaFin, 0),
+      scrollToTime: new Date(1970, 0, 1, Math.floor(primerMinuto / 60), primerMinuto % 60),
+    };
+  }, [eventosCalendario]);
+
   useEffect(() => {
     const cargarEspecialidades = async () => {
       setCargando(true);
@@ -271,13 +298,8 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard }) {
   const cambiarVistaCalendario = (vista) => {
     setVistaCalendario(vista);
 
-    if (medicoSeleccionado && especialidadSeleccionada) {
-      cargarDisponibilidad(
-        medicoSeleccionado.id,
-        especialidadSeleccionada.id,
-        fechaBase,
-        vista,
-      );
+    if (vista !== "month" && franjas.length > 0) {
+      setFechaBase(new Date(`${franjas[0].date}T00:00:00`));
     }
   };
 
@@ -409,9 +431,9 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard }) {
             onNavigate={cambiarFecha}
             onView={cambiarVistaCalendario}
             onSelectEvent={seleccionarFranja}
-            min={calendarMinTime}
-            max={calendarMaxTime}
-            scrollToTime={calendarScrollTime}
+            min={rangoCalendario.min}
+            max={rangoCalendario.max}
+            scrollToTime={rangoCalendario.scrollToTime}
             step={30}
             timeslots={1}
             messages={{
