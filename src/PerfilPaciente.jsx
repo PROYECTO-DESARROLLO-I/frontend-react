@@ -1,28 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import { GoArrowLeft } from "react-icons/go";
 
 function PerfilPaciente({ volverAlDashboard }) {
-    // Datos iniciales simulados del Paciente (Simulación de BD)
-    const [datosPaciente, setDatosPaciente] = useState({
-        tipoDocumento: "Cédula de Ciudadanía",
-        nombre: "David Taborda",
-        cedula: "123456789",
-        telefono: "3157654321",
-        email: "david.paciente@ejemplo.com"
-    });
-
-    const [tipoDocumento, setTipoDocumento] = useState(datosPaciente.tipoDocumento);
-    const [cedula, setCedula] = useState(datosPaciente.cedula);
-    const [nombre, setNombre] = useState(datosPaciente.nombre);
-    const [telefono, setTelefono] = useState(datosPaciente.telefono);
-    const [email, setEmail] = useState(datosPaciente.email);
+    const [datosPaciente] = useState(null);
+    const [tipoDocumento, setTipoDocumento] = useState("");
+    const [cedula, setCedula] = useState("");
+    const [nombre, setNombre] = useState("");
+    const [telefono, setTelefono] = useState("");
+    const [email, setEmail] = useState("");
+    const [eps, setEps] = useState("");
 
     const [modoEdicion, setModoEdicion] = useState(false);
 
     const [errores, setErrores] = useState({});
 
     const [toast, setToast] = useState({ visible: false, mensaje: "", tipo: "" });
+
+    useEffect(() => {
+        const cargarDatos = async () => {
+            const token = localStorage.getItem('accessToken'); // Siempre usamos accessToken
+
+            if (!token) {
+                mostrarToast("No has iniciado sesión", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:8000/api/patients/me/", {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Mapeo correcto según los datos que recibimos del backend
+                    setNombre(data.full_name || "");
+                    setCedula(data.identity_document || "");
+                    setTelefono(data.phone_number || "");
+                    setEmail(data.email || "");
+                    setEps(data.eps || "");
+                    setTipoDocumento(data.tipo_documento || "No especificado");
+                }
+            } catch (error) {
+                mostrarToast("Error conectando al servidor", "error");
+            }
+        };
+        cargarDatos().catch(console.error);
+    }, []);
 
     const mostrarToast = (mensaje, tipo) => {
         setToast({ visible: true, mensaje, tipo });
@@ -56,54 +83,47 @@ function PerfilPaciente({ volverAlDashboard }) {
         }
     };
 
-    const esDocumentoBloqueado = () => {
-        const original = datosPaciente.tipoDocumento;
-        const nuevo = tipoDocumento;
-
-        return original === nuevo ||
-            (original === "Tarjeta de Identidad" && nuevo === "Cédula de Ciudadanía") ||
-            (original === "Cédula de Ciudadanía" && nuevo === "Tarjeta de Identidad");
-    };
-
-    const manejarCambioTipoDocumento = (e) => {
-        const nuevoTipo = e.target.value;
-        setTipoDocumento(nuevoTipo);
-
-        if (
-            (datosPaciente.tipoDocumento === "Tarjeta de Identidad" && nuevoTipo === "Cédula de Ciudadanía") ||
-            (datosPaciente.tipoDocumento === "Cédula de Ciudadanía" && nuevoTipo === "Tarjeta de Identidad") ||
-            (datosPaciente.tipoDocumento === nuevoTipo)
-        ) {
-            setCedula(datosPaciente.cedula);
-        }
-    };
-
-    const guardarCambios = (e) => {
+    const guardarCambios = async (e) => {
         e.preventDefault();
 
-        if (errores.telefono || errores.email || !nombre.trim() || !telefono.trim() || !email.trim() || !cedula.trim()) {
+        if (errores.telefono || errores.email || !telefono.trim() || !email.trim()) {
             mostrarToast("Por favor, corrige los errores antes de guardar.", "error");
             return;
         }
 
-        setDatosPaciente({
-            tipoDocumento: tipoDocumento,
-            cedula: cedula,
-            nombre: nombre,
-            telefono: telefono,
-            email: email
-        });
+        try {
+            const response = await fetch("http://localhost:8000/api/patients/me/", {
+                method: "PATCH",
+                headers: {
+                    'Content-Type': 'application/json',
+                    // CAMBIO AQUÍ: usamos accessToken en lugar de 'token'
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                },
+                // Asegúrate que estos nombres coincidan con los que espera tu backend (PATCH)
+                body: JSON.stringify({
+                    email: email,
+                    phone_number: telefono // Usamos phone_number porque el back lo recibe así
+                })
+            });
 
-        setModoEdicion(false);
-        mostrarToast("¡Perfil actualizado con éxito!", "exito");
+            if (response.ok) {
+                setModoEdicion(false);
+                mostrarToast("Perfil actualizado correctamente", "exito");
+            } else {
+                const errorData = await response.json();
+                mostrarToast(errorData.detail || "Error al actualizar perfil", "error");
+            }
+        } catch (error) {
+            mostrarToast("Error de conexión con el servidor", "error");
+        }
     };
 
     const cancelarEdicion = () => {
-        setTipoDocumento(datosPaciente.tipoDocumento);
-        setCedula(datosPaciente.cedula);
-        setNombre(datosPaciente.nombre);
-        setTelefono(datosPaciente.telefono);
-        setEmail(datosPaciente.email);
+        if (datosPaciente) {
+            setTelefono(datosPaciente.telefono);
+            setEmail(datosPaciente.email);
+        }
+
         setErrores({});
         setModoEdicion(false);
     };
@@ -203,81 +223,22 @@ function PerfilPaciente({ volverAlDashboard }) {
 
                 <form onSubmit={guardarCambios} className="admin-form-grid">
                     <label>Tipo de Documento</label>
-                    <select
-                        className="select-perfil"
-                        value={tipoDocumento}
-                        onChange={manejarCambioTipoDocumento}
-                        disabled={!modoEdicion}
-                    >
-                        <option value="Cédula de Ciudadanía">Cédula de Ciudadanía</option>
-                        <option value="Cédula de Extranjería">Cédula de Extranjería</option>
-                        <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
-                        <option value="Pasaporte">Pasaporte</option>
-                        <option value="PPT">PPT</option>
-                        <option value="PEP">PEP</option>
-                    </select>
+                    <input type="text" value={tipoDocumento} disabled style={{ backgroundColor: "#f5f5f5" }} />
 
                     <label>Número de Documento</label>
-                    <div style={{ width: "100%" }}>
-                        <input
-                            type="text"
-                            value={cedula}
-                            onChange={(e) => setCedula(e.target.value)}
-                            disabled={!modoEdicion || esDocumentoBloqueado()}
-                            style={{
-                                backgroundColor: (!modoEdicion || esDocumentoBloqueado()) ? "#f5f5f5" : "#fff",
-                                color: (!modoEdicion || esDocumentoBloqueado()) ? "#888" : "#000",
-                                cursor: (!modoEdicion || esDocumentoBloqueado()) ? "not-allowed" : "text"
-                            }}
-                            required
-                        />
-                    </div>
+                    <input type="text" value={cedula} disabled style={{ backgroundColor: "#f5f5f5" }} />
 
                     <label>Nombre Completo</label>
-                    <input
-                        type="text"
-                        value={nombre}
-                        onChange={(e) => setNombre(e.target.value)}
-                        disabled={!modoEdicion}
-                        style={{ backgroundColor: modoEdicion ? "#fff" : "#f5f5f5" }}
-                        required
-                    />
+                    <input type="text" value={nombre} disabled style={{ backgroundColor: "#f5f5f5" }} />
 
                     <label>Número de Teléfono</label>
-                    <div style={{ width: "100%" }}>
-                        <input
-                            type="text"
-                            value={telefono}
-                            onChange={manejarCambioTelefono}
-                            disabled={!modoEdicion}
-                            className={errores.telefono && modoEdicion ? "input-error" : ""}
-                            style={{ backgroundColor: modoEdicion ? "#fff" : "f5f5f5" }}
-                            required
-                        />
-                        {errores.telefono && modoEdicion && (
-                            <span style={{ color: "#DE300D", fontSize: "12px", marginTop: "5px", display: "block" }}>
-                                    {errores.telefono}
-                            </span>
-                        )}
-                    </div>
+                    <input type="text" value={telefono} onChange={manejarCambioTelefono} disabled={!modoEdicion} />
 
                     <label>Correo Electrónico</label>
-                    <div style={{ width: "100%" }}>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={manejarCambioEmail}
-                            disabled={!modoEdicion}
-                            className={errores.email && modoEdicion ? "input-error" : ""}
-                            style={{ backgroundColor: modoEdicion ? "#fff" : "f5f5f5" }}
-                            required
-                        />
-                        {errores.email && modoEdicion && (
-                            <span style={{ color: "#DE300D", fontSize: "12px", marginTop: "5px", display: "block" }}>
-                                    {errores.email}
-                            </span>
-                        )}
-                    </div>
+                    <input type="email" value={email} onChange={manejarCambioEmail} disabled={!modoEdicion} />
+
+                    <label>EPS</label>
+                    <input type="text" value={eps} disabled style={{ backgroundColor: "#f5f5f5" }} />
 
                     <div className="contenedor-botones-perfil">
                         {!modoEdicion ? (

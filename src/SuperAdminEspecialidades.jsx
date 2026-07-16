@@ -66,7 +66,7 @@ function SuperAdminEspecialidades() {
 
     try {
       const [specialtiesResponse, epsResponse] = await Promise.all([
-        fetch("http://localhost:8000/api/specialties/", { headers }),
+        fetch("http://localhost:8000/api/dashboard/specialties/", { headers }),
         fetch("http://localhost:8000/api/eps/", { headers }),
       ]);
       const [specialtiesData, epsData] = await Promise.all([
@@ -93,7 +93,7 @@ function SuperAdminEspecialidades() {
   }, [headers]);
 
   useEffect(() => {
-    cargarDatos();
+    cargarDatos().catch(console.error);
   }, [cargarDatos]);
 
   const manejarEspecialidad = (e) => {
@@ -113,13 +113,39 @@ function SuperAdminEspecialidades() {
     setMensajeExito("");
   };
 
-  const crearEspecialidad = (e) => {
+  const crearEspecialidad = async (e) => {
     e.preventDefault();
-    const mensaje =
-      "Aun no existe endpoint para registrar especialidades. Cuando backend lo cree, este formulario queda listo para conectarse.";
+    setMensajeError("");
     setMensajeExito("");
-    setMensajeError(mensaje);
-    mostrarToast(mensaje, "error");
+
+    try {
+      const response = await fetch("http://localhost:8000/api/dashboard/specialties/", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          name: especialidadForm.name.trim(),
+          description: especialidadForm.description.trim(),
+        }),
+      });
+
+      const data = await leerRespuesta(response);
+
+      if (!response.ok) {
+        const mensaje = obtenerMensajeError(data, "No se pudo crear la especialidad.");
+        setMensajeError(mensaje);
+        mostrarToast(mensaje, "error");
+        return;
+      }
+
+      mostrarToast("Especialidad creada correctamente.", "exito");
+      setMensajeExito("Especialidad creada correctamente.");
+      setEspecialidadForm(especialidadInicial); // Limpiamos el formulario
+      await cargarDatos(); // Recargamos la tabla automáticamente
+    } catch {
+      const mensaje = "Error de conexión con el servidor.";
+      setMensajeError(mensaje);
+      mostrarToast(mensaje, "error");
+    }
   };
 
   const guardarEPS = async (e) => {
@@ -334,13 +360,17 @@ function SuperAdminEspecialidades() {
                 <td colSpan="3">No hay especialidades para mostrar.</td>
               </tr>
             )}
-            {especialidadesFiltradas.map((especialidad) => (
-              <tr key={especialidad.id}>
-                <td>{especialidad.name}</td>
-                <td>{especialidad.description || "Sin descripcion"}</td>
-                <td>{especialidad.available_doctors_count ?? "No informado"}</td>
-              </tr>
-            ))}
+            {especialidadesFiltradas.map((especialidad) => {
+              const {id, name, description, available_doctors_count = "No informado"} = especialidad;
+
+              return (
+                  <tr key={id}>
+                    <td>{name}</td>
+                    <td>{description || "Sin descripcion"}</td>
+                    <td>{available_doctors_count ?? "No informado"}</td>
+                  </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

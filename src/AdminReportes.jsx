@@ -54,7 +54,7 @@ function AdminReportes() {
 
   const cargarEspecialidades = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE}/specialties/`, { headers: authHeaders });
+      const response = await fetch(`${API_BASE}/dashboard/specialties/`, { headers: authHeaders });
       if (!response.ok) return;
 
       const data = await response.json();
