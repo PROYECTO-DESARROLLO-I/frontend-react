@@ -4,6 +4,7 @@ import AdminEspecialidades from "./AdminEspecialidades";
 import AdminReportes from "./AdminReportes";
 import RegistroSedes from "./RegistroSedes";
 import SuperAdminLayout from "./SuperAdminLayout";
+import SuperAdminReglas from "./SuperAdminReglas";
 
 function SuperAdminResumen({ cambiarVista }) {
   const usuario = useMemo(() => {
@@ -53,14 +54,7 @@ function SuperAdmin({ volverAlDashboard }) {
         {vistaSuperAdmin === "reportes" && <AdminReportes />}
         {vistaSuperAdmin === "especialidades" && <AdminEspecialidades />}
         {vistaSuperAdmin === "sedes" && <RegistroSedes volverAlDashboard={() => setVistaSuperAdmin("sedes")} />}
-        {vistaSuperAdmin === "reglas" && (
-          <div className="admin-form-page">
-            <div className="admin-form-card">
-              <h2>Reglas de negocio</h2>
-              <p>Esta seccion quedara conectada a las APIs de reglas de negocio.</p>
-            </div>
-          </div>
-        )}
+        {vistaSuperAdmin === "reglas" && <SuperAdminReglas />}
       </SuperAdminLayout>
     </div>
   );
