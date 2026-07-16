@@ -7,6 +7,7 @@ import RecuperarPassword from "./RecuperarPassword";
 import RestablecerPassword from "./RestablecerPassword";
 import Paciente from "./Paciente";
 import Medico from "./Medico";
+import SuperAdmin from "./SuperAdmin";
 import { GoEye, GoEyeClosed } from "react-icons/go";
 
 function Usuario({ irCrearCuenta }) {
@@ -116,7 +117,9 @@ function Usuario({ irCrearCuenta }) {
 
       const rol = data.user?.rol;
 
-      if (rol === "administrativo" || rol === "superadmin" || rol === "admin") {
+      if (rol === "superadmin") {
+        setVistaActual("superadmin");
+      } else if (rol === "administrativo" || rol === "admin") {
         setVistaActual("admin");
       } else if (rol === "paciente") {
         setVistaActual("paciente");
@@ -154,6 +157,10 @@ function Usuario({ irCrearCuenta }) {
 
   if (vistaActual === "admin") {
     return <Admin volverAlDashboard={limpiarLogin} />;
+  }
+
+  if (vistaActual === "superadmin") {
+    return <SuperAdmin volverAlDashboard={limpiarLogin} />;
   }
 
   if (vistaActual === "paciente") {
