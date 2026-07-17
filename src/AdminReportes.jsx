@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 // Importamos los componentes de Recharts para armar las gráficas profesionales
 import {
@@ -17,7 +18,7 @@ import {
   Area
 } from "recharts";
 
-const API_BASE = "http://localhost:8000/api";
+const API_BASE = `${API_URL}/api`;
 
 const fechaISO = (date) => date.toISOString().slice(0, 10);
 

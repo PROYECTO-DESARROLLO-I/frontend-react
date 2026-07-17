@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 import paciente from "./assets/paciente.png";
 import Card from "./Card";
@@ -49,7 +50,7 @@ function Usuario({ irCrearCuenta }) {
 
     const verificarSesion = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/auth/auth/me/", {
+        const response = await fetch(`${API_URL}/api/auth/auth/me/`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -142,7 +143,7 @@ function Usuario({ irCrearCuenta }) {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/api/auth/login/", {
+      const response = await fetch(`${API_URL}/api/auth/login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

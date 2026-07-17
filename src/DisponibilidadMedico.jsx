@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 
 // Ajustado al estándar ISO: Lunes = 1, Domingo = 7 para perfecta sincronía con Django
@@ -67,7 +68,7 @@ function DisponibilidadMedico() {
                 return;
             }
 
-            const response = await fetch("http://localhost:8000/api/availability/doctor/", {
+            const response = await fetch(`${API_URL}/api/availability/doctor/`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -191,7 +192,7 @@ function DisponibilidadMedico() {
                     body.headquarters = Number(formulario.headquarters);
                 }
 
-                const response = await fetch("http://localhost:8000/api/availability/doctor/", {
+                const response = await fetch(`${API_URL}/api/availability/doctor/`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

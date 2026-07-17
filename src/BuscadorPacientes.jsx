@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_URL } from "./apiConfig";
 
 function BuscadorPacientes() {
     const [citas, setCitas] = useState([]);
@@ -10,7 +11,7 @@ function BuscadorPacientes() {
             setCargando(true);
             try {
                 const token = localStorage.getItem("accessToken");
-                const response = await fetch("http://localhost:8000/api/appointments/doctor/", {
+                const response = await fetch(`${API_URL}/api/appointments/doctor/`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (response.ok) {

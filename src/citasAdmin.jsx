@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 import { GoSearch } from "react-icons/go";
 import AgendamientoCitas from "./agendamientoCitas.jsx";
@@ -40,7 +41,7 @@ function CitasAdmin() {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/appointments/patients/search/?q=${encodeURIComponent(busqueda.documento.trim())}`,
+        `${API_URL}/api/appointments/patients/search/?q=${encodeURIComponent(busqueda.documento.trim())}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 
 function AdminDashboard() {
@@ -15,7 +16,7 @@ function AdminDashboard() {
         const obtenerKpis = async () => {
             try {
                 const token = localStorage.getItem("accessToken");
-                const response = await fetch("http://localhost:8000/api/dashboard/kpis/", {
+                const response = await fetch(`${API_URL}/api/dashboard/kpis/`, {
                     headers: {
                         "Authorization": `Bearer ${token}`,
                         "Content-Type": "application/json"

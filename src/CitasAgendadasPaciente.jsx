@@ -3,6 +3,7 @@ import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, getDay, parse, startOfWeek } from "date-fns";
 import { es } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 
 const locales = { es };
@@ -108,7 +109,7 @@ function CitasAgendadasPaciente() {
 
   const cargarDetalle = useCallback(async (cita, token) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/appointments/${cita.id}/`, {
+      const response = await fetch(`${API_URL}/api/appointments/${cita.id}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -129,7 +130,7 @@ function CitasAgendadasPaciente() {
 
     try {
       const token = localStorage.getItem("accessToken");
-      const response = await fetch("http://localhost:8000/api/appointments/", {
+      const response = await fetch(`${API_URL}/api/appointments/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -230,7 +231,7 @@ function CitasAgendadasPaciente() {
       };
     }
 
-    const specialtiesResponse = await fetch("http://localhost:8000/api/specialties/", {
+    const specialtiesResponse = await fetch(`${API_URL}/api/specialties/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -249,7 +250,7 @@ function CitasAgendadasPaciente() {
       throw new Error("No se pudo identificar la especialidad de esta cita.");
     }
 
-    const doctorsResponse = await fetch(`http://localhost:8000/api/doctors/?specialty=${specialty.id}`, {
+    const doctorsResponse = await fetch(`${API_URL}/api/doctors/?specialty=${specialty.id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -297,7 +298,7 @@ function CitasAgendadasPaciente() {
         view: "week",
       });
 
-      const response = await fetch(`http://localhost:8000/api/availability/slots/?${params.toString()}`, {
+      const response = await fetch(`${API_URL}/api/availability/slots/?${params.toString()}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -402,7 +403,7 @@ function CitasAgendadasPaciente() {
     try {
       const token = localStorage.getItem("accessToken");
       const response = await fetch(
-        `http://localhost:8000/api/appointments/${citaSeleccionada.id}/patient-reschedule/`,
+        `${API_URL}/api/appointments/${citaSeleccionada.id}/patient-reschedule/`,
         {
           method: "POST",
           headers: {
@@ -477,7 +478,7 @@ function CitasAgendadasPaciente() {
 
     try {
       const token = localStorage.getItem("accessToken");
-      const response = await fetch(`http://localhost:8000/api/appointments/${citaSeleccionada.id}/cancel/`, {
+      const response = await fetch(`${API_URL}/api/appointments/${citaSeleccionada.id}/cancel/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

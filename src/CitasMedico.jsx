@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 
 const normalizar = (valor) =>
@@ -147,7 +148,7 @@ function CitasMedico() {
                 return;
             }
 
-            const response = await fetch("http://localhost:8000/api/appointments/doctor/", {
+            const response = await fetch(`${API_URL}/api/appointments/doctor/`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -189,7 +190,7 @@ function CitasMedico() {
 
             if (nombreEspecialidadCita) {
                 try {
-                    const specRes = await fetch("http://localhost:8000/api/specialties/", {
+                    const specRes = await fetch(`${API_URL}/api/specialties/`, {
                         headers: { Authorization: `Bearer ${token}` },
                         signal
                     });
@@ -216,7 +217,7 @@ function CitasMedico() {
             let doctorId = null;
             if (usuarioId) {
                 try {
-                    const docRes = await fetch(`http://localhost:8000/api/doctors/?specialty=${specialtyId}`, {
+                    const docRes = await fetch(`${API_URL}/api/doctors/?specialty=${specialtyId}`, {
                         headers: { Authorization: `Bearer ${token}` },
                         signal
                     });
@@ -265,7 +266,7 @@ function CitasMedico() {
             });
 
             // 5. CONSTRUIR URL DE SLOTS INCLUYENDO LA SEDE SI EXISTE
-            let slotsUrl = `http://localhost:8000/api/availability/slots/?doctor=${doctorId}&specialty=${specialtyId}&date=${fechaStr}`;
+            let slotsUrl = `${API_URL}/api/availability/slots/?doctor=${doctorId}&specialty=${specialtyId}&date=${fechaStr}`;
 
             if (headquartersId) {
                 slotsUrl += `&headquarters=${headquartersId}`;
@@ -387,7 +388,7 @@ function CitasMedico() {
         try {
             const token = localStorage.getItem("accessToken");
             const response = await fetch(
-                `http://localhost:8000/api/appointments/${citaSeleccionada.id}/reschedule/`,
+                `${API_URL}/api/appointments/${citaSeleccionada.id}/reschedule/`,
                 {
                     method: "POST",
                     headers: {
@@ -434,7 +435,7 @@ function CitasMedico() {
         try {
             const token = localStorage.getItem("accessToken");
             const response = await fetch(
-                `http://localhost:8000/api/appointments/${citaSeleccionada.id}/doctor-cancel/`,
+                `${API_URL}/api/appointments/${citaSeleccionada.id}/doctor-cancel/`,
                 {
                     method: "POST",
                     headers: {

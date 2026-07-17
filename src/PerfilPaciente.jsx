@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 import { GoArrowLeft } from "react-icons/go";
 
@@ -27,7 +28,7 @@ function PerfilPaciente({ volverAlDashboard }) {
             }
 
             try {
-                const response = await fetch("http://localhost:8000/api/patients/me/", {
+                const response = await fetch(`${API_URL}/api/patients/me/`, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
@@ -92,7 +93,7 @@ function PerfilPaciente({ volverAlDashboard }) {
         }
 
         try {
-            const response = await fetch("http://localhost:8000/api/patients/me/", {
+            const response = await fetch(`${API_URL}/api/patients/me/`, {
                 method: "PATCH",
                 headers: {
                     'Content-Type': 'application/json',

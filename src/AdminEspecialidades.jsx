@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 
 function AdminEspecialidades() {
@@ -13,7 +14,7 @@ function AdminEspecialidades() {
 
     try {
       const token = localStorage.getItem("accessToken");
-      const response = await fetch("http://localhost:8000/api/specialties/", {
+      const response = await fetch(`${API_URL}/api/specialties/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

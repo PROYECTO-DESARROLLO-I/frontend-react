@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GoSearch } from "react-icons/go";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 
 function AdminPacientes() {
@@ -47,7 +48,7 @@ function AdminPacientes() {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/appointments/patients/search/?q=${encodeURIComponent(termino)}`,
+        `${API_URL}/api/appointments/patients/search/?q=${encodeURIComponent(termino)}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -134,7 +135,7 @@ function AdminPacientes() {
 
     // Determinamos la acción según el valor del formulario
     const accion = formEdicion.active ? "activate" : "deactivate";
-    const url = `http://localhost:8000/api/patients/${pacienteSeleccionado.id}/${accion}/`;
+    const url = `${API_URL}/api/patients/${pacienteSeleccionado.id}/${accion}/`;
 
     try {
       const response = await fetch(url, {

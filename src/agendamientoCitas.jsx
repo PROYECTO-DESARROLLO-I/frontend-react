@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
@@ -129,7 +130,7 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard, alFinali
       setMensajeError("");
 
       try {
-        const response = await fetch("http://localhost:8000/api/specialties/", {
+        const response = await fetch(`${API_URL}/api/specialties/`, {
           headers: {
             Authorization: `Bearer ${obtenerToken()}`,
           },
@@ -173,7 +174,7 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard, alFinali
       });
 
       const response = await fetch(
-        `http://localhost:8000/api/availability/slots/?${params.toString()}`,
+        `${API_URL}/api/availability/slots/?${params.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${obtenerToken()}`,
@@ -210,7 +211,7 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard, alFinali
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/doctors/?specialty=${especialidad.id}`,
+        `${API_URL}/api/doctors/?specialty=${especialidad.id}`,
         {
           headers: {
             Authorization: `Bearer ${obtenerToken()}`,
@@ -280,7 +281,7 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard, alFinali
     }
 
     try {
-      const response = await fetch("http://localhost:8000/api/appointments/book/", {
+      const response = await fetch(`${API_URL}/api/appointments/book/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

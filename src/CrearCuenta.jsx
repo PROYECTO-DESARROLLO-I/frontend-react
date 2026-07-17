@@ -2,6 +2,7 @@ import "./App.css";
 import Card from "./Card";
 import { GoArrowLeft } from "react-icons/go";
 import { useState } from "react";
+import { API_URL } from "./apiConfig";
 
 
 function CrearCuenta({ volverLogin }) {
@@ -98,7 +99,7 @@ function CrearCuenta({ volverLogin }) {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/api/auth/register/", {
+      const response = await fetch(`${API_URL}/api/auth/register/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

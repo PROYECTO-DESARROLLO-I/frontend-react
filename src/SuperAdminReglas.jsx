@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 
-const API_BASE = "http://localhost:8000/api";
+const API_BASE = `${API_URL}/api`;
 
 const limiteInicial = {
   eps: "",

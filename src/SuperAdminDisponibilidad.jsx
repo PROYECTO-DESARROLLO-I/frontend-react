@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 
 const disponibilidadInicial = {
@@ -78,10 +79,10 @@ function SuperAdminDisponibilidad() {
 
     try {
       const [availabilityResponse, exceptionsResponse, specialtiesResponse, headquartersResponse] = await Promise.all([
-        fetch(`http://localhost:8000/api/availability/manage/${doctorQuery}`, { headers }),
-        fetch(`http://localhost:8000/api/availability/exceptions/${doctorQuery}`, { headers }),
-        fetch("http://localhost:8000/api/specialties/", { headers }),
-        fetch("http://localhost:8000/api/headquarters/", { headers }),
+        fetch(`${API_URL}/api/availability/manage/${doctorQuery}`, { headers }),
+        fetch(`${API_URL}/api/availability/exceptions/${doctorQuery}`, { headers }),
+        fetch(`${API_URL}/api/specialties/`, { headers }),
+        fetch(`${API_URL}/api/headquarters/`, { headers }),
       ]);
 
       const [availabilityData, exceptionsData, specialtiesData, headquartersData] = await Promise.all([
@@ -139,7 +140,7 @@ function SuperAdminDisponibilidad() {
     setMensajeExito("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/availability/manage/", {
+      const response = await fetch(`${API_URL}/api/availability/manage/`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -175,7 +176,7 @@ function SuperAdminDisponibilidad() {
     setMensajeExito("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/availability/exceptions/", {
+      const response = await fetch(`${API_URL}/api/availability/exceptions/`, {
         method: "POST",
         headers,
         body: JSON.stringify({

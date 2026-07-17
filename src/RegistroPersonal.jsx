@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 
 function RegistroPersonal() {
@@ -40,7 +41,7 @@ function RegistroPersonal() {
 
             try {
                 const token = localStorage.getItem("accessToken");
-                const response = await fetch("http://localhost:8000/api/specialties/", {
+                const response = await fetch(`${API_URL}/api/specialties/`, {
                     headers: {
                         "Authorization": `Bearer ${token}`
                     }
@@ -110,7 +111,7 @@ function RegistroPersonal() {
                     specialty_ids: [Number(especialidad)]
                 };
 
-                const response = await fetch("http://localhost:8000/api/doctors/", {
+                const response = await fetch(`${API_URL}/api/doctors/`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -145,7 +146,7 @@ function RegistroPersonal() {
                     position: mapaAreas[area] || area
                 };
 
-                const response = await fetch("http://localhost:8000/api/auth/staff/register/", {
+                const response = await fetch(`${API_URL}/api/auth/staff/register/`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

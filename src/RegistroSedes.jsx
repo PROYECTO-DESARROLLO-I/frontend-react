@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 
 function RegistroSedes() {
@@ -33,7 +34,7 @@ function RegistroSedes() {
 
     if (!refreshToken) return null;
 
-    const response = await fetch("http://localhost:8000/api/auth/token/refresh/", {
+    const response = await fetch(`${API_URL}/api/auth/token/refresh/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -55,7 +56,7 @@ function RegistroSedes() {
   };
 
   const crearSede = async (token) => {
-    return fetch("http://localhost:8000/api/headquarters/", {
+    return fetch(`${API_URL}/api/headquarters/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 import { GoArrowLeft } from "react-icons/go";
 
@@ -39,7 +40,7 @@ function RecuperarPassword({ volverAlLogin }) {
         setMensaje("");
 
         try {
-            const response = await fetch("http://localhost:8000/api/auth/password-reset/", {
+            const response = await fetch(`${API_URL}/api/auth/password-reset/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

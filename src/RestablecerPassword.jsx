@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 import { GoEye, GoEyeClosed } from "react-icons/go"; // <-- IMPORTACIÓN DE ICONOS
 
@@ -74,7 +75,7 @@ function RestablecerPassword({ volverAlLogin }) {
         };
 
         try {
-            const response = await fetch("http://localhost:8000/api/auth/password-reset/confirm/", {
+            const response = await fetch(`${API_URL}/api/auth/password-reset/confirm/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

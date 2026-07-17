@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { API_URL } from "./apiConfig";
 import "./App.css";
 
 const especialidadInicial = {
@@ -66,8 +67,8 @@ function SuperAdminEspecialidades() {
 
     try {
       const [specialtiesResponse, epsResponse] = await Promise.all([
-        fetch("http://localhost:8000/api/dashboard/specialties/", { headers }),
-        fetch("http://localhost:8000/api/eps/", { headers }),
+        fetch(`${API_URL}/api/dashboard/specialties/`, { headers }),
+        fetch(`${API_URL}/api/eps/`, { headers }),
       ]);
       const [specialtiesData, epsData] = await Promise.all([
         leerRespuesta(specialtiesResponse),
@@ -119,7 +120,7 @@ function SuperAdminEspecialidades() {
     setMensajeExito("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/dashboard/specialties/", {
+      const response = await fetch(`${API_URL}/api/dashboard/specialties/`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -155,8 +156,8 @@ function SuperAdminEspecialidades() {
 
     try {
       const url = epsEditando
-        ? `http://localhost:8000/api/eps/${epsEditando.id}/`
-        : "http://localhost:8000/api/eps/";
+        ? `${API_URL}/api/eps/${epsEditando.id}/`
+        : `${API_URL}/api/eps/`;
       const response = await fetch(url, {
         method: epsEditando ? "PATCH" : "POST",
         headers,
@@ -216,7 +217,7 @@ function SuperAdminEspecialidades() {
     setMensajeExito("");
 
     try {
-      const response = await fetch(`http://localhost:8000/api/eps/${item.id}/`, {
+      const response = await fetch(`${API_URL}/api/eps/${item.id}/`, {
         method: "DELETE",
         headers,
       });
