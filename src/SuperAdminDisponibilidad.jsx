@@ -203,15 +203,15 @@ function SuperAdminDisponibilidad() {
   return (
     <div className="admin-form-page">
       <div className="admin-form-card">
-        <h2>Disponibilidad medica</h2>
-        <p>Gestiona jornadas y excepciones usando las APIs administrativas de disponibilidad.</p>
+        <h2>Disponibilidad médica</h2>
+        <p>Gestiona jornadas y excepciones usando componentes administrativos de disponibilidad.</p>
 
         <div className="search-patient">
           <input
             type="number"
             value={filtroDoctor}
             onChange={(e) => setFiltroDoctor(e.target.value)}
-            placeholder="Filtrar por ID de medico"
+            placeholder="Filtrar por ID de médico"
           />
           <button type="button" className="admin-primary-button" onClick={cargarDatos}>
             Buscar
@@ -226,7 +226,7 @@ function SuperAdminDisponibilidad() {
       <div className="admin-form-card" style={{ marginTop: "22px" }}>
         <h2>Crear jornada</h2>
         <form className="admin-form-grid" onSubmit={crearDisponibilidad}>
-          <label>ID del medico</label>
+          <label>ID del médico</label>
           <input
             type="number"
             name="doctor"
@@ -309,7 +309,7 @@ function SuperAdminDisponibilidad() {
       <div className="admin-form-card" style={{ marginTop: "22px" }}>
         <h2>Crear excepcion</h2>
         <form className="admin-form-grid" onSubmit={crearExcepcion}>
-          <label>ID del medico</label>
+          <label>ID del médico</label>
           <input type="number" name="doctor" value={excepcionForm.doctor} onChange={manejarExcepcion} required />
 
           <label>Fecha</label>
@@ -377,7 +377,7 @@ function SuperAdminDisponibilidad() {
         <table className="reportes-tabla">
           <thead>
             <tr>
-              <th>Medico</th>
+              <th>Médico</th>
               <th>Fecha</th>
               <th>Tipo</th>
               <th>Motivo</th>

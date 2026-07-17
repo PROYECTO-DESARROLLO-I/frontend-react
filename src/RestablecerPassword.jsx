@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./App.css";
+import { GoEye, GoEyeClosed } from "react-icons/go"; // <-- IMPORTACIÓN DE ICONOS
 
 function RestablecerPassword({ volverAlLogin }) {
     const [nuevaPassword, setNuevaPassword] = useState("");
@@ -12,16 +13,17 @@ function RestablecerPassword({ volverAlLogin }) {
     const [esExitoso, setEsExitoso] = useState(false);
     const [errorCampos, setErrorCampos] = useState(false);
 
+    // NUEVOS ESTADOS: Control visual de contraseñas independientes
+    const [mostrarNuevaPassword, setMostrarNuevaPassword] = useState(false);
+    const [mostrarConfirmarPassword, setMostrarConfirmarPassword] = useState(false);
+
     useEffect(() => {
         const queryParams = new URLSearchParams(window.location.search);
 
-        // Obtenemos los valores brutos
         let rawUid = queryParams.get("uid") || "";
         let rawToken = queryParams.get("token") || "";
 
         // LIMPIEZA TOTAL:
-        // 1. Quitamos cualquier '3D' que se coló.
-        // 2. Quitamos todos los '=' que son basura de formato.
         rawUid = rawUid.replace(/3D/g, "").replace(/=/g, "");
         rawToken = rawToken.replace(/3D/g, "").replace(/=/g, "");
 
@@ -65,13 +67,11 @@ function RestablecerPassword({ volverAlLogin }) {
         setCargando(true);
 
         const payload = {
-            uid: uid, // <-- Envía el valor tal cual llega de la URL, sin btoa
+            uid: uid,
             token: token,
             new_password: nuevaPassword,
             confirm_password: confirmarPassword,
         };
-
-        console.log("Enviando UID codificado a Django:", uid);
 
         try {
             const response = await fetch("http://localhost:8000/api/auth/password-reset/confirm/", {
@@ -82,11 +82,7 @@ function RestablecerPassword({ volverAlLogin }) {
                 body: JSON.stringify(payload),
             });
 
-            // Capturamos la respuesta del servidor como texto primero por si no es un JSON válido
             const respuestaTexto = await response.text();
-            console.log("Código HTTP del servidor:", response.status);
-            console.log("Respuesta cruda del servidor:", respuestaTexto);
-
             let data = {};
             try {
                 data = JSON.parse(respuestaTexto);
@@ -96,7 +92,6 @@ function RestablecerPassword({ volverAlLogin }) {
 
             if (!response.ok) {
                 setErrorCampos(true);
-                // Si el backend nos mandó un mensaje de error detallado, lo mostramos
                 const errorDetalle = data.detail || Object.values(data).flat().join(" ") || "El enlace ha expirado o es inválido.";
                 setMensaje(errorDetalle);
                 return;
@@ -122,36 +117,63 @@ function RestablecerPassword({ volverAlLogin }) {
                 </p>
 
                 <form onSubmit={manejarRestablecer} style={{ width: "100%" }}>
+
+                    {/* CAMPO 1: NUEVA CONTRASEÑA CON OJO */}
                     <div className="campos" style={{ width: "100%", marginBottom: "15px" }}>
                         Nueva Contraseña
-                        <input
-                            type="password"
-                            placeholder="Mínimo 8 caracteres"
-                            value={nuevaPassword}
-                            onChange={(e) => {
-                                setNuevaPassword(e.target.value);
-                                setErrorCampos(false);
-                                setMensaje("");
-                            }}
-                            className={errorCampos ? "input-error" : ""}
-                            disabled={esExitoso || cargando}
-                        />
+                        <div className="password-input-wrap">
+                            <input
+                                type={mostrarNuevaPassword ? "text" : "password"}
+                                placeholder="Mínimo 8 caracteres"
+                                value={nuevaPassword}
+                                onChange={(e) => {
+                                    setNuevaPassword(e.target.value);
+                                    setErrorCampos(false);
+                                    setMensaje("");
+                                }}
+                                className={errorCampos ? "input-error" : ""}
+                                disabled={esExitoso || cargando}
+                            />
+                            <button
+                                type="button"
+                                className="password-toggle"
+                                onClick={() => setMostrarNuevaPassword((valor) => !valor)}
+                                aria-label={mostrarNuevaPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                                title={mostrarNuevaPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                                disabled={esExitoso || cargando}
+                            >
+                                {mostrarNuevaPassword ? <GoEyeClosed /> : <GoEye />}
+                            </button>
+                        </div>
                     </div>
 
+                    {/* CAMPO 2: CONFIRMAR CONTRASEÑA CON OJO */}
                     <div className="campos" style={{ width: "100%", marginBottom: "15px" }}>
                         Confirmar Contraseña
-                        <input
-                            type="password"
-                            placeholder="Repite tu contraseña"
-                            value={confirmarPassword}
-                            onChange={(e) => {
-                                setConfirmarPassword(e.target.value);
-                                setErrorCampos(false);
-                                setMensaje("");
-                            }}
-                            className={errorCampos ? "input-error" : ""}
-                            disabled={esExitoso || cargando}
-                        />
+                        <div className="password-input-wrap">
+                            <input
+                                type={mostrarConfirmarPassword ? "text" : "password"}
+                                placeholder="Repite tu contraseña"
+                                value={confirmarPassword}
+                                onChange={(e) => {
+                                    setConfirmarPassword(e.target.value);
+                                    setErrorCampos(false);
+                                    setMensaje("");
+                                }}
+                                className={errorCampos ? "input-error" : ""}
+                                disabled={esExitoso || cargando}
+                            />
+                            <button
+                                type="button"
+                                className="password-toggle"
+                                onClick={() => setMostrarConfirmarPassword((valor) => !valor)}
+                                aria-label={mostrarConfirmarPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                                title={mostrarConfirmarPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                                disabled={esExitoso || cargando}
+                            >
+                                {mostrarConfirmarPassword ? <GoEyeClosed /> : <GoEye />}
+                            </button>
+                        </div>
                     </div>
 
                     {mensaje && (
@@ -170,7 +192,7 @@ function RestablecerPassword({ volverAlLogin }) {
                         <button
                             type="button"
                             className="enviar"
-                            onClick={() => volverAlLogin(true)} // <-- Pasamos 'true' para avisar del éxito
+                            onClick={() => volverAlLogin(true)}
                         >
                             Ir a Iniciar Sesión
                         </button>

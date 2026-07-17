@@ -271,7 +271,7 @@ function CitasAgendadasPaciente() {
     });
 
     if (!doctor) {
-      throw new Error("No se pudo identificar el medico de esta cita.");
+      throw new Error("No se pudo identificar el médico de esta cita.");
     }
 
     return {
@@ -645,7 +645,7 @@ function CitasAgendadasPaciente() {
 
           <dl>
             <dt>Medico</dt>
-            <dd>{citaSeleccionada.doctor_name || "Sin medico"}</dd>
+            <dd>{citaSeleccionada.doctor_name || "Sin médico"}</dd>
             <dt>Fecha y hora</dt>
             <dd>{fechaCita(citaSeleccionada).toLocaleString("es-CO")}</dd>
             <dt>Duracion</dt>
@@ -694,7 +694,7 @@ function CitasAgendadasPaciente() {
               <div className="cancel-summary">
                 <strong>{citaSeleccionada.specialty_name || "Cita medica"}</strong>
                 <span>{fechaCita(citaSeleccionada).toLocaleString("es-CO")}</span>
-                <span>{citaSeleccionada.doctor_name || "Sin medico"}</span>
+                <span>{citaSeleccionada.doctor_name || "Sin médico"}</span>
               </div>
 
               <div className="reschedule-actions">

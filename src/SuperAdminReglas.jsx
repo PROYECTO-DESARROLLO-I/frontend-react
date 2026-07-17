@@ -221,7 +221,7 @@ function SuperAdminReglas() {
             <option value="semanal">Semanal</option>
             <option value="mensual">Mensual</option>
           </select>
-          <label>Maximo de citas</label>
+          <label>Máximo de citas</label>
           <input
             type="number"
             min="1"
@@ -252,9 +252,9 @@ function SuperAdminReglas() {
               <th>EPS</th>
               <th>Especialidad</th>
               <th>Periodo</th>
-              <th>Maximo</th>
+              <th>Máximo</th>
               <th>Estado</th>
-              <th>Accion</th>
+              <th>Acción</th>
             </tr>
           </thead>
           <tbody>
@@ -378,7 +378,7 @@ function SuperAdminReglas() {
             <option value="semanal">Semanal</option>
             <option value="mensual">Mensual</option>
           </select>
-          <label>Maximo por paciente</label>
+          <label>Máximo por paciente</label>
           <input
             type="number"
             min="1"
@@ -397,8 +397,8 @@ function SuperAdminReglas() {
             <tr>
               <th>Especialidad</th>
               <th>Periodo</th>
-              <th>Maximo</th>
-              <th>Accion</th>
+              <th>Máximo</th>
+              <th>Acción</th>
             </tr>
           </thead>
           <tbody>
@@ -454,7 +454,7 @@ function SuperAdminReglas() {
         </table>
 
         <p className="mensaje-error">
-          Nota: el selector de especialidades usa /api/specialties/, que solo devuelve especialidades activas con disponibilidad.
+          Nota: el selector de especialidades sólo devuelve especialidades activas con disponibilidad.
         </p>
       </div>
     </div>

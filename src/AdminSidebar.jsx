@@ -47,7 +47,7 @@ function AdminSidebar({ vistaActual, cambiarVista, cerrarSesion }) {
             </nav>
         
             <button className="admin-logout" onClick={cerrarSesion}>
-                    Cerrar sesion
+                    Cerrar sesión
             </button>
         </aside>
     );

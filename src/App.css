@@ -1403,6 +1403,29 @@ margin-top: 20px;
   justify-content: center;
 }
 
+/* PARA USUARIOS INACTIVOS */
+.badge-status {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.status-active {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-inactive {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.row-inactive {
+  opacity: 0.6;
+  background-color: #f9f9f9;
+}
+
 /* ===== SOPORTE DE IMPRESIÓN LIMPIA (Criterio de Reporte PDF) ===== */
 @media print {
   .admin-sidebar,
@@ -1533,4 +1556,56 @@ margin-top: 20px;
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ===== FEEDBACK UNIFICADO DEL SISTEMA ===== */
+.mensaje-exito {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: #d1fae5; /* Coincide con tu status-realizada */
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+  margin: 15px 0;
+  animation: aparecer 0.3s ease;
+}
+
+.mensaje-error-box {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: #fee2e2; /* Coincide con tu status-cancelada */
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+  margin: 15px 0;
+  animation: aparecer 0.3s ease;
+}
+
+.rbc-event {
+  background-color: #2196f3 !important;
+  border-radius: 4px !important;
+  padding: 2px 5px !important;
+  font-size: 0.75rem !important;
+  border: none !important;
+  text-align: center;
+}
+
+.rbc-event-content {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.rbc-event-custom {
+  background-color: #2196f3 !important; /* El color azul */
+  border-radius: 6px !important;
+  font-size: 0.8rem !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

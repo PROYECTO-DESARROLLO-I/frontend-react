@@ -19,7 +19,7 @@ const calendarMinTime = new Date(1970, 0, 1, 6, 0);
 const calendarMaxTime = new Date(1970, 0, 1, 19, 0);
 const calendarScrollTime = new Date(1970, 0, 1, 11, 30);
 
-function AgendamientoCitas({ patientId, patientName, volverAlDashboard }) {
+function AgendamientoCitas({ patientId, patientName, volverAlDashboard, alFinalizar }) {
   const totalPasos = 4;
   const [pasoActual, setPasoActual] = useState(1);
   const [especialidades, setEspecialidades] = useState([]);
@@ -37,6 +37,18 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard }) {
   const [cargando, setCargando] = useState(false);
 
   const progreso = (pasoActual / totalPasos) * 100;
+
+  const configuracionCalendario = useMemo(() => {
+    switch (vistaCalendario) {
+      case "month":
+        return { step: 60, timeslots: 1 };
+      case "day":
+        return { step: 20, timeslots: 2 };
+      case "week":
+      default:
+        return { step: 20, timeslots: 1 };
+    }
+  }, [vistaCalendario]);
 
   const leerRespuesta = async (response) => {
     const text = await response.text();
@@ -68,17 +80,21 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard }) {
     return `${year}-${month}-${day}`;
   };
 
-  const eventosCalendario = useMemo(
-    () =>
-      franjas.map((franja, index) => ({
+  const eventosCalendario = useMemo(() => {
+    return franjas.map((franja, index) => {
+      console.log("Datos de la franja:", franja);
+      const inicioLimpio = franja.start_time.slice(0, 5);
+      const finLimpio = franja.end_time.slice(0, 5);
+
+      return {
         id: `${franja.date}-${franja.start_time}-${index}`,
-        title: `${franja.start_time.slice(0, 5)} - ${franja.end_time.slice(0, 5)}`,
+        title: `${franja.start_time.slice(0, 5)}`,
         start: new Date(`${franja.date}T${franja.start_time}`),
         end: new Date(`${franja.date}T${franja.end_time}`),
         resource: franja,
-      })),
-    [franjas],
-  );
+      };
+    });
+  }, [franjas]);
 
   const rangoCalendario = useMemo(() => {
     if (eventosCalendario.length === 0) {
@@ -205,7 +221,7 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard }) {
       const data = await leerRespuesta(response);
 
       if (!response.ok) {
-        setMensajeError(obtenerMensajeError(data, "No se pudieron cargar los medicos."));
+        setMensajeError(obtenerMensajeError(data, "No se pudieron cargar los médicos."));
         return;
       }
 
@@ -342,6 +358,17 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard }) {
     setPasoActual((paso) => Math.max(1, paso - 1));
   };
 
+  const obtenerColorPorEstado = (status) => {
+    const estados = {
+      'confirmada': '#2196f3',
+      'pendiente': '#ff9800',
+      'cancelada': '#f44336',
+      'completada': '#4caf50',
+      'reprogramada': '#5b51e0',
+    };
+    return estados[status.toLowerCase()] || '#9e9e9e';
+  };
+
   return (
     <div className="form-citas">
       <div className="admin-back" onClick={volverPasoAnterior}>
@@ -382,7 +409,7 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard }) {
               >
                 {especialidad.name}
                 {especialidad.available_doctors_count !== undefined &&
-                  ` - ${especialidad.available_doctors_count} medicos disponibles`}
+                  ` - ${especialidad.available_doctors_count} médico(s) disponible(s)`}
               </button>
             ))}
           </div>
@@ -391,10 +418,10 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard }) {
 
       {pasoActual === 2 && (
         <section>
-          <h3>Selecciona un medico</h3>
+          <h3>Selecciona un médico</h3>
 
           {!cargando && medicos.length === 0 && (
-            <p>No hay medicos disponibles para esta especialidad.</p>
+            <p>No hay médicos disponibles para esta especialidad.</p>
           )}
 
           <div className="citas-card-grid">
@@ -434,15 +461,27 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard }) {
             min={rangoCalendario.min}
             max={rangoCalendario.max}
             scrollToTime={rangoCalendario.scrollToTime}
-            step={30}
-            timeslots={1}
+            step={configuracionCalendario.step}
+            timeslots={configuracionCalendario.timeslots}
+            eventPropGetter={() => ({
+              style: {
+                backgroundColor: '#2196f3',
+                borderRadius: '12px',      // Bordes redondeados tipo píldora
+                border: '2px solid white', // Espacio visual entre ellas
+                fontSize: '0.7rem',
+                height: '25px',            // Altura fija para que no crezcan
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }
+            })}
             messages={{
               next: "Siguiente",
               previous: "Anterior",
               today: "Hoy",
               month: "Mes",
               week: "Semana",
-              day: "Dia",
+              day: "Día",
               noEventsInRange: "No hay franjas disponibles en este rango.",
             }}
             style={{ height: 520 }}
@@ -455,53 +494,87 @@ function AgendamientoCitas({ patientId, patientName, volverAlDashboard }) {
       )}
 
       {pasoActual === 4 && (
-        <section>
-          {citaCreada ? (
-            <div>
-              <h3>Cita creada</h3>
-              <p>Tu cita fue agendada correctamente.</p>
-              <button className="enviar"
-                type="button"
-                onClick={() => {
-                  setPasoActual(1);
-                  setEspecialidadSeleccionada(null);
-                  setMedicoSeleccionado(null);
-                  setFranjaSeleccionada(null);
-                  setCitaCreada(null);
-                  setFranjas([]);
-                  setMedicos([]);
-                }}
-              >
-                Agendar otra cita
-              </button>
-            </div>
-          ) : (
-            <div>
-              <h3>Confirmar cita</h3>
+          <section>
+            {citaCreada ? (
+                <div>
+                  <h3 style={{ color: "#15803d" }}>✓ Cita creada</h3>
+                  <p>Tu cita fue agendada correctamente.</p>
 
-              {franjaSeleccionada && (
-                <>
+                  <div style={{ display: "flex", gap: "12px", marginTop: "18px" }}>
+                    <button
+                        className="enviar"
+                        type="button"
+                        onClick={() => {
+                          setPasoActual(1);
+                          setEspecialidadSeleccionada(null);
+                          setMedicoSeleccionado(null);
+                          setFranjaSeleccionada(null);
+                          setCitaCreada(null);
+                          setFranjas([]);
+                          setMedicos([]);
+                        }}
+                        style={{ width: "auto", padding: "10px 20px" }}
+                    >
+                      Agendar otra cita
+                    </button>
 
-                  {patientName && <p>Paciente: {patientName}</p>}
-                  <p>Especialidad: {especialidadSeleccionada.name}</p>
-                  <p>Medico: {medicoSeleccionado.full_name}</p>
-                  <p>Fecha: {franjaSeleccionada.date}</p>
-                  <p>Hora: {franjaSeleccionada.start_time}</p>
-                  <p>Sede: {franjaSeleccionada.headquarters_name || "Sin sede"}</p>
-                </>
-              )}
+                    <button
+                        className="cambiar_horario"
+                        type="button"
+                        onClick={() => {
+                          // Limpiamos todo el estado y regresamos al primer paso del dashboard
+                          setPasoActual(1);
+                          setEspecialidadSeleccionada(null);
+                          setMedicoSeleccionado(null);
+                          setFranjaSeleccionada(null);
+                          setCitaCreada(null);
+                          setFranjas([]);
+                          setMedicos([]);
 
-              
-                <button type="button" className="cambiar_horario" onClick={() => setPasoActual(3)}>
-                  Cambiar horario
-                </button>
-                <button type="button" className="enviar" onClick={confirmarCita}>
-                  Confirmar cita
-                </button>
-              </div>
-          
-          )}
-        </section>
+                          if (typeof alFinalizar === "function") {
+                            alFinalizar();
+                          } else if (typeof volverAlDashboard === "function") {
+                            volverAlDashboard();
+                          }
+                        }}
+                        style={{
+                          width: "auto",
+                          padding: "10px 20px",
+                          background: "#4b5563",
+                          color: "white"
+                        }}
+                    >
+                      Volver al Panel Principal
+                    </button>
+                  </div>
+                </div>
+            ) : (
+                <div>
+                  <h3>Confirmar cita</h3>
+
+                  {franjaSeleccionada && (
+                      <>
+                        {patientName && <p>Paciente: {patientName}</p>}
+                        <p>Especialidad: {especialidadSeleccionada.name}</p>
+                        <p>Médico: {medicoSeleccionado.full_name}</p>
+                        <p>Fecha: {franjaSeleccionada.date}</p>
+                        <p>Hora: {franjaSeleccionada.start_time}</p>
+                        <p>Sede: {franjaSeleccionada.headquarters_name || "Sin sede"}</p>
+                      </>
+                  )}
+
+                  {/* Botones de control antes de la creación definitiva */}
+                  <div style={{ display: "flex", gap: "10px", marginTop: "18px" }}>
+                    <button type="button" className="cambiar_horario" onClick={() => setPasoActual(3)}>
+                      Cambiar horario
+                    </button>
+                    <button type="button" className="enviar" onClick={confirmarCita}>
+                      Confirmar cita
+                    </button>
+                  </div>
+                </div>
+            )}
+          </section>
       )}
     </div>
   );

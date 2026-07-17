@@ -22,7 +22,7 @@ function DisponibilidadMedico() {
     const [cargando, setCargando] = useState(false);
     const [guardando, setGuardando] = useState(false);
 
-    // Tipamos explícitamente el estado inicial para que IntelliJ no asuma que weekdays es un arreglo "never"
+    // Tipear explícitamente el estado inicial para que IntelliJ no asuma que weekdays es un arreglo "never"
     const [formulario, setFormulario] = useState({
         specialty: "",
         headquarters: "",
@@ -73,7 +73,7 @@ function DisponibilidadMedico() {
                 },
             });
 
-            // Declaramos 'data' una sola vez y le indicamos a IntelliJ que puede contener cualquier estructura (any)
+            // Declaración para IntelliJ. Indica que puede contener cualquier estructura (any)
             /** @type {any} */
             const data = await leerRespuesta(response);
 
@@ -82,7 +82,6 @@ function DisponibilidadMedico() {
                 return;
             }
 
-            // Asignamos las variables del endpoint de forma única y limpia
             setEspecialidades(data.specialties || []);
             setSedes(data.headquarters || []);
             setDisponibilidades(data.availabilities || []);
@@ -214,7 +213,6 @@ function DisponibilidadMedico() {
                 creadas.push(data);
             }
 
-            // Recargamos los datos completos del backend para asegurar la consistencia y pantallas actualizadas
             await cargarDatos();
 
             setMensajeExito(

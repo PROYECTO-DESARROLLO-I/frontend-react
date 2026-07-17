@@ -11,7 +11,7 @@ function AdminPacientes() {
     phone_number: "",
     active: true,
   });
-  const [mensajeEdicion, setMensajeEdicion] = useState("");
+  const [mensajeEdicion, setMensajeEdicion] = useState({ texto: "", tipo: "" });
   const [mensajeError, setMensajeError] = useState("");
   const [cargando, setCargando] = useState(false);
   const [busqueda, setBusqueda] = useState({
@@ -19,6 +19,7 @@ function AdminPacientes() {
     documento: "",
   });
   const detallePacienteRef = useRef(null);
+  // noinspection DuplicatedCode
   const edicionPacienteRef = useRef(null);
 
   const obtenerNombrePaciente = (paciente) => {
@@ -79,19 +80,19 @@ function AdminPacientes() {
     }
   }, []);
 
-  useEffect(() => {
-    consultarPacientes("@");
+  useEffect(()=> {
+    consultarPacientes("@").catch(console.error);
   }, [consultarPacientes]);
 
-  const buscarPaciente = () => {
+  const buscarPaciente = async () => {
     const termino = busqueda.documento.trim() || "@";
-    consultarPacientes(termino, busqueda.tdocumento);
+    await consultarPacientes(termino, busqueda.tdocumento);
   };
 
   const seleccionarPaciente = (paciente) => {
     setPacienteSeleccionado(paciente);
     setModoEdicion(false);
-    setMensajeEdicion("");
+    setMensajeEdicion({ texto: "", tipo: "" });
     setFormEdicion({
       email: paciente.user?.email || "",
       phone_number: paciente.phone_number || paciente.user?.phone_number || "",
@@ -107,7 +108,7 @@ function AdminPacientes() {
     if (!pacienteSeleccionado) return;
 
     setModoEdicion(true);
-    setMensajeEdicion("");
+    setMensajeEdicion({ texto: "", tipo: "" });
     setFormEdicion({
       email: pacienteSeleccionado.user?.email || "",
       phone_number: pacienteSeleccionado.phone_number || pacienteSeleccionado.user?.phone_number || "",
@@ -124,14 +125,46 @@ function AdminPacientes() {
       ...actual,
       [name]: type === "checkbox" ? checked : value,
     }));
-    setMensajeEdicion("");
+    setMensajeEdicion({ texto: "", tipo: "" });
   };
 
-  const guardarCambiosPaciente = (e) => {
+  const guardarCambiosPaciente = async (e) => {
     e.preventDefault();
-    setMensajeEdicion(
-      "No existe una API administrativa para modificar este paciente. El endpoint PATCH /api/patients/me/ solo permite que el paciente autenticado edite su propio correo y telefono; tampoco permite cambiar estado activo.",
-    );
+    setCargando(true);
+
+    // Determinamos la acción según el valor del formulario
+    const accion = formEdicion.active ? "activate" : "deactivate";
+    const url = `http://localhost:8000/api/patients/${pacienteSeleccionado.id}/${accion}/`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST', // La API usa POST, no PATCH
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        // El cuerpo no es necesario porque el endpoint ya sabe qué hacer por su URL
+      });
+
+      if (response.ok) {
+        setMensajeEdicion({
+          texto: `Paciente ${formEdicion.active ? 'activado' : 'desactivado'} con éxito.`,
+          tipo: "exito"
+        });
+        setModoEdicion(false);
+        await consultarPacientes("@"); // Recarga la lista
+      } else {
+        const data = await response.json();
+        setMensajeEdicion({
+          texto: data.detail || "Error al actualizar el paciente.",
+          tipo: "error"
+        });
+      }
+    } catch (error) {
+      setMensajeEdicion({ texto: "Error de conexión con el servidor.", tipo: "error" });
+    } finally {
+      setCargando(false);
+    }
   };
 
   return (
@@ -192,19 +225,19 @@ function AdminPacientes() {
               const estado = obtenerEstadoPaciente(paciente);
 
               return (
-                <tr key={paciente.id} onClick={() => seleccionarPaciente(paciente)}>
-                  <td>{obtenerNombrePaciente(paciente)}</td>
-                  <td>{paciente.document_type || "Sin tipo"}</td>
-                  <td>{paciente.identity_document || "Sin documento"}</td>
-                  <td>{paciente.phone_number || paciente.user?.phone_number || "Sin telefono"}</td>
-                  <td>{paciente.user?.email || "Sin correo"}</td>
-                  <td>{obtenerEpsPaciente(paciente)}</td>
-                  <td>
-                    <span className={`badge status-${obtenerClaseEstado(estado)}`}>
-                      {estado}
-                    </span>
-                  </td>
-                </tr>
+                  <tr key={paciente.id} onClick={() => seleccionarPaciente(paciente)}>
+                    <td>{obtenerNombrePaciente(paciente)}</td>
+                    <td>{paciente.document_type || "Sin tipo"}</td>
+                    <td>{paciente.identity_document || "Sin documento"}</td>
+                    <td>{paciente.phone_number || paciente.user?.phone_number || "Sin telefono"}</td>
+                    <td>{paciente.user?.email || "Sin correo"}</td>
+                    <td>{obtenerEpsPaciente(paciente)}</td>
+                    <td>
+                      <span className={`badge status-${obtenerClaseEstado(estado)}`}>
+                        {estado}
+                      </span>
+                    </td>
+                  </tr>
               );
             })}
           </tbody>
@@ -247,6 +280,7 @@ function AdminPacientes() {
                 name="email"
                 value={formEdicion.email}
                 onChange={manejarCambioEdicion}
+                disabled={cargando}
               />
 
               <label>Telefono</label>
@@ -254,6 +288,7 @@ function AdminPacientes() {
                 name="phone_number"
                 value={formEdicion.phone_number}
                 onChange={manejarCambioEdicion}
+                disabled={cargando}
               />
 
               <label>Estado</label>
@@ -263,19 +298,23 @@ function AdminPacientes() {
                   name="active"
                   checked={formEdicion.active}
                   onChange={manejarCambioEdicion}
+                  disabled={cargando}
                   style={{ width: "auto" }}
                 />
                 <span>Paciente activo</span>
               </div>
 
-              <button type="submit" className="admin-primary-button">
-                Guardar cambios
+              <button type="submit" className="admin-primary-button" disabled={cargando}>
+                {cargando ? "Guardando..." : "Guardar cambios"}
               </button>
-              <button type="button" className="cambiar_horario" onClick={() => setModoEdicion(false)}>
+              <button type="button" className="cambiar_horario" onClick={() => setModoEdicion(false)} disabled={cargando}>
                 Cancelar
               </button>
 
-              {mensajeEdicion && <p className="mensaje-error">{mensajeEdicion}</p>}
+              {mensajeEdicion.texto && (<p className={mensajeEdicion.tipo === "exito" ? "mensaje-exito" : "mensaje-error-box"}>
+                {mensajeEdicion.texto}
+              </p>
+              )}
             </form>
           )}
         </div>

@@ -139,8 +139,8 @@ function SuperAdminEspecialidades() {
 
       mostrarToast("Especialidad creada correctamente.", "exito");
       setMensajeExito("Especialidad creada correctamente.");
-      setEspecialidadForm(especialidadInicial); // Limpiamos el formulario
-      await cargarDatos(); // Recargamos la tabla automáticamente
+      setEspecialidadForm(especialidadInicial);
+      await cargarDatos();
     } catch {
       const mensaje = "Error de conexión con el servidor.";
       setMensajeError(mensaje);
@@ -350,8 +350,8 @@ function SuperAdminEspecialidades() {
           <thead>
             <tr>
               <th>Especialidad</th>
-              <th>Descripcion</th>
-              <th>Medicos disponibles</th>
+              <th>Descripción</th>
+              <th>Médicos disponibles</th>
             </tr>
           </thead>
           <tbody>

@@ -255,7 +255,7 @@ function CitasMedico() {
                 citaSeleccionada.headquarter ||
                 citaSeleccionada.headquarter_id;
 
-            console.log("🕵️ Mapeo Final de Diagnóstico:", {
+            console.log("Mapeo Final de Diagnóstico:", {
                 citaOrigen: citaSeleccionada,
                 usuarioIdLogueado: usuarioId,
                 doctorIdResuelto: doctorId,
@@ -280,7 +280,7 @@ function CitasMedico() {
 
             const data = await leerRespuesta(response);
 
-            console.log("🚨 SLOTS CRUDOS DEL BACKEND:", data);
+            console.log("SLOTS CRUDOS DEL BACKEND:", data);
 
             if (!response.ok) {
                 setErrorReprogramacion(data.detail || "No se pudieron obtener los horarios del médico.");
@@ -292,7 +292,7 @@ function CitasMedico() {
                 ? data
                 : (data && Array.isArray(data.slots) ? data.slots : []);
 
-            console.log("🛠️ Lista limpia de slots a renderizar:", listaDeSlots);
+            console.log("Lista limpia de slots a renderizar:", listaDeSlots);
 
             const franjasMapeadas = listaDeSlots.map((slot, index) => {
                 const fechaBase = slot.date || fechaStr;
@@ -526,7 +526,14 @@ function CitasMedico() {
                                             type="button"
                                             className="enviar"
                                             onClick={() => abrirAcciones(cita, "reprogramar")}
-                                            style={{ padding: "4px 10px", fontSize: "0.85rem" }}
+                                            style={{ padding: "8px 14px",
+                                                fontSize: "0.85rem",
+                                                width: "115px",
+                                                height: "36px",
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontWeight: "bold" }}
                                         >
                                             Reprogramar
                                         </button>
@@ -534,7 +541,14 @@ function CitasMedico() {
                                             type="button"
                                             className="cancel-appointment-button"
                                             onClick={() => abrirAcciones(cita, "cancelar")}
-                                            style={{ padding: "4px 10px", fontSize: "0.85rem" }}
+                                            style={{ padding: "8px 14px",
+                                                fontSize: "0.85rem",
+                                                width: "115px",
+                                                height: "36px",
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontWeight: "bold" }}
                                         >
                                             Cancelar
                                         </button>

@@ -19,7 +19,7 @@ function PerfilPaciente({ volverAlDashboard }) {
 
     useEffect(() => {
         const cargarDatos = async () => {
-            const token = localStorage.getItem('accessToken'); // Siempre usamos accessToken
+            const token = localStorage.getItem('accessToken');
 
             if (!token) {
                 mostrarToast("No has iniciado sesión", "error");
@@ -36,7 +36,7 @@ function PerfilPaciente({ volverAlDashboard }) {
 
                 if (response.ok) {
                     const data = await response.json();
-                    // Mapeo correcto según los datos que recibimos del backend
+                    // Mapeo correcto según los datos que se reciben del backend
                     setNombre(data.full_name || "");
                     setCedula(data.identity_document || "");
                     setTelefono(data.phone_number || "");
@@ -96,13 +96,11 @@ function PerfilPaciente({ volverAlDashboard }) {
                 method: "PATCH",
                 headers: {
                     'Content-Type': 'application/json',
-                    // CAMBIO AQUÍ: usamos accessToken en lugar de 'token'
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 },
-                // Asegúrate que estos nombres coincidan con los que espera tu backend (PATCH)
                 body: JSON.stringify({
                     email: email,
-                    phone_number: telefono // Usamos phone_number porque el back lo recibe así
+                    phone_number: telefono
                 })
             });
 
