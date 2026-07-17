@@ -41,7 +41,7 @@ function RegistroPersonal() {
 
             try {
                 const token = localStorage.getItem("accessToken");
-                const response = await fetch(`${API_URL}/api/specialties/`, {
+                const response = await fetch(`${API_URL}/api/dashboard/specialties/`, {
                     headers: {
                         "Authorization": `Bearer ${token}`
                     }
@@ -53,7 +53,7 @@ function RegistroPersonal() {
                     return;
                 }
 
-                setEspecialidades(data);
+                setEspecialidades(data.filter((e) => e.active));
             } catch {
                 mostrarToast("No se pudo conectar con el servidor para cargar especialidades.", "error");
             } finally {
